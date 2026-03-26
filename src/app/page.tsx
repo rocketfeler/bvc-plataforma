@@ -1121,23 +1121,24 @@ function CalculadoraView({ tasas, bvc }: any) {
 // ============================================================================
 
 function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAuthHeaders, apiUrl }: any) {
+  // Lista de símbolos disponibles en la BVC
+  const BVC_SYMBOLS = [
+    'BVCC', 'BPV', 'TPG', 'PGR', 'BNC', 'TDV.D', 'MPA', 'PCP.B', 'RST.B', 'RST',
+    'BVL', 'FNV', 'IVC.B', 'ENV', 'SVS', 'EFE', 'ABC.A', 'FNC', 'CCP.B', 'TLC',
+    'PLX', 'MDC', 'UCV', 'VEN', 'PRO', 'CAR', 'PIC', 'TEL', 'FER', 'HER', 'GRU',
+    'HIE', 'LAM', 'MER', 'MIN', 'NAC', 'ORI', 'PRE', 'SOC', 'TUR', 'UNI', 'ZUL'
+  ];
+
   // Estados para formulario de agregar/editar
   const [showAdd, setShowAdd] = useState(false);
   const [editPosition, setEditPosition] = useState<any | null>(null);
   const [addTicker, setAddTicker] = useState('');
-  const [addNombre, setAddNombre] = useState('');
   const [addCantidad, setAddCantidad] = useState('');
   const [addPrecio, setAddPrecio] = useState('');
-  const [addSector, setAddSector] = useState('');
   const [addFecha, setAddFecha] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState('');
-
-  // Estados para importación CSV
-  const [showImport, setShowImport] = useState(false);
-  const [importLoading, setImportLoading] = useState(false);
-  const [importError, setImportError] = useState('');
-  const [importSuccess, setImportSuccess] = useState('');
+  const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
 
   // Estados para histórico de compras
   const [showHistorico, setShowHistorico] = useState<any | null>(null);
@@ -1147,14 +1148,13 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   // Resetear formulario
   const resetForm = () => {
     setAddTicker('');
-    setAddNombre('');
     setAddCantidad('');
     setAddPrecio('');
-    setAddSector('');
     setAddFecha('');
     setAddError('');
     setShowAdd(false);
     setEditPosition(null);
+    setShowSymbolDropdown(false);
   };
 
   // Agregar/Editar posición
@@ -1165,10 +1165,8 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
     try {
       const body: any = {
         ticker: addTicker.toUpperCase().trim(),
-        nombre: addNombre || addTicker.toUpperCase(),
         cantidad: parseFloat(addCantidad),
         precio_compra: parseFloat(addPrecio),
-        sector: addSector || undefined,
         fecha_compra: addFecha || undefined,
       };
 
@@ -1198,7 +1196,6 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
   // Eliminar posición
   const handleDeletePosition = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta posición?')) return;
     try {
       await fetchWithRetry(`${apiUrl}/api/portafolio/${id}`, {
         method: 'DELETE',
@@ -1206,7 +1203,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
       });
       await onRefresh?.();
     } catch (err: unknown) {
-      alert('Error al eliminar: ' + (err instanceof Error ? err.message : 'Error'));
+      console.error('Error al eliminar:', err);
     }
   };
 
@@ -1214,66 +1211,10 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   const handleOpenEdit = (pos: any) => {
     setEditPosition(pos);
     setAddTicker(pos.ticker);
-    setAddNombre(pos.nombre || '');
     setAddCantidad(pos.cantidad.toString());
     setAddPrecio(pos.precio_compra?.toString() || '');
-    setAddSector(pos.sector || '');
     setAddFecha(pos.fecha_compra || '');
     setShowAdd(true);
-  };
-
-  // Importar CSV
-  const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImportLoading(true);
-    setImportError('');
-    setImportSuccess('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch(`${apiUrl}/api/portafolio/importar-csv`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setImportSuccess(`✅ ${data.exitosos} posiciones importadas. ${data.errores.length > 0 ? data.errores.length + ' errores.' : ''}`);
-        await onRefresh?.();
-        setTimeout(() => setShowImport(false), 3000);
-      } else {
-        setImportError(data.detail || 'Error al importar');
-      }
-    } catch (err: unknown) {
-      setImportError(err instanceof Error ? err.message : 'Error al importar');
-    } finally {
-      setImportLoading(false);
-      e.target.value = '';
-    }
-  };
-
-  // Exportar CSV
-  const handleExportCSV = async () => {
-    try {
-      const res = await fetch(`${apiUrl}/api/portafolio/exportar-csv`, {
-        headers: getAuthHeaders(),
-      });
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'portafolio.csv';
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      alert('Error al exportar: ' + (err instanceof Error ? err.message : 'Error'));
-    }
   };
 
   // Ver histórico de compras
@@ -1286,7 +1227,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
       setHistoricoData(data);
       setShowHistorico(ticker);
     } catch (err) {
-      alert('Error al cargar histórico: ' + (err instanceof Error ? err.message : 'Error'));
+      console.error('Error al cargar histórico:', err);
     } finally {
       setLoadingHistorico(false);
     }
@@ -1309,21 +1250,13 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         <Card className="p-8 text-center">
           <PieChart className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-white mb-2">Tu portafolio está vacío</h3>
-          <p className="text-slate-400 mb-6">Comienza agregando posiciones manualmente o importa desde CSV.</p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => setShowAdd(true)}
-              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold text-white transition-colors"
-            >
-              + Agregar posición
-            </button>
-            <button
-              onClick={() => setShowImport(true)}
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold text-white transition-colors"
-            >
-              📁 Importar CSV
-            </button>
-          </div>
+          <p className="text-slate-400 mb-6">Comienza agregando tu primera posición.</p>
+          <button
+            onClick={() => setShowAdd(true)}
+            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold text-white transition-colors"
+          >
+            + Agregar posición
+          </button>
         </Card>
       </div>
     );
@@ -1398,48 +1331,6 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         </div>
       )}
 
-      {/* Modal Importar CSV */}
-      {showImport && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Globe className="w-5 h-5 text-blue-400" />
-                Importar Portafolio CSV
-              </h3>
-              <button onClick={() => { setShowImport(false); setImportError(''); setImportSuccess(''); }} className="text-slate-400 hover:text-white text-xl">×</button>
-            </div>
-            <div className="space-y-4">
-              <div className="text-sm text-slate-400">
-                <p className="mb-2">Formato esperado:</p>
-                <code className="block bg-[#141414] p-3 rounded text-xs font-mono text-slate-300">
-                  ticker,nombre,cantidad,precio_compra,fecha_compra,sector<br/>
-                  TDLC,Telares del Lara,100,5.50,2024-01-15,Industria
-                </code>
-              </div>
-              <div>
-                <label className="block text-xs text-slate-500 mb-2">Selecciona archivo CSV</label>
-                <input
-                  type="file"
-                  accept=".csv,.xlsx,.xls"
-                  onChange={handleImportCSV}
-                  disabled={importLoading}
-                  className="w-full bg-[#141414] border border-[#262626] rounded px-3 py-2 text-sm text-slate-300"
-                />
-              </div>
-              {importError && <p className="text-red-400 text-sm">{importError}</p>}
-              {importSuccess && <p className="text-emerald-400 text-sm">{importSuccess}</p>}
-              {importLoading && (
-                <div className="flex items-center gap-2 text-slate-400 text-sm">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Importando...
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-      )}
-
       {/* Formulario Agregar/Editar posición */}
       {showAdd && (
         <Card className="p-4">
@@ -1447,38 +1338,49 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
             <h3 className="text-sm font-semibold">{editPosition ? 'Editar posición' : 'Agregar posición'}</h3>
             <button onClick={resetForm} className="text-slate-400 hover:text-white text-xl">×</button>
           </div>
-          <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Ticker *</label>
-              <input
-                type="text"
-                value={addTicker}
-                onChange={(e) => setAddTicker(e.target.value)}
-                placeholder="TDLC"
-                required
-                disabled={!!editPosition}
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Nombre</label>
-              <input
-                type="text"
-                value={addNombre}
-                onChange={(e) => setAddNombre(e.target.value)}
-                placeholder="Telares del Lara"
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Sector</label>
-              <input
-                type="text"
-                value={addSector}
-                onChange={(e) => setAddSector(e.target.value)}
-                placeholder="Industria"
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+          <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Selector de Símbolo con Dropdown */}
+            <div className="relative">
+              <label className="block text-xs text-slate-500 mb-1">Activo *</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={addTicker}
+                  onChange={(e) => {
+                    setAddTicker(e.target.value.toUpperCase());
+                    setShowSymbolDropdown(true);
+                  }}
+                  onFocus={() => setShowSymbolDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
+                  placeholder="Seleccionar símbolo"
+                  required
+                  disabled={!!editPosition}
+                  className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase"
+                />
+                {showSymbolDropdown && !editPosition && (
+                  <div className="absolute z-50 w-full mt-1 bg-[#141414] border border-[#262626] rounded max-h-48 overflow-y-auto shadow-xl">
+                    {BVC_SYMBOLS
+                      .filter(sym => sym.toLowerCase().includes(addTicker.toLowerCase()))
+                      .map(sym => (
+                        <button
+                          key={sym}
+                          type="button"
+                          onClick={() => {
+                            setAddTicker(sym);
+                            setShowSymbolDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-600/20 text-slate-300 hover:text-emerald-400 transition-colors flex items-center justify-between"
+                        >
+                          <span className="font-mono">{sym}</span>
+                          <span className="text-xs text-slate-500">Seleccionar</span>
+                        </button>
+                      ))}
+                    {BVC_SYMBOLS.filter(sym => sym.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
+                      <div className="px-3 py-2 text-sm text-slate-500">No hay coincidencias</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="block text-xs text-slate-500 mb-1">Cantidad *</label>
@@ -1513,15 +1415,15 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
-            <div className="sm:col-span-2 lg:col-span-3 flex gap-3 justify-end">
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-slate-400 hover:text-white text-sm">
+            <div className="sm:col-span-2 flex gap-3 justify-end">
+              <button type="button" onClick={resetForm} className="px-4 py-2 text-slate-400 hover:text-white text-sm border border-[#262626] rounded hover:bg-[#141414] transition-colors">
                 Cancelar
               </button>
-              <button type="submit" disabled={addLoading} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium disabled:opacity-50">
+              <button type="submit" disabled={addLoading} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium disabled:opacity-50 transition-colors">
                 {addLoading ? 'Guardando...' : editPosition ? 'Actualizar' : 'Agregar'}
               </button>
             </div>
-            {addError && <span className="sm:col-span-2 lg:col-span-3 text-red-400 text-sm">{addError}</span>}
+            {addError && <span className="sm:col-span-3 text-red-400 text-sm">{addError}</span>}
           </form>
         </Card>
       )}
@@ -1575,23 +1477,11 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         >
           <span className="text-lg">+</span> Agregar Posición
         </button>
-        <button
-          onClick={() => setShowImport(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          📁 Importar CSV
-        </button>
-        <button
-          onClick={handleExportCSV}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          📄 Exportar CSV
-        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Pie Chart */}
-        <Card className="p-4 lg:col-span-2">
+        <Card className="p-4 lg:col-span-1">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
             <PieChart className="w-4 h-4 text-purple-400" />
             DISTRIBUCIÓN
@@ -1639,10 +1529,12 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 <tr>
                   <th className="text-left pb-2">Activo</th>
                   <th className="text-right pb-2">Acciones</th>
-                  <th className="text-right pb-2">Precio Prom.</th>
-                  <th className="text-right pb-2">Precio Act.</th>
-                  <th className="text-right pb-2">Gain/Loss</th>
-                  <th className="text-right pb-2">Mercado (USDT)</th>
+                  <th className="text-right pb-2">Precio Com</th>
+                  <th className="text-right pb-2">Precio Act</th>
+                  <th className="text-right pb-2">%</th>
+                  <th className="text-right pb-2">$</th>
+                  <th className="text-right pb-2">Precio USDT</th>
+                  <th className="text-right pb-2">Monto Invertido</th>
                   <th className="text-right pb-2">Acciones</th>
                 </tr>
               </thead>
@@ -1650,24 +1542,23 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 {patrimonio.detalles.map((item: any, idx: number) => {
                   const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
                   const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
+                  const precioUsdt = patrimonio.tasa_bcv_usada && patrimonio.tasa_bcv_usada > 0 && item.precio_bvc
+                    ? (item.precio_bvc / patrimonio.tasa_bcv_usada)
+                    : 0;
+                  const montoInvertido = (item.cantidad || 0) * (item.precio_promedio_compra || 0);
                   return (
                     <tr key={item.ticker} className="hover:bg-[#141414] transition-colors">
                       <td className="py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
-                          <div>
-                            <span className="font-bold text-white">{item.ticker}</span>
-                            {item.nombre && item.nombre !== item.ticker && (
-                              <span className="block text-xs text-slate-500">{item.nombre}</span>
-                            )}
-                          </div>
+                          <span className="font-bold text-white">{item.ticker}</span>
                         </div>
                       </td>
                       <td className="py-3 text-right font-mono text-slate-300">
-                        {item.cantidad?.toLocaleString('de-DE')}
+                        {item.cantidad?.toFixed(2)}
                       </td>
                       <td className="py-3 text-right font-mono text-slate-400">
-                        {item.precio_promedio_compra?.toFixed(4)} Bs
+                        {item.precio_promedio_compra?.toFixed(2)} Bs
                       </td>
                       <td className="py-3 text-right font-mono text-slate-400">
                         {item.precio_bvc?.toFixed(2)} Bs
@@ -1677,35 +1568,35 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                           <GLOrrow size={12} />
                           <span>{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
                         </div>
-                        <div className={cn("text-xs font-mono", glColor)}>
-                          {item.ganancia_perdida_ves > 0 ? '+' : ''}{item.ganancia_perdida_ves?.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs
-                        </div>
                       </td>
                       <td className="py-3 text-right font-mono font-bold text-emerald-400">
-                        {item.valor_usdt?.toFixed(2)}
+                        {item.ganancia_perdida_ves?.toFixed(2)} Bs
+                      </td>
+                      <td className="py-3 text-right font-mono text-slate-300">
+                        ${precioUsdt.toFixed(2)}
+                      </td>
+                      <td className="py-3 text-right font-mono text-slate-400">
+                        {montoInvertido.toFixed(2)} Bs
                       </td>
                       <td className="py-3 text-right">
                         <div className="flex items-center gap-2 justify-end">
                           <button
-                            onClick={() => handleVerHistorico(item.ticker)}
-                            className="text-xs px-2 py-1 bg-blue-600/20 text-blue-400 rounded hover:bg-blue-600/30"
-                            title="Ver histórico"
-                          >
-                            📊
-                          </button>
-                          <button
                             onClick={() => handleOpenEdit(item)}
-                            className="text-xs px-2 py-1 bg-emerald-600/20 text-emerald-400 rounded hover:bg-emerald-600/30"
+                            className="p-1.5 bg-emerald-600/20 text-emerald-400 rounded hover:bg-emerald-600/30 transition-colors"
                             title="Editar"
                           >
-                            ✏️
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                           </button>
                           <button
-                            onClick={() => handleDeletePosition(item.id)}
-                            className="text-xs px-2 py-1 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30"
+                            onClick={() => {
+                              if (window.confirm('¿Estás seguro de eliminar esta posición?')) {
+                                handleDeletePosition(item.id);
+                              }
+                            }}
+                            className="p-1.5 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
                             title="Eliminar"
                           >
-                            🗑️
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                           </button>
                         </div>
                       </td>
