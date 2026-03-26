@@ -544,7 +544,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           suffix="Bs/EUR"
           icon={<Globe size={18} />}
           variant="purple"
-          subValue="DolarAPI"
+          subValue={`Brecha: +${(brechaDisplay !== null && brechaDisplay !== undefined) ? brechaDisplay.toFixed(2) : '0.00'}%`}
         />
         <MetricCard
           title="BINANCE P2P"
@@ -556,8 +556,8 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
         />
         <MetricCard
           title="PATRIMONIO BVC"
-          value={patrimonio?.total_usdt?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '—'}
-          suffix="USDT"
+          value={patrimonio?.total_ves?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '—'}
+          suffix="Bs"
           icon={<Wallet size={18} />}
           variant={patrimonio?.roi_pct && patrimonio.roi_pct >= 0 ? 'emerald' : 'red'}
           subValue={`ROI: ${patrimonio?.roi_pct !== undefined ? (patrimonio.roi_pct > 0 ? '+' : '') + patrimonio.roi_pct.toFixed(2) + '%' : 'N/A'}`}
@@ -1135,6 +1135,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
     { symbol: 'CGQ', name: 'CORP. GPO. QUIM.' },
     { symbol: 'CRM.A', name: 'CORIMON C.A.' },
     { symbol: 'DOM', name: 'DOMINGUEZ & CIA' },
+    { symbol: 'EFE', name: 'PRODUCTOS EFE' },
     { symbol: 'ENV', name: 'ENVASES VZL.' },
     { symbol: 'FNC', name: 'FAB. N. CEMENTOS' },
     { symbol: 'FNV', name: 'F. NAC. VIDRIO' },
@@ -1601,11 +1602,10 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 {patrimonio.detalles.map((item: any, idx: number) => {
                   const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
                   const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
-                  const tasaBcv = patrimonio.tasa_bcv_usada || 1;
                   const tasaBinance = patrimonio.tasa_binance_usada || 1;
                   const montoInvertido = (item.cantidad || 0) * (item.precio_promedio_compra || 0);
                   const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
-                  const montoUsd = montoValorActual / tasaBcv;
+                  const montoUsd = montoValorActual / patrimonio.tasa_bcv_usada || 1;
                   const montoUsdt = montoValorActual / tasaBinance;
                   return (
                     <tr key={item.ticker} className="hover:bg-[#141414] transition-colors">
@@ -1625,16 +1625,16 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                         {item.precio_bvc?.toFixed(2)} Bs
                       </td>
                       <td className="py-3 px-2 text-center">
-                        <div className={cn("inline-flex items-center gap-1 font-bold font-mono", glColor)}>
+                        <div className={cn("inline-flex items-center gap-1 font-mono font-semibold", glColor)}>
                           <GLOrrow size={12} />
-                          <span>{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
+                          <span className="text-base">{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
                         </div>
                       </td>
                       <td className="py-3 px-2 text-center font-mono">
-                        <span className={glColor}>{montoValorActual?.toFixed(2)} Bs</span>
+                        <span className={cn(glColor, "font-semibold text-base")}>{montoValorActual?.toFixed(2)} Bs</span>
                       </td>
                       <td className="py-3 px-2 text-center font-mono">
-                        <span className={glColor}>${montoUsd?.toFixed(2)}</span>
+                        <span className={cn(glColor, "font-semibold text-base")}>${montoUsd?.toFixed(2)}</span>
                       </td>
                       <td className="py-3 px-2 text-center font-mono text-slate-300">
                         {montoUsdt?.toFixed(2)}
