@@ -1122,48 +1122,40 @@ function CalculadoraView({ tasas, bvc }: any) {
 
 function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAuthHeaders, apiUrl }: any) {
   // Lista de símbolos disponibles en la BVC (ordenados A-Z con nombres)
+  // Basado en las 35 empresas que cotizan en la Bolsa de Valores de Caracas
   const BVC_SYMBOLS = [
-    { symbol: 'ABC.A', name: 'Alimentos BCS' },
-    { symbol: 'ARC.B', name: 'Arcor' },
-    { symbol: 'BNC', name: 'Banco Nacional de Crédito' },
-    { symbol: 'BPV', name: 'Banco Provincial' },
-    { symbol: 'BVL', name: 'Bolsa de Valores de Caracas' },
-    { symbol: 'BVCC', name: 'BVC Casa de Bolsa' },
-    { symbol: 'CAR', name: 'Cervecería Polar' },
-    { symbol: 'CCP.B', name: 'Cervecería Polar Clase B' },
-    { symbol: 'EFE', name: 'Empresas EFE' },
-    { symbol: 'ENV', name: 'Envases Venezolanos' },
-    { symbol: 'FNC', name: 'Fondo Nacional de Inversiones' },
-    { symbol: 'FNV', name: 'Fábricas Nacionales de Vidrio' },
-    { symbol: 'GRU', name: 'Grupo Zuliano' },
-    { symbol: 'HER', name: 'Hermanos' },
-    { symbol: 'HIE', name: 'Hierro Orinoco' },
-    { symbol: 'IVC.B', name: 'Inversiones Venezuela de Comercio' },
-    { symbol: 'LAM', name: 'Láminas Nacionales' },
-    { symbol: 'MER', name: 'Mercantil Servicios Financieros' },
-    { symbol: 'MDC', name: 'Medios y Comunicaciones' },
-    { symbol: 'MIN', name: 'Minas de Venezuela' },
-    { symbol: 'MPA', name: 'Metales P.A.' },
-    { symbol: 'NAC', name: 'Nacional de Seguros' },
-    { symbol: 'ORI', name: 'Oriento' },
-    { symbol: 'PCP.B', name: 'Pepsi-Cola Venezuela Clase B' },
-    { symbol: 'PIC', name: 'Productos Industriales' },
-    { symbol: 'PLX', name: 'Pellex' },
-    { symbol: 'PGR', name: 'Progreso' },
-    { symbol: 'PRE', name: 'Prestamos' },
-    { symbol: 'PRO', name: 'Provincia Seguros' },
-    { symbol: 'RST', name: 'Ron Santa Teresa' },
-    { symbol: 'RST.B', name: 'Ron Santa Teresa Clase B' },
-    { symbol: 'SOC', name: 'Sociedad Nacional de Banca' },
-    { symbol: 'SVS', name: 'Servicios Nacionales' },
-    { symbol: 'TDV.D', name: 'Telares del Lara Clase D' },
-    { symbol: 'TEL', name: 'Telares' },
-    { symbol: 'TPG', name: 'Tarjetas Provinciales' },
-    { symbol: 'TUR', name: 'Turismo' },
-    { symbol: 'UCV', name: 'Universidad Central' },
-    { symbol: 'UNI', name: 'Universe' },
-    { symbol: 'VEN', name: 'Venezolana de Inversiones' },
-    { symbol: 'ZUL', name: 'Zuliana' }
+    { symbol: 'ABC.A', name: 'BCO. CARIBE "A"' },
+    { symbol: 'ARC.B', name: 'ARCA INM.VAL. "B"' },
+    { symbol: 'BNC', name: 'BCO. NAC. CREDITO' },
+    { symbol: 'BPV', name: 'BCO. PROVINCIAL' },
+    { symbol: 'BVL', name: 'B. DE VENEZUELA' },
+    { symbol: 'BVCC', name: 'BOLSA V. CCAS.' },
+    { symbol: 'CCP.B', name: 'C.CAPITAL "B"' },
+    { symbol: 'CCR', name: 'CR. CARABOBO' },
+    { symbol: 'CGQ', name: 'CORP. GPO. QUIM.' },
+    { symbol: 'CRM.A', name: 'CORIMON C.A.' },
+    { symbol: 'DOM', name: 'DOMINGUEZ & CIA' },
+    { symbol: 'ENV', name: 'ENVASES VZL.' },
+    { symbol: 'FNC', name: 'FAB. N. CEMENTOS' },
+    { symbol: 'FNV', name: 'F. NAC. VIDRIO' },
+    { symbol: 'GMC.B', name: 'G. MANTRA CLASE B' },
+    { symbol: 'GZL', name: 'GRUPO ZULIANO' },
+    { symbol: 'ICP.B', name: 'I. CRECEPYMES -B-' },
+    { symbol: 'IVC.A', name: 'INVACA I. C. "A"' },
+    { symbol: 'IVC.B', name: 'INVACA I. C. "B"' },
+    { symbol: 'MPA', name: 'MANPA, C.A. SACA' },
+    { symbol: 'MTC.B', name: 'MONTESCO "B"' },
+    { symbol: 'MVZ.A', name: 'MERCANTIL S.(A)' },
+    { symbol: 'MVZ.B', name: 'MERCANTIL S.(B)' },
+    { symbol: 'PCP.B', name: 'F. PETROLIA "B"' },
+    { symbol: 'PIV.B', name: 'PIVCA CLASE "B"' },
+    { symbol: 'PGR', name: 'PROAGRO' },
+    { symbol: 'PTN', name: 'PROTINAL' },
+    { symbol: 'RST', name: 'RON STA. TERESA' },
+    { symbol: 'RST.B', name: 'R.S. TERESA "B"' },
+    { symbol: 'SVS', name: 'SIVENSA, S.A.' },
+    { symbol: 'TDV.D', name: 'CANTV CLASE (D)' },
+    { symbol: 'TPG', name: 'T. PALO GRANDE' }
   ].sort((a, b) => a.symbol.localeCompare(b.symbol));
 
   // Estados para formulario de agregar/editar
@@ -1241,20 +1233,33 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
   // Eliminar posición
   const handleDeletePosition = async (id: number) => {
+    console.log('[Eliminar] Eliminando ID:', id);
     try {
-      await fetchWithRetry(`${apiUrl}/api/portafolio/${id}`, {
+      const response = await fetch(`${apiUrl}/api/portafolio/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
-      await onRefresh?.();
+      
+      console.log('[Eliminar] Status:', response.status);
+      
+      if (response.ok) {
+        await onRefresh?.();
+      } else {
+        const error = await response.json();
+        console.error('[Eliminar] Error:', error);
+      }
     } catch (err: unknown) {
-      console.error('Error al eliminar:', err);
+      console.error('[Eliminar] Error:', err);
     }
   };
 
   // Abrir edición
   const handleOpenEdit = (pos: any) => {
-    setEditPosition(pos);
+    console.log('[Editar] Posición recibida:', pos);
+    setEditPosition({ 
+      id: pos.id || pos.portafolio_id,
+      ticker: pos.ticker 
+    });
     setAddTicker(pos.ticker);
     setAddCantidad(pos.cantidad?.toString() || '');
     setAddPrecio(pos.precio_compra?.toString() || '');
@@ -1383,9 +1388,9 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
             <h3 className="text-sm font-semibold">{editPosition ? 'Editar posición' : 'Agregar posición'}</h3>
             <button onClick={resetForm} className="text-slate-400 hover:text-white text-xl">×</button>
           </div>
-          <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Selector de Símbolo con Dropdown */}
-            <div className="relative">
+          <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Selector de Símbolo con Dropdown - Ocupa 2 columnas */}
+            <div className="sm:col-span-2 relative">
               <label className="block text-xs text-slate-500 mb-1">Activo *</label>
               <div className="relative">
                 <input
@@ -1397,13 +1402,13 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                   }}
                   onFocus={() => setShowSymbolDropdown(true)}
                   onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
-                  placeholder={editPosition ? "No editable" : "Buscar símbolo..."}
+                  placeholder={editPosition ? "No editable" : "BUSCAR SÍMBOLO..."}
                   required
                   readOnly={!!editPosition}
                   className={cn(
                     "w-full bg-[#0a0a0a] border rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase",
-                    editPosition 
-                      ? "border-slate-600 text-slate-400 cursor-not-allowed" 
+                    editPosition
+                      ? "border-slate-600 text-slate-400 cursor-not-allowed"
                       : "border-[#262626] focus:border-emerald-500"
                   )}
                 />
@@ -1459,7 +1464,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs text-slate-500 mb-1">Fecha Compra</label>
               <input
                 type="date"
@@ -1582,11 +1587,12 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 <tr>
                   <th className="text-left pb-2">Activo</th>
                   <th className="text-right pb-2">Acciones</th>
-                  <th className="text-right pb-2">Precio Com</th>
+                  <th className="text-right pb-2">Precio Compra</th>
                   <th className="text-right pb-2">Precio Act</th>
                   <th className="text-center pb-2">%</th>
-                  <th className="text-center pb-2">$</th>
-                  <th className="text-right pb-2">Precio USDT</th>
+                  <th className="text-right pb-2">Monto Bs</th>
+                  <th className="text-right pb-2">Monto $</th>
+                  <th className="text-right pb-2">Monto USDT</th>
                   <th className="text-right pb-2">Monto Invertido</th>
                   <th className="text-right pb-2">Acciones</th>
                 </tr>
@@ -1595,10 +1601,11 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 {patrimonio.detalles.map((item: any, idx: number) => {
                   const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
                   const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
-                  const precioUsdt = patrimonio.tasa_bcv_usada && patrimonio.tasa_bcv_usada > 0 && item.precio_bvc
-                    ? (item.precio_bvc / patrimonio.tasa_bcv_usada)
-                    : 0;
+                  const tasaBcv = patrimonio.tasa_bcv_usada || 1;
                   const montoInvertido = (item.cantidad || 0) * (item.precio_promedio_compra || 0);
+                  const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
+                  const montoUsd = montoValorActual / tasaBcv;
+                  const montoUsdt = item.valor_usdt || 0;
                   return (
                     <tr key={item.ticker} className="hover:bg-[#141414] transition-colors">
                       <td className="py-3">
@@ -1608,7 +1615,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                         </div>
                       </td>
                       <td className="py-3 text-right font-mono text-slate-300">
-                        {item.cantidad?.toFixed(2)}
+                        {Math.floor(item.cantidad || 0)}
                       </td>
                       <td className="py-3 text-right font-mono text-slate-400">
                         {item.precio_promedio_compra?.toFixed(2)} Bs
@@ -1622,16 +1629,17 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                           <span>{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
                         </div>
                       </td>
-                      <td className="py-3 text-center">
-                        <span className={cn("font-mono font-bold", glColor)}>
-                          {item.ganancia_perdida_ves?.toFixed(2)} Bs
-                        </span>
+                      <td className="py-3 text-right font-mono">
+                        <span className={glColor}>{montoValorActual?.toFixed(2)} Bs</span>
+                      </td>
+                      <td className="py-3 text-right font-mono">
+                        <span className={glColor}>${montoUsd?.toFixed(2)}</span>
                       </td>
                       <td className="py-3 text-right font-mono text-slate-300">
-                        ${precioUsdt.toFixed(2)}
+                        {montoUsdt?.toFixed(2)}
                       </td>
                       <td className="py-3 text-right font-mono text-slate-400">
-                        {montoInvertido.toFixed(2)} Bs
+                        {montoInvertido?.toFixed(2)} Bs
                       </td>
                       <td className="py-3 text-right">
                         <div className="flex items-center gap-2 justify-end">
@@ -1643,7 +1651,11 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                           </button>
                           <button
-                            onClick={() => handleDeletePosition(item.id)}
+                            onClick={() => {
+                              const id = item.id || item.portafolio_id;
+                              console.log('[Eliminar] ID:', id);
+                              if (id) handleDeletePosition(id);
+                            }}
                             className="p-1.5 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
                             title="Eliminar"
                           >
