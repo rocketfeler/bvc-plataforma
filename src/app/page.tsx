@@ -1582,19 +1582,19 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
             </h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-[10px] text-slate-500 border-b border-[#262626] uppercase font-mono">
+            <table className="w-full text-sm font-mono">
+              <thead className="text-[10px] text-slate-500 border-b border-[#262626] uppercase font-mono tracking-wider">
                 <tr>
-                  <th className="text-left pb-2">Activo</th>
-                  <th className="text-right pb-2">Acciones</th>
-                  <th className="text-right pb-2">Precio Compra</th>
-                  <th className="text-right pb-2">Precio Act</th>
-                  <th className="text-center pb-2">%</th>
-                  <th className="text-right pb-2">Monto Bs</th>
-                  <th className="text-right pb-2">Monto $</th>
-                  <th className="text-right pb-2">Monto USDT</th>
-                  <th className="text-right pb-2">Monto Invertido</th>
-                  <th className="text-right pb-2">Acciones</th>
+                  <th className="text-left py-3 px-2">Activo</th>
+                  <th className="text-center py-3 px-2">Acciones</th>
+                  <th className="text-center py-3 px-2">Precio Compra</th>
+                  <th className="text-center py-3 px-2">Precio Act</th>
+                  <th className="text-center py-3 px-2">%</th>
+                  <th className="text-center py-3 px-2">Monto Bs</th>
+                  <th className="text-center py-3 px-2">Monto $</th>
+                  <th className="text-center py-3 px-2">Monto USDT</th>
+                  <th className="text-center py-3 px-2">Monto Invertido</th>
+                  <th className="text-center py-3 px-2">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#262626]">
@@ -1602,47 +1602,48 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                   const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
                   const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
                   const tasaBcv = patrimonio.tasa_bcv_usada || 1;
+                  const tasaBinance = patrimonio.tasa_binance_usada || 1;
                   const montoInvertido = (item.cantidad || 0) * (item.precio_promedio_compra || 0);
                   const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
                   const montoUsd = montoValorActual / tasaBcv;
-                  const montoUsdt = item.valor_usdt || 0;
+                  const montoUsdt = montoValorActual / tasaBinance;
                   return (
                     <tr key={item.ticker} className="hover:bg-[#141414] transition-colors">
-                      <td className="py-3">
+                      <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                           <span className="font-bold text-white">{item.ticker}</span>
                         </div>
                       </td>
-                      <td className="py-3 text-right font-mono text-slate-300">
+                      <td className="py-3 px-2 text-center font-mono text-slate-300">
                         {Math.floor(item.cantidad || 0)}
                       </td>
-                      <td className="py-3 text-right font-mono text-slate-400">
+                      <td className="py-3 px-2 text-center font-mono text-slate-400">
                         {item.precio_promedio_compra?.toFixed(2)} Bs
                       </td>
-                      <td className="py-3 text-right font-mono text-slate-400">
+                      <td className="py-3 px-2 text-center font-mono text-slate-400">
                         {item.precio_bvc?.toFixed(2)} Bs
                       </td>
-                      <td className="py-3 text-center">
-                        <div className={cn("inline-flex items-center gap-1 font-bold", glColor)}>
+                      <td className="py-3 px-2 text-center">
+                        <div className={cn("inline-flex items-center gap-1 font-bold font-mono", glColor)}>
                           <GLOrrow size={12} />
                           <span>{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
                         </div>
                       </td>
-                      <td className="py-3 text-right font-mono">
+                      <td className="py-3 px-2 text-center font-mono">
                         <span className={glColor}>{montoValorActual?.toFixed(2)} Bs</span>
                       </td>
-                      <td className="py-3 text-right font-mono">
+                      <td className="py-3 px-2 text-center font-mono">
                         <span className={glColor}>${montoUsd?.toFixed(2)}</span>
                       </td>
-                      <td className="py-3 text-right font-mono text-slate-300">
+                      <td className="py-3 px-2 text-center font-mono text-slate-300">
                         {montoUsdt?.toFixed(2)}
                       </td>
-                      <td className="py-3 text-right font-mono text-slate-400">
+                      <td className="py-3 px-2 text-center font-mono text-slate-400">
                         {montoInvertido?.toFixed(2)} Bs
                       </td>
-                      <td className="py-3 text-right">
-                        <div className="flex items-center gap-2 justify-end">
+                      <td className="py-3 px-2">
+                        <div className="flex items-center gap-2 justify-center">
                           <button
                             onClick={() => handleOpenEdit(item)}
                             className="p-1.5 bg-emerald-600/20 text-emerald-400 rounded hover:bg-emerald-600/30 transition-colors"
