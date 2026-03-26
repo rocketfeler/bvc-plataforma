@@ -1121,13 +1121,50 @@ function CalculadoraView({ tasas, bvc }: any) {
 // ============================================================================
 
 function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAuthHeaders, apiUrl }: any) {
-  // Lista de símbolos disponibles en la BVC
+  // Lista de símbolos disponibles en la BVC (ordenados A-Z con nombres)
   const BVC_SYMBOLS = [
-    'BVCC', 'BPV', 'TPG', 'PGR', 'BNC', 'TDV.D', 'MPA', 'PCP.B', 'RST.B', 'RST',
-    'BVL', 'FNV', 'IVC.B', 'ENV', 'SVS', 'EFE', 'ABC.A', 'FNC', 'CCP.B', 'TLC',
-    'PLX', 'MDC', 'UCV', 'VEN', 'PRO', 'CAR', 'PIC', 'TEL', 'FER', 'HER', 'GRU',
-    'HIE', 'LAM', 'MER', 'MIN', 'NAC', 'ORI', 'PRE', 'SOC', 'TUR', 'UNI', 'ZUL'
-  ];
+    { symbol: 'ABC.A', name: 'Alimentos BCS' },
+    { symbol: 'ARC.B', name: 'Arcor' },
+    { symbol: 'BNC', name: 'Banco Nacional de Crédito' },
+    { symbol: 'BPV', name: 'Banco Provincial' },
+    { symbol: 'BVL', name: 'Bolsa de Valores de Caracas' },
+    { symbol: 'BVCC', name: 'BVC Casa de Bolsa' },
+    { symbol: 'CAR', name: 'Cervecería Polar' },
+    { symbol: 'CCP.B', name: 'Cervecería Polar Clase B' },
+    { symbol: 'EFE', name: 'Empresas EFE' },
+    { symbol: 'ENV', name: 'Envases Venezolanos' },
+    { symbol: 'FNC', name: 'Fondo Nacional de Inversiones' },
+    { symbol: 'FNV', name: 'Fábricas Nacionales de Vidrio' },
+    { symbol: 'GRU', name: 'Grupo Zuliano' },
+    { symbol: 'HER', name: 'Hermanos' },
+    { symbol: 'HIE', name: 'Hierro Orinoco' },
+    { symbol: 'IVC.B', name: 'Inversiones Venezuela de Comercio' },
+    { symbol: 'LAM', name: 'Láminas Nacionales' },
+    { symbol: 'MER', name: 'Mercantil Servicios Financieros' },
+    { symbol: 'MDC', name: 'Medios y Comunicaciones' },
+    { symbol: 'MIN', name: 'Minas de Venezuela' },
+    { symbol: 'MPA', name: 'Metales P.A.' },
+    { symbol: 'NAC', name: 'Nacional de Seguros' },
+    { symbol: 'ORI', name: 'Oriento' },
+    { symbol: 'PCP.B', name: 'Pepsi-Cola Venezuela Clase B' },
+    { symbol: 'PIC', name: 'Productos Industriales' },
+    { symbol: 'PLX', name: 'Pellex' },
+    { symbol: 'PGR', name: 'Progreso' },
+    { symbol: 'PRE', name: 'Prestamos' },
+    { symbol: 'PRO', name: 'Provincia Seguros' },
+    { symbol: 'RST', name: 'Ron Santa Teresa' },
+    { symbol: 'RST.B', name: 'Ron Santa Teresa Clase B' },
+    { symbol: 'SOC', name: 'Sociedad Nacional de Banca' },
+    { symbol: 'SVS', name: 'Servicios Nacionales' },
+    { symbol: 'TDV.D', name: 'Telares del Lara Clase D' },
+    { symbol: 'TEL', name: 'Telares' },
+    { symbol: 'TPG', name: 'Tarjetas Provinciales' },
+    { symbol: 'TUR', name: 'Turismo' },
+    { symbol: 'UCV', name: 'Universidad Central' },
+    { symbol: 'UNI', name: 'Universe' },
+    { symbol: 'VEN', name: 'Venezolana de Inversiones' },
+    { symbol: 'ZUL', name: 'Zuliana' }
+  ].sort((a, b) => a.symbol.localeCompare(b.symbol));
 
   // Estados para formulario de agregar/editar
   const [showAdd, setShowAdd] = useState(false);
@@ -1175,19 +1212,27 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         : `${apiUrl}/api/portafolio`;
       const method = editPosition ? 'PUT' : 'POST';
 
-      const data = await fetchWithRetry(url, {
+      console.log('[Portafolio] Enviando petición:', method, url, body);
+      
+      const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(body),
       });
 
-      if (data) {
-        resetForm();
-        await onRefresh?.();
-      } else {
-        throw new Error('Error al guardar posición');
+      console.log('[Portafolio] Status:', response.status);
+      
+      const data = await response.json();
+      console.log('[Portafolio] Respuesta:', data);
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.message || 'Error al guardar posición');
       }
+
+      resetForm();
+      await onRefresh?.();
     } catch (err: unknown) {
+      console.error('[Portafolio] Error:', err);
       setAddError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
       setAddLoading(false);
@@ -1211,7 +1256,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   const handleOpenEdit = (pos: any) => {
     setEditPosition(pos);
     setAddTicker(pos.ticker);
-    setAddCantidad(pos.cantidad.toString());
+    setAddCantidad(pos.cantidad?.toString() || '');
     setAddPrecio(pos.precio_compra?.toString() || '');
     setAddFecha(pos.fecha_compra || '');
     setShowAdd(true);
@@ -1263,7 +1308,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   }
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="space-y-4 w-full">
       {/* Modal Histórico de Compras */}
       {showHistorico && historicoData && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1352,30 +1397,38 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                   }}
                   onFocus={() => setShowSymbolDropdown(true)}
                   onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
-                  placeholder="Seleccionar símbolo"
+                  placeholder={editPosition ? "No editable" : "Buscar símbolo..."}
                   required
-                  disabled={!!editPosition}
-                  className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase"
+                  readOnly={!!editPosition}
+                  className={cn(
+                    "w-full bg-[#0a0a0a] border rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase",
+                    editPosition 
+                      ? "border-slate-600 text-slate-400 cursor-not-allowed" 
+                      : "border-[#262626] focus:border-emerald-500"
+                  )}
                 />
                 {showSymbolDropdown && !editPosition && (
                   <div className="absolute z-50 w-full mt-1 bg-[#141414] border border-[#262626] rounded max-h-48 overflow-y-auto shadow-xl">
                     {BVC_SYMBOLS
-                      .filter(sym => sym.toLowerCase().includes(addTicker.toLowerCase()))
+                      .filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase()))
                       .map(sym => (
                         <button
-                          key={sym}
+                          key={sym.symbol}
                           type="button"
                           onClick={() => {
-                            setAddTicker(sym);
+                            setAddTicker(sym.symbol);
                             setShowSymbolDropdown(false);
                           }}
                           className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-600/20 text-slate-300 hover:text-emerald-400 transition-colors flex items-center justify-between"
                         >
-                          <span className="font-mono">{sym}</span>
+                          <div className="flex flex-col">
+                            <span className="font-mono font-bold">{sym.symbol}</span>
+                            <span className="text-xs text-slate-500">{sym.name}</span>
+                          </div>
                           <span className="text-xs text-slate-500">Seleccionar</span>
                         </button>
                       ))}
-                    {BVC_SYMBOLS.filter(sym => sym.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
+                    {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
                       <div className="px-3 py-2 text-sm text-slate-500">No hay coincidencias</div>
                     )}
                   </div>
@@ -1479,9 +1532,9 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Pie Chart */}
-        <Card className="p-4 lg:col-span-1">
+        <Card className="p-4 lg:col-span-3">
           <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
             <PieChart className="w-4 h-4 text-purple-400" />
             DISTRIBUCIÓN
@@ -1516,7 +1569,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         </Card>
 
         {/* Holdings List */}
-        <Card className="p-4 lg:col-span-3 overflow-hidden">
+        <Card className="p-4 lg:col-span-9 overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
@@ -1531,8 +1584,8 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                   <th className="text-right pb-2">Acciones</th>
                   <th className="text-right pb-2">Precio Com</th>
                   <th className="text-right pb-2">Precio Act</th>
-                  <th className="text-right pb-2">%</th>
-                  <th className="text-right pb-2">$</th>
+                  <th className="text-center pb-2">%</th>
+                  <th className="text-center pb-2">$</th>
                   <th className="text-right pb-2">Precio USDT</th>
                   <th className="text-right pb-2">Monto Invertido</th>
                   <th className="text-right pb-2">Acciones</th>
@@ -1563,14 +1616,16 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                       <td className="py-3 text-right font-mono text-slate-400">
                         {item.precio_bvc?.toFixed(2)} Bs
                       </td>
-                      <td className="py-3 text-right">
+                      <td className="py-3 text-center">
                         <div className={cn("inline-flex items-center gap-1 font-bold", glColor)}>
                           <GLOrrow size={12} />
                           <span>{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
                         </div>
                       </td>
-                      <td className="py-3 text-right font-mono font-bold text-emerald-400">
-                        {item.ganancia_perdida_ves?.toFixed(2)} Bs
+                      <td className="py-3 text-center">
+                        <span className={cn("font-mono font-bold", glColor)}>
+                          {item.ganancia_perdida_ves?.toFixed(2)} Bs
+                        </span>
                       </td>
                       <td className="py-3 text-right font-mono text-slate-300">
                         ${precioUsdt.toFixed(2)}
@@ -1588,11 +1643,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                           </button>
                           <button
-                            onClick={() => {
-                              if (window.confirm('¿Estás seguro de eliminar esta posición?')) {
-                                handleDeletePosition(item.id);
-                              }
-                            }}
+                            onClick={() => handleDeletePosition(item.id)}
                             className="p-1.5 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
                             title="Eliminar"
                           >
