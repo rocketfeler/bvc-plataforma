@@ -727,69 +727,68 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           )}
         </div>
       </Card>
-    </div>
 
-    {/* MODAL DE VELAS JAPONESAS */}
-    {showCandleModal && selectedTicker && (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-[#0a0a0a] border border-[#262626] rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
-          {/* Header */}
-          <div className="sticky top-0 bg-[#0a0a0a] border-b border-[#262626] px-6 py-4 flex items-center justify-between z-10">
-            <div className="flex items-center gap-3">
-              <BarChart3 className="w-5 h-5 text-blue-400" />
-              <h2 className="text-lg font-semibold text-white">
-                Velas Japonesas - {selectedTicker}
-              </h2>
-            </div>
-            <button
-              onClick={closeCandleModal}
-              className="text-slate-400 hover:text-white transition-colors p-1"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Contenido */}
-          <div className="p-6">
-            {/* Tabs para Histórico / En Vivo */}
-            <div className="flex gap-2 mb-4">
-              <button className="px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-medium border border-blue-600/30">
-                📊 Histórico (2024-2026)
-              </button>
-              <button className="px-4 py-2 bg-slate-700/50 text-slate-400 rounded-lg text-sm font-medium border border-slate-600/30">
-                🔴 En Vivo (Intradía)
-              </button>
-            </div>
-
-            {/* Gráfico de Velas */}
-            <div className="border border-[#262626] rounded-lg overflow-hidden">
-              <CandlestickChart
-                ticker={selectedTicker}
-                height={500}
-                showVolume={true}
-                theme="dark"
-              />
-            </div>
-
-            {/* Leyenda */}
-            <div className="mt-4 flex items-center gap-6 text-xs text-slate-400">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-emerald-500 rounded"></div>
-                <span>Verde = Subió (Cierre &gt; Apertura)</span>
+      {/* MODAL DE VELAS JAPONESAS */}
+      {showCandleModal && selectedTicker && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0a0a0a] border border-[#262626] rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
+            {/* Header */}
+            <div className="sticky top-0 bg-[#0a0a0a] border-b border-[#262626] px-6 py-4 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="w-5 h-5 text-blue-400" />
+                <h2 className="text-lg font-semibold text-white">
+                  Velas Japonesas - {selectedTicker}
+                </h2>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-500 rounded"></div>
-                <span>Rojo = Bajó (Cierre &lt; Apertura)</span>
+              <button
+                onClick={closeCandleModal}
+                className="text-slate-400 hover:text-white transition-colors p-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div className="p-6">
+              {/* Tabs para Histórico / En Vivo */}
+              <div className="flex gap-2 mb-4">
+                <button className="px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-medium border border-blue-600/30">
+                  📊 Histórico (2024-2026)
+                </button>
+                <button className="px-4 py-2 bg-slate-700/50 text-slate-400 rounded-lg text-sm font-medium border border-slate-600/30">
+                  🔴 En Vivo (Intradía)
+                </button>
+              </div>
+
+              {/* Gráfico de Velas */}
+              <div className="border border-[#262626] rounded-lg overflow-hidden">
+                <CandlestickChart
+                  ticker={selectedTicker}
+                  height={500}
+                  showVolume={true}
+                  theme="dark"
+                />
+              </div>
+
+              {/* Leyenda */}
+              <div className="mt-4 flex items-center gap-6 text-xs text-slate-400">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-emerald-500 rounded"></div>
+                  <span>Verde = Subió (Cierre &gt; Apertura)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded"></div>
+                  <span>Rojo = Bajó (Cierre &lt; Apertura)</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 }
 
 // ============================================================================
