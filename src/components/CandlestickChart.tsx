@@ -125,7 +125,6 @@ export default function CandlestickChart({
       timeScale: {
         borderColor: gridColor,
         timeVisible: false,
-        dateFormat: 'yyyy-MM-dd',
       },
     });
 
