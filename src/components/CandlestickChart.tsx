@@ -73,7 +73,8 @@ export default function CandlestickChart({
         if (!response.ok) {
           if (response.status === 404) {
             // No hay datos históricos aún - no es error crítico
-            console.log(`No hay datos históricos para ${ticker}`);
+            console.log(`📊 No hay datos históricos para ${ticker} (aún no importas el Excel)`);
+            setChartData([]);
             setLoading(false);
             return;
           }
@@ -86,6 +87,10 @@ export default function CandlestickChart({
           throw new Error(result.error);
         }
 
+        if (result.length === 0) {
+          console.log(`📊 No hay datos de velas para ${ticker}`);
+        }
+        
         setChartData(result);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error cargando datos';
