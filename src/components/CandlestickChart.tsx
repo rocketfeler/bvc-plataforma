@@ -149,10 +149,6 @@ export default function CandlestickChart({
           type: 'volume',
         },
         priceScaleId: '',
-        scaleMargins: {
-          top: 0.85,
-          bottom: 0,
-        },
       });
 
       volumeSeriesRef.current = volumeSeries;
