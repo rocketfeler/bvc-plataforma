@@ -1749,7 +1749,6 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         </div>
       </div>
     )}
-  </div>
-);
+  );
 }
 
