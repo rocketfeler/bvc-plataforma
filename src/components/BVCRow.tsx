@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, BarChart2 } from 'lucide-react';
 import { cn } from './utils';
 import { FlashPrice } from './FlashPrice';
 import { BVCData } from '@/app/types';
@@ -9,6 +9,7 @@ interface BVCRowProps {
   accion: BVCData;
   previous?: BVCData;
   tasaBinance: number;
+  onVerVelas?: (simbolo: string) => void;
 }
 
 /**
@@ -25,7 +26,7 @@ function formatInt(val: number | null | undefined): string {
  * Fila de la tabla de cotizaciones BVC (versión resumida para Dashboard)
  * OPTIMIZADO: Envuelto en React.memo para evitar re-renderizados innecesarios
  */
-export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BVCRowProps) {
+export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance, onVerVelas }: BVCRowProps) {
   // Usamos precio actual como principal, con fallbacks
   const precioPrincipal = accion.precio ?? accion.precio_vta ?? accion.precio_compra ?? 0;
   const previousPrecio = previous ? (previous.precio ?? previous.precio_vta ?? previous.precio_compra ?? 0) : 0;
@@ -84,6 +85,15 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
         <span className="text-slate-400 font-mono text-sm">
           ${(precioPrincipal / tasaBinance).toFixed(2)}
         </span>
+      </td>
+      <td className="py-3 px-4 text-right">
+        <button
+          onClick={() => onVerVelas?.(simbolo)}
+          className="text-blue-400 hover:text-blue-300 transition-colors p-1"
+          title="Ver velas japonesas"
+        >
+          <BarChart2 size={16} />
+        </button>
       </td>
     </motion.tr>
   );

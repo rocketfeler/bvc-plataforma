@@ -8,6 +8,9 @@ export { PriceTicker } from './PriceTicker';
 export { BVCRow } from './BVCRow';
 export { NewsTicker } from './NewsTicker';
 
+// Gráficos
+export { default as CandlestickChart } from './CandlestickChart';
+
 // Error Boundary
 export { ErrorBoundary } from './ErrorBoundary';
 
