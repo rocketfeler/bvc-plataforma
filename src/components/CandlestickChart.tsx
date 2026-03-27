@@ -66,20 +66,26 @@ export default function CandlestickChart({
       try {
         setLoading(true);
         setError(null);
-        
+
         // Fetch datos históricos desde 2024
         const response = await fetch(`/api/bvc/candles/historical/${ticker}?desde=2024-01-01`);
         
         if (!response.ok) {
+          if (response.status === 404) {
+            // No hay datos históricos aún - no es error crítico
+            console.log(`No hay datos históricos para ${ticker}`);
+            setLoading(false);
+            return;
+          }
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.error) {
           throw new Error(result.error);
         }
-        
+
         setChartData(result);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error cargando datos';
@@ -222,10 +228,17 @@ export default function CandlestickChart({
     }
   };
 
-  // Exponer método updateCandle al padre vía ref
+  // Exponer método updateCandle al padre vía ref (solo si el chart existe)
   useEffect(() => {
-    (chartRef.current as any).updateCandle = updateCandle;
-  }, [showVolume]);
+    if (chartRef.current) {
+      (chartRef.current as any).updateCandle = updateCandle;
+    }
+    return () => {
+      if (chartRef.current) {
+        delete (chartRef.current as any).updateCandle;
+      }
+    };
+  }, [showVolume, updateCandle]);
 
   if (loading) {
     return (
@@ -250,6 +263,22 @@ export default function CandlestickChart({
         <div className="text-center text-red-500">
           <p className="text-sm">Error: {error}</p>
           <p className="text-xs text-gray-400 mt-1">Ticker: {ticker}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div 
+        className="flex items-center justify-center" 
+        style={{ height: `${height}px` }}
+      >
+        <div className="text-center text-gray-500">
+          <p className="text-sm">📊 No hay datos de velas disponibles</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Los datos históricos se cargarán cuando importes el Excel
+          </p>
         </div>
       </div>
     );
