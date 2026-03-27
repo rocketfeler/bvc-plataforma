@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { createChart, IChartApi, ISeriesApi, CandlestickData, Time } from 'lightweight-charts';
+import { createChart, IChartApi, ISeriesApi, CandlestickData, Time, CandlestickSeries, HistogramSeries } from 'lightweight-charts';
 
 interface CandleData {
   fecha: string;
@@ -130,8 +130,8 @@ export default function CandlestickChart({
 
     chartRef.current = chart;
 
-    // Serie de velas japonesas
-    const candleSeries = chart.addCandlestickSeries({
+    // Serie de velas japonesas (lightweight-charts v5 usa addSeries)
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: '#26a69a',        // Verde cuando sube
       downColor: '#ef5350',      // Rojo cuando baja
       borderVisible: false,
@@ -143,7 +143,7 @@ export default function CandlestickChart({
 
     // Serie de volumen (opcional)
     if (showVolume) {
-      const volumeSeries = chart.addHistogramSeries({
+      const volumeSeries = chart.addSeries(HistogramSeries, {
         color: '#26a69a',
         priceFormat: {
           type: 'volume',
