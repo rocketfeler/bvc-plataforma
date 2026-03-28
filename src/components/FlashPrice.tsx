@@ -7,12 +7,13 @@ interface FlashPriceProps {
   value: number | undefined;
   previous?: number;
   decimals?: number;
+  suffix?: string;
 }
 
 /**
  * Precio con efecto flash cuando cambia
  */
-export function FlashPrice({ value, previous, decimals = 2 }: FlashPriceProps) {
+export function FlashPrice({ value, previous, decimals = 2, suffix }: FlashPriceProps) {
   const [flash, setFlash] = useState<'up' | 'down' | null>(null);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function FlashPrice({ value, previous, decimals = 2 }: FlashPriceProps) {
 
   return (
     <span className={cn("font-mono font-bold transition-all duration-200 px-1 rounded", flashClass)}>
-      {(value ?? 0).toFixed(decimals)}
+      {(value ?? 0).toFixed(decimals)}{suffix && ` ${suffix}`}
     </span>
   );
 }

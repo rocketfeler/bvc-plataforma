@@ -49,8 +49,8 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
         priceChanged && (isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10')
       )}
     >
-      <td className="py-3 px-4">
-        <div className="flex items-center gap-3">
+      <td className="py-3 px-4 text-center">
+        <div className="flex items-center justify-center gap-3">
           <div className={cn(
             "w-8 h-8 rounded flex items-center justify-center font-bold text-xs border",
             isPositive
@@ -65,10 +65,10 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
           </div>
         </div>
       </td>
-      <td className="py-3 px-4 text-right">
-        <FlashPrice value={precioPrincipal} previous={previousPrecio} decimals={2} />
+      <td className="py-3 px-4 text-center">
+        <FlashPrice value={precioPrincipal} previous={previousPrecio} decimals={2} suffix="Bs" />
       </td>
-      <td className="py-3 px-4 text-right">
+      <td className="py-3 px-4 text-center">
         <span className={cn(
           "inline-flex items-center gap-1 font-bold text-sm",
           isPositive ? 'text-emerald-400' : 'text-red-400'
@@ -77,10 +77,10 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
           {Math.abs(variacionPct).toFixed(2)}%
         </span>
       </td>
-      <td className="py-3 px-4 text-right">
+      <td className="py-3 px-4 text-center">
         <span className="text-slate-500 font-mono text-sm">{formatInt(accion.volumen)}</span>
       </td>
-      <td className="py-3 px-4 text-right">
+      <td className="py-3 px-4 text-center">
         <span className="text-slate-400 font-mono text-sm">
           ${(precioPrincipal / tasaBinance).toFixed(2)}
         </span>
