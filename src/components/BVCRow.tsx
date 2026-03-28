@@ -49,8 +49,8 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
         priceChanged && (isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10')
       )}
     >
-      <td className="py-3 px-4 text-center">
-        <div className="flex items-center justify-center gap-3">
+      <td className="py-3 px-4">
+        <div className="flex items-center gap-3">
           <div className={cn(
             "w-8 h-8 rounded flex items-center justify-center font-bold text-xs border",
             isPositive
