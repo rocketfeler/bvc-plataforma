@@ -537,7 +537,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
-          title="$ BCV OFICIAL"
+          title="BCV OFICIAL"
           value={`${((tasas?.bcv ?? 0) > 0) ? tasas.bcv.toFixed(2) : '—'}`}
           suffix="Bs/USD"
           icon={<DollarSign size={18} />}
@@ -553,7 +553,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           subValue={`Brecha: ${brechaEuro >= 0 ? '+' : ''}${brechaEuro.toFixed(2)}%`}
         />
         <MetricCard
-          title="BINANCE P2P"
+          title="BINANCE"
           value={`${((tasas?.binance ?? 0) > 0) ? tasas.binance.toFixed(2) : '—'}`}
           suffix="Bs/USDT"
           icon={<TrendingUp size={18} />}
@@ -591,6 +591,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
                   <th className="text-right py-3 px-4 font-medium">Precio</th>
                   <th className="text-right py-3 px-4 font-medium">Var %</th>
                   <th className="text-right py-3 px-4 font-medium">Volumen</th>
+                  <th className="text-right py-3 px-4 font-medium">$</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
