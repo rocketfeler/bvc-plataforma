@@ -396,11 +396,11 @@ export default function BloombergTerminal() {
           </div>
 
           {/* Navigation Tabs */}
-          <nav className="flex gap-1 pb-3">
-            <TabButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<Activity size={14} />} label="DASHBOARD" />
-            <TabButton active={activeTab === 'pizarra'} onClick={() => setActiveTab('pizarra')} icon={<Layers size={14} />} label="PIZARRA BVC" />
-            <TabButton active={activeTab === 'calculadora'} onClick={() => setActiveTab('calculadora')} icon={<Calculator size={14} />} label="CALCULADORA" />
-            <TabButton active={activeTab === 'portafolio'} onClick={() => setActiveTab('portafolio')} icon={<PieChart size={14} />} label="PORTAFOLIO" />
+          <nav className="flex gap-2 pb-3">
+            <TabButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<Activity size={16} />} label="DASHBOARD" />
+            <TabButton active={activeTab === 'pizarra'} onClick={() => setActiveTab('pizarra')} icon={<Layers size={16} />} label="PIZARRA BVC" />
+            <TabButton active={activeTab === 'calculadora'} onClick={() => setActiveTab('calculadora')} icon={<Calculator size={16} />} label="CALCULADORA" />
+            <TabButton active={activeTab === 'portafolio'} onClick={() => setActiveTab('portafolio')} icon={<PieChart size={16} />} label="PORTAFOLIO" />
           </nav>
         </div>
       </header>
@@ -484,14 +484,14 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 text-xs font-medium transition-all uppercase tracking-wider",
+        "flex-1 flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold transition-all uppercase tracking-wider rounded-lg",
         active
-          ? 'bg-[#141414] text-emerald-400 border-b-2 border-emerald-500'
-          : 'text-slate-500 hover:text-slate-300 hover:bg-[#141414]/50'
+          ? 'bg-[#141414] text-emerald-400 border-2 border-emerald-500 shadow-lg shadow-emerald-500/20'
+          : 'text-slate-500 hover:text-slate-300 hover:bg-[#141414]/50 border-2 border-transparent'
       )}
     >
       {icon}
-      <span className="hidden sm:inline">{label}</span>
+      <span>{label}</span>
     </button>
   );
 }
@@ -503,13 +503,19 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
 function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinanceFallback, mounted }: any) {
   if (!tasas) return null;
 
-  // PARACAÍDAS MATEMÁTICO: Calcular brecha de forma segura
-  const brechaCalculada = ((tasas?.binance ?? 0) > 0 && (tasas?.bcv ?? 0) > 0)
+  // PARACAÍDAS MATEMÁTICO: Calcular brechas de forma segura
+  // Brecha Binance vs BCV (Dólar)
+  const brechaBinance = ((tasas?.binance ?? 0) > 0 && (tasas?.bcv ?? 0) > 0)
     ? (((tasas.binance ?? 0) / (tasas.bcv ?? 0)) - 1) * 100
     : 0;
-  const brechaDisplay = tasas?.brecha_binance_pct !== undefined && tasas?.brecha_binance_pct !== null
+  const brechaBinanceDisplay = tasas?.brecha_binance_pct !== undefined && tasas?.brecha_binance_pct !== null
     ? tasas.brecha_binance_pct
-    : brechaCalculada;
+    : brechaBinance;
+
+  // Brecha Euro vs BCV (Euro oficial comparado con tasa BCV base)
+  const brechaEuro = ((tasas?.bcv_eur ?? 0) > 0 && (tasas?.bcv ?? 0) > 0)
+    ? (((tasas.bcv_eur ?? 0) / (tasas.bcv ?? 0)) - 1) * 100
+    : 0;
 
   // TOP 5/10 EMPRESAS MÁS RELEVANTES: Ordenar por mayor variación porcentual (valor absoluto)
   // y desempatar con monto_efectivo o volumen
@@ -531,7 +537,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
-          title="BCV OFICIAL"
+          title="$ BCV OFICIAL"
           value={`${((tasas?.bcv ?? 0) > 0) ? tasas.bcv.toFixed(2) : '—'}`}
           suffix="Bs/USD"
           icon={<DollarSign size={18} />}
@@ -544,7 +550,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           suffix="Bs/EUR"
           icon={<Globe size={18} />}
           variant="purple"
-          subValue={`Brecha: +${(brechaDisplay !== null && brechaDisplay !== undefined) ? brechaDisplay.toFixed(2) : '0.00'}%`}
+          subValue={`Brecha: ${brechaEuro >= 0 ? '+' : ''}${brechaEuro.toFixed(2)}%`}
         />
         <MetricCard
           title="BINANCE P2P"
@@ -552,7 +558,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           suffix="Bs/USDT"
           icon={<TrendingUp size={18} />}
           variant="amber"
-          subValue={`Brecha: +${(brechaDisplay !== null && brechaDisplay !== undefined) ? brechaDisplay.toFixed(2) : '0.00'}%`}
+          subValue={`Brecha: +${(brechaBinanceDisplay !== null && brechaBinanceDisplay !== undefined) ? brechaBinanceDisplay.toFixed(2) : '0.00'}%`}
         />
         <MetricCard
           title="PATRIMONIO BVC"
