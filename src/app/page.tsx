@@ -591,7 +591,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
                   <th className="text-right py-3 px-4 font-medium">Precio</th>
                   <th className="text-right py-3 px-4 font-medium">Var %</th>
                   <th className="text-right py-3 px-4 font-medium">Volumen</th>
-                  <th className="text-right py-3 px-4 font-medium">$</th>
+                  <th className="text-center py-3 px-4 font-medium">$</th>
                 </tr>
               </thead>
               <tbody className="text-sm">
