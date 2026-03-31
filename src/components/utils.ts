@@ -10,6 +10,51 @@ export function cn(...classes: (string | undefined | null | false)[]) {
 }
 
 /**
+ * Formatea valores con decimales
+ * Formato venezolano: puntos para miles, comas para decimales (ej: 1.234,56)
+ */
+export function formatValue(val: number | null | undefined, decimals: number = 2): string {
+  if (val === null || val === undefined) return '-';
+  const num = Number(val);
+  if (isNaN(num)) return '-';
+  return num.toLocaleString('es-VE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+/**
+ * Formatea enteros
+ * Formato venezolano: puntos para miles (ej: 1.234)
+ */
+export function formatInt(val: number | null | undefined): string {
+  if (val === null || val === undefined) return '-';
+  const num = Number(val);
+  if (isNaN(num)) return '-';
+  return num.toLocaleString('es-VE');
+}
+
+/**
+ * Formatea porcentajes con signo + o -
+ * Formato venezolano: puntos para miles, comas para decimales (ej: +12,34%)
+ */
+export function formatPercent(val: number | null | undefined, decimals: number = 2): string {
+  if (val === null || val === undefined) return '-';
+  const num = Number(val);
+  if (isNaN(num)) return '-';
+  const sign = num >= 0 ? '+' : '';
+  return `${sign}${num.toLocaleString('es-VE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}%`;
+}
+
+/**
+ * Formatea números simples (sin formato venezolano, para valores pequeños como tasas)
+ * Usa punto como separador decimal (estándar internacional para tasas)
+ */
+export function formatSimple(val: number | null | undefined, decimals: number = 2): string {
+  if (val === null || val === undefined) return '-';
+  const num = Number(val);
+  if (isNaN(num)) return '-';
+  return num.toFixed(decimals);
+}
+
+/**
  * Constantes de configuración
  */
 export const CONFIG = {

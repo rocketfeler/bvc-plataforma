@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { cn } from './utils';
+import { cn, formatInt, formatPercent, formatValue } from './utils';
 import { FlashPrice } from './FlashPrice';
 import { BVCData } from '@/app/types';
 
@@ -9,17 +9,6 @@ interface BVCRowProps {
   accion: BVCData;
   previous?: BVCData;
   tasaBinance: number;
-}
-
-/**
- * Formatea enteros - Muestra '-' solo si es null/undefined
- * Formato venezolano: puntos para miles (ej: 1.234)
- */
-function formatInt(val: number | null | undefined): string {
-  if (val === null || val === undefined) return '-';
-  const num = Number(val);
-  if (isNaN(num)) return '-';
-  return num.toLocaleString('es-VE');
 }
 
 /**
@@ -40,6 +29,9 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
   const simbolo = accion.simbolo || 'S/N';
   const descSimb = accion.desc_simb || 'Sin descripción';
   const simboloCorto = simbolo.substring(0, 3).toUpperCase();
+
+  // Calcular precio en USD
+  const precioUSD = tasaBinance > 0 ? precioPrincipal / tasaBinance : 0;
 
   return (
     <motion.tr
@@ -75,7 +67,7 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
           isPositive ? 'text-emerald-400' : 'text-red-400'
         )}>
           {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-          {Math.abs(variacionPct).toFixed(2)}%
+          {formatPercent(Math.abs(variacionPct), 2)}
         </span>
       </td>
       <td className="py-3 px-4 text-center">
@@ -83,7 +75,7 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
       </td>
       <td className="py-3 px-4 text-center">
         <span className="text-slate-400 font-mono text-sm">
-          ${(precioPrincipal / tasaBinance).toFixed(2)}
+          ${formatValue(precioUSD, 2)}
         </span>
       </td>
     </motion.tr>

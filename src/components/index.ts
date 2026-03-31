@@ -12,4 +12,4 @@ export { NewsTicker } from './NewsTicker';
 export { ErrorBoundary } from './ErrorBoundary';
 
 // Utilidades
-export { cn, CONFIG, CHART_COLORS } from './utils';
+export { cn, CONFIG, CHART_COLORS, formatValue, formatInt, formatPercent, formatSimple } from './utils';

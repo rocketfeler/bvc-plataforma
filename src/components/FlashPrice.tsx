@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { cn } from './utils';
+import { cn, formatValue } from './utils';
 
 interface FlashPriceProps {
   value: number | undefined;
@@ -32,7 +32,7 @@ export function FlashPrice({ value, previous, decimals = 2, suffix }: FlashPrice
 
   return (
     <span className={cn("font-mono font-bold transition-all duration-200 px-1 rounded", flashClass)}>
-      {(value ?? 0).toFixed(decimals)}{suffix && ` ${suffix}`}
+      {formatValue(value, decimals)}{suffix && ` ${suffix}`}
     </span>
   );
 }

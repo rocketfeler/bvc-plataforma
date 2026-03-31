@@ -20,7 +20,7 @@ import { TasasData, BVCData, PatrimonioData, MacroRow, ActiveTab, LibroOrdenesDa
 // Componentes
 import {
   PriceTicker, BVCRow, MetricCard, Card, FlashPrice, NewsTicker,
-  CONFIG, CHART_COLORS, cn
+  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent
 } from '@/components';
 
 // Socket.IO Hook
@@ -665,7 +665,7 @@ export default function BloombergTerminal() {
                             "text-lg font-bold",
                             (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
                           )}>
-                            {libroOrdenes.spread_pct?.toFixed(2)}%
+                            {formatPercent(libroOrdenes.spread_pct, 2)}
                           </span>
                         </div>
                       </div>
@@ -758,7 +758,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
           title="BCV OFICIAL"
-          value={`${((tasas?.bcv ?? 0) > 0) ? tasas.bcv.toFixed(2) : '—'}`}
+          value={formatValue(tasas?.bcv, 2)}
           suffix="Bs/USD"
           icon={<DollarSign size={18} />}
           variant="blue"
@@ -766,19 +766,19 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
         />
         <MetricCard
           title="EURO OFICIAL"
-          value={`${((tasas?.bcv_eur ?? 0) > 0) ? tasas.bcv_eur.toFixed(2) : '—'}`}
+          value={formatValue(tasas?.bcv_eur, 2)}
           suffix="Bs/EUR"
           icon={<Globe size={18} />}
           variant="purple"
-          subValue={`Brecha: ${brechaEuro >= 0 ? '+' : ''}${brechaEuro.toFixed(2)}%`}
+          subValue={`Brecha: ${formatPercent(brechaEuro, 2)}`}
         />
         <MetricCard
           title="BINANCE"
-          value={`${((tasas?.binance ?? 0) > 0) ? tasas.binance.toFixed(2) : '—'}`}
+          value={formatValue(tasas?.binance, 2)}
           suffix="Bs/USDT"
           icon={<TrendingUp size={18} />}
           variant="amber"
-          subValue={`Brecha: +${(brechaBinanceDisplay !== null && brechaBinanceDisplay !== undefined) ? brechaBinanceDisplay.toFixed(2) : '0.00'}%`}
+          subValue={`Brecha: ${formatPercent(brechaBinanceDisplay, 2)}`}
         />
         <MetricCard
           title="PATRIMONIO BVC"
@@ -786,7 +786,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
           suffix="Bs"
           icon={<Wallet size={18} />}
           variant={patrimonio?.roi_pct && patrimonio.roi_pct >= 0 ? 'emerald' : 'red'}
-          subValue={`ROI: ${patrimonio?.roi_pct !== undefined ? (patrimonio.roi_pct > 0 ? '+' : '') + patrimonio.roi_pct.toFixed(2) + '%' : 'N/A'}`}
+          subValue={`ROI: ${formatPercent(patrimonio?.roi_pct, 2)}`}
         />
       </div>
 
@@ -946,29 +946,6 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
 // VISTA: PIZARRA
 // ============================================================================
 
-/**
- * Formatea números de forma segura - Muestra '-' solo si es null/undefined
- * Si el valor es 0, lo muestra (es un valor válido)
- * Formato venezolano: puntos para miles, comas para decimales (ej: 1.234,56)
- */
-function formatValue(val: number | null | undefined, decimals: number = 2): string {
-  if (val === null || val === undefined) return '-';
-  const num = Number(val);
-  if (isNaN(num)) return '-';
-  return num.toLocaleString('es-VE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
-
-/**
- * Formatea enteros - Muestra '-' solo si es null/undefined
- * Formato venezolano: puntos para miles (ej: 1.234)
- */
-function formatInt(val: number | null | undefined): string {
-  if (val === null || val === undefined) return '-';
-  const num = Number(val);
-  if (isNaN(num)) return '-';
-  return num.toLocaleString('es-VE');
-}
-
 function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas, fetchLibroOrdenes }: any) {
   // Determinar estado del mercado para el badge
   const isMarketOpen = marketStatus?.estado === 'Abierto';
@@ -1105,18 +1082,18 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         <span className="text-blue-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
                       </td>
 
-                      {/* 6. Spread (precio_venta - precio_compra) */}
+                      {/* 6. Spread % ((precio_venta - precio_compra) / precio_compra * 100) */}
                       <td className="py-2 px-3 text-right">
                         {(() => {
                           const compra = accion.precio_compra ?? 0;
                           const venta = accion.precio_vta ?? 0;
-                          const spread = venta > 0 && compra > 0 ? venta - compra : null;
+                          const spreadPercent = venta > 0 && compra > 0 ? ((venta - compra) / compra) * 100 : null;
                           return (
                             <span className={cn(
                               "font-mono text-xs",
-                              spread !== null && spread > 0 ? 'text-amber-400 font-bold' : 'text-slate-500'
+                              spreadPercent !== null && spreadPercent > 0 ? 'text-amber-400 font-bold' : 'text-slate-500'
                             )}>
-                              {spread !== null && spread > 0 ? formatValue(spread, 2) : '-'}
+                              {spreadPercent !== null && spreadPercent > 0 ? formatValue(spreadPercent, 2) + ' %' : '-'}
                             </span>
                           );
                         })()}
@@ -1282,7 +1259,7 @@ function CalculadoraView({ tasas, bvc }: any) {
               >
                 <option value="">Selección manual...</option>
                 {bvc && bvc.length > 0 && bvc.map((a: any) => (
-                  <option key={a.simbolo} value={a.simbolo}>{a.simbolo} - Bs {a.precio?.toFixed(2)}</option>
+                  <option key={a.simbolo} value={a.simbolo}>{a.simbolo} - Bs {formatValue(a.precio, 2)}</option>
                 ))}
               </select>
             </div>
@@ -1355,15 +1332,15 @@ function CalculadoraView({ tasas, bvc }: any) {
       <Card className="p-4 grid grid-cols-3 gap-4 text-center">
         <div>
           <p className="text-xs text-slate-500 font-mono mb-1">TASA BCV</p>
-          <p className="text-base font-bold font-mono text-blue-400">{tasaBcv.toFixed(2)} Bs</p>
+          <p className="text-base font-bold font-mono text-blue-400">{formatValue(tasaBcv, 2)} Bs</p>
         </div>
         <div className="border-x border-[#262626]">
           <p className="text-xs text-slate-500 font-mono mb-1">TASA BINANCE</p>
-          <p className="text-base font-bold font-mono text-amber-400">{tasaBinance.toFixed(2)} Bs</p>
+          <p className="text-base font-bold font-mono text-amber-400">{formatValue(tasaBinance, 2)} Bs</p>
         </div>
         <div>
           <p className="text-xs text-slate-500 font-mono mb-1">BRECHA P2P</p>
-          <p className="text-base font-bold font-mono text-red-400">{(tasas?.brecha_binance_pct ?? 0).toFixed(2)}%</p>
+          <p className="text-base font-bold font-mono text-red-400">{formatPercent(tasas?.brecha_binance_pct, 2)}</p>
         </div>
       </Card>
     </div>
@@ -1584,15 +1561,15 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div className="bg-[#141414] p-3 rounded">
                   <p className="text-slate-500 text-xs">Total Invertido</p>
-                  <p className="font-mono font-bold">{historicoData.total_invertido?.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</p>
+                  <p className="font-mono font-bold">{formatValue(historicoData.total_invertido, 2)} Bs</p>
                 </div>
                 <div className="bg-[#141414] p-3 rounded">
                   <p className="text-slate-500 text-xs">Cantidad Total</p>
-                  <p className="font-mono font-bold">{historicoData.total_cantidad?.toLocaleString('es-VE', {minimumFractionDigits: 4})}</p>
+                  <p className="font-mono font-bold">{formatValue(historicoData.total_cantidad, 4)}</p>
                 </div>
                 <div className="bg-[#141414] p-3 rounded">
                   <p className="text-slate-500 text-xs">Precio Promedio</p>
-                  <p className="font-mono font-bold text-blue-400">{historicoData.precio_promedio?.toFixed(4)} Bs</p>
+                  <p className="font-mono font-bold text-blue-400">{formatValue(historicoData.precio_promedio, 4)} Bs</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1610,9 +1587,9 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                     {historicoData.compras?.map((compra: any) => (
                       <tr key={compra.id} className="hover:bg-[#141414]">
                         <td className="py-2 text-slate-300">{compra.fecha_compra || 'N/A'}</td>
-                        <td className="py-2 text-right font-mono">{compra.cantidad?.toLocaleString('es-VE')}</td>
-                        <td className="py-2 text-right font-mono text-slate-400">{compra.precio_compra?.toFixed(4)} Bs</td>
-                        <td className="py-2 text-right font-mono font-bold">{(compra.cantidad * compra.precio_compra)?.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
+                        <td className="py-2 text-right font-mono">{formatValue(compra.cantidad, 0)}</td>
+                        <td className="py-2 text-right font-mono text-slate-400">{formatValue(compra.precio_compra, 4)} Bs</td>
+                        <td className="py-2 text-right font-mono font-bold">{formatValue((compra.cantidad * compra.precio_compra), 2)} Bs</td>
                         <td className="py-2 text-right">
                           <button
                             onClick={async () => {
@@ -1753,7 +1730,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           </p>
           <div className={cn("inline-flex items-center gap-1 text-sm font-bold bg-[#141414] px-2 py-1 rounded border border-[#262626]", roiColor)}>
             <RoiIcon size={14} />
-            <span>ROI: {patrimonio.roi_pct > 0 ? '+' : ''}{(patrimonio.roi_pct || 0).toFixed(2)}%</span>
+            <span>ROI: {formatPercent(patrimonio.roi_pct, 2)}</span>
           </div>
         </Card>
 
@@ -1762,7 +1739,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           <p className="text-2xl font-bold text-blue-400 font-mono mb-2">
             {patrimonio.total_usd?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
           </p>
-          <p className="text-xs text-slate-500 font-mono">Tasa: {patrimonio.tasa_bcv_usada?.toFixed(2)} Bs</p>
+          <p className="text-xs text-slate-500 font-mono">Tasa: {formatValue(patrimonio.tasa_bcv_usada, 2)} Bs</p>
         </Card>
 
         <Card className="p-5 border-amber-500/20 bg-amber-500/5">
@@ -1770,7 +1747,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           <p className="text-2xl font-bold text-amber-400 font-mono mb-2">
             {patrimonio.total_usdt?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
           </p>
-          <p className="text-xs text-slate-500 font-mono">Tasa: {patrimonio.tasa_binance_usada?.toFixed(2)} Bs</p>
+          <p className="text-xs text-slate-500 font-mono">Tasa: {formatValue(patrimonio.tasa_binance_usada, 2)} Bs</p>
         </Card>
 
         <Card className={cn("p-5 border-2 relative overflow-hidden", gainLossColor, patrimonio?.ganancia_perdida >= 0 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5')}>
@@ -1820,7 +1797,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 </Pie>
                 <Tooltip
                   contentStyle={{ backgroundColor: '#141414', border: '1px solid #262626', borderRadius: '4px', fontSize: '11px' }}
-                  formatter={(value: any) => [`${Number(value).toFixed(2)} USDT`, "Valor"]}
+                  formatter={(value: any) => [`${formatValue(Number(value), 2)} USDT`, "Valor"]}
                 />
               </RechartsPie>
             </ResponsiveContainer>
@@ -1873,28 +1850,28 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                         {Math.floor(item.cantidad || 0)}
                       </td>
                       <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {item.precio_promedio_compra?.toFixed(2)} Bs
+                        {formatValue(item.precio_promedio_compra, 2)} Bs
                       </td>
                       <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {item.precio_bvc?.toFixed(2)} Bs
+                        {formatValue(item.precio_bvc, 2)} Bs
                       </td>
                       <td className="py-3 px-2 text-center">
                         <div className={cn("inline-flex items-center gap-1 font-mono font-semibold", glColor)}>
                           <GLOrrow size={12} />
-                          <span className="text-base">{item.gain_loss_pct > 0 ? '+' : ''}{item.gain_loss_pct?.toFixed(2)}%</span>
+                          <span className="text-base">{formatPercent(item.gain_loss_pct, 2)}</span>
                         </div>
                       </td>
                       <td className="py-3 px-2 text-center font-mono">
-                        <span className={cn(glColor, "font-semibold text-base")}>{montoValorActual?.toFixed(2)} Bs</span>
+                        <span className={cn(glColor, "font-semibold text-base")}>{formatValue(montoValorActual, 2)} Bs</span>
                       </td>
                       <td className="py-3 px-2 text-center font-mono">
-                        <span className={cn(glColor, "font-semibold text-base")}>${montoUsd?.toFixed(2)}</span>
+                        <span className={cn(glColor, "font-semibold text-base")}>${formatValue(montoUsd, 2)}</span>
                       </td>
                       <td className="py-3 px-2 text-center font-mono text-slate-300">
-                        {montoUsdt?.toFixed(2)}
+                        {formatValue(montoUsdt, 2)}
                       </td>
                       <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {montoInvertido?.toFixed(2)} Bs
+                        {formatValue(montoInvertido, 2)} Bs
                       </td>
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2 justify-center">
