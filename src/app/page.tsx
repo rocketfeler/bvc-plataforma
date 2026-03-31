@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   TrendingUp, DollarSign, Loader2, AlertCircle, RefreshCw, Calculator,
@@ -62,7 +62,7 @@ export default function BloombergTerminal() {
   // FUNCIONES - Antes de cualquier useEffect
   // ============================================================================
 
-  const fetchLibroOrdenes = async (simbolo: string) => {
+  const fetchLibroOrdenes = useCallback(async (simbolo: string) => {
     setLibroOrdenesLoading(true);
     setLibroOrdenesSimbolo(simbolo);
 
@@ -81,7 +81,7 @@ export default function BloombergTerminal() {
     } finally {
       setLibroOrdenesLoading(false);
     }
-  };
+  }, []);
 
   const cerrarLibroOrdenes = () => {
     setLibroOrdenes(null);
