@@ -566,19 +566,18 @@ export default function BloombergTerminal() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
-                    {/* COMPRAS (BID) */}
+                    {/* COMPRAS */}
                     <div className="bg-[#141414] border border-emerald-500/20 rounded-lg overflow-hidden">
                       <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
                         <h4 className="font-bold text-emerald-400 flex items-center gap-2">
                           <ArrowUpRight size={18} />
-                          COMPRAS (BID)
+                          COMPRAS
                         </h4>
                       </div>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
+                        <table className="w-full text-sm">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
                               <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                               <th className="text-right py-2 px-3 font-medium">Cantidad</th>
                             </tr>
@@ -586,18 +585,17 @@ export default function BloombergTerminal() {
                           <tbody>
                             {libroOrdenes.compras.length === 0 ? (
                               <tr>
-                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                <td colSpan={2} className="text-center py-8 text-slate-500">
                                   Sin órdenes de compra
                                 </td>
                               </tr>
                             ) : (
                               libroOrdenes.compras.map((orden, idx) => (
                                 <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
-                                  <td className="py-2 px-3 text-right font-mono font-bold text-emerald-400">
+                                  <td className="py-3 px-3 text-right font-mono font-bold text-emerald-400 text-base">
                                     {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </td>
-                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                  <td className="py-3 px-3 text-right font-mono text-slate-300 text-base">
                                     {orden.cantidad.toLocaleString('es-VE')}
                                   </td>
                                 </tr>
@@ -608,19 +606,18 @@ export default function BloombergTerminal() {
                       </div>
                     </div>
 
-                    {/* VENTAS (ASK) */}
+                    {/* VENTAS */}
                     <div className="bg-[#141414] border border-red-500/20 rounded-lg overflow-hidden">
                       <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
                         <h4 className="font-bold text-red-400 flex items-center gap-2">
                           <ArrowDownRight size={18} />
-                          VENTAS (ASK)
+                          VENTAS
                         </h4>
                       </div>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
+                        <table className="w-full text-sm">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
                               <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                               <th className="text-right py-2 px-3 font-medium">Cantidad</th>
                             </tr>
@@ -628,18 +625,17 @@ export default function BloombergTerminal() {
                           <tbody>
                             {libroOrdenes.ventas.length === 0 ? (
                               <tr>
-                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                <td colSpan={2} className="text-center py-8 text-slate-500">
                                   Sin órdenes de venta
                                 </td>
                               </tr>
                             ) : (
                               libroOrdenes.ventas.map((orden, idx) => (
                                 <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
-                                  <td className="py-2 px-3 text-right font-mono font-bold text-red-400">
+                                  <td className="py-3 px-3 text-right font-mono font-bold text-red-400 text-base">
                                     {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </td>
-                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                  <td className="py-3 px-3 text-right font-mono text-slate-300 text-base">
                                     {orden.cantidad.toLocaleString('es-VE')}
                                   </td>
                                 </tr>
@@ -675,13 +671,13 @@ export default function BloombergTerminal() {
                       </div>
                       <div className="flex items-center gap-4">
                         <div>
-                          <span className="text-xs text-slate-400 block">Mejor Bid</span>
+                          <span className="text-xs text-slate-400 block">Mejor Compra</span>
                           <span className="text-lg font-bold text-emerald-400">
                             {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                         <div>
-                          <span className="text-xs text-slate-400 block">Mejor Ask</span>
+                          <span className="text-xs text-slate-400 block">Mejor Venta</span>
                           <span className="text-lg font-bold text-red-400">
                             {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
                           </span>
