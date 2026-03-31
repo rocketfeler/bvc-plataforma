@@ -538,8 +538,7 @@ export default function BloombergTerminal() {
                   <div>
                     <h3 className="text-lg font-bold text-white">Libro de Órdenes - {libroOrdenesSimbolo}</h3>
                     <p className="text-xs text-slate-400">
-                      {libroOrdenes.fuente === 'cache' ? ' Datos en caché' : libroOrdenes.fuente === 'directo' ? '🔴 Datos en tiempo real' : '🟡 Fallback'}
-                      {libroOrdenes.ultima_actualizacion && ` • ${new Date(libroOrdenes.ultima_actualizacion).toLocaleTimeString()}`}
+                      {libroOrdenes.fuente === 'cache' ? 'Datos en caché' : libroOrdenes.fuente === 'directo' ? 'Datos en tiempo real' : 'Datos disponibles'}
                     </p>
                   </div>
                 </div>
@@ -570,17 +569,27 @@ export default function BloombergTerminal() {
                     {/* COMPRAS */}
                     <div className="bg-[#141414] border border-emerald-500/20 rounded-lg overflow-hidden">
                       <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
-                        <h4 className="font-bold text-emerald-400 flex items-center gap-2">
-                          <ArrowUpRight size={18} />
-                          COMPRAS
-                        </h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-bold text-emerald-400 flex items-center gap-2">
+                            <ArrowUpRight size={18} />
+                            COMPRAS
+                          </h4>
+                          {libroOrdenes.mejor_bid !== undefined && libroOrdenes.mejor_bid !== null && (
+                            <div className="text-right">
+                              <span className="text-[10px] text-slate-400 block">Mejor Compra</span>
+                              <span className="text-base font-bold text-emerald-400">
+                                {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                               <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -591,16 +600,31 @@ export default function BloombergTerminal() {
                                 </td>
                               </tr>
                             ) : (
-                              libroOrdenes.compras.map((orden, idx) => (
-                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-3 px-3 text-right font-mono font-bold text-emerald-400 text-base">
-                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </td>
-                                  <td className="py-3 px-3 text-right font-mono text-slate-300 text-base">
-                                    {orden.cantidad.toLocaleString('es-VE')}
-                                  </td>
-                                </tr>
-                              ))
+                              libroOrdenes.compras.map((orden, idx) => {
+                                // Calcular el volumen máximo para la barra
+                                const maxVolumen = Math.max(...libroOrdenes.compras.map((o: any) => o.cantidad), ...(libroOrdenes.ventas?.map((o: any) => o.cantidad) || [1]));
+                                const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
+                                const barWidth = Math.max(8, volumenRatio * 100); // Mínimo 8%, máximo 100%
+                                
+                                return (
+                                  <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a] relative">
+                                    <td className="py-3 px-3 text-right font-mono text-slate-300 text-base relative">
+                                      {orden.cantidad.toLocaleString('es-VE')}
+                                      {/* Barra de volumen */}
+                                      <div 
+                                        className="absolute inset-y-0 right-0 bg-emerald-500/20 transition-all duration-300"
+                                        style={{ 
+                                          width: `${barWidth}%`,
+                                          left: 'auto'
+                                        }}
+                                      />
+                                    </td>
+                                    <td className="py-3 px-3 text-right font-mono font-bold text-emerald-400 text-base relative">
+                                      {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                  </tr>
+                                );
+                              })
                             )}
                           </tbody>
                         </table>
@@ -610,17 +634,27 @@ export default function BloombergTerminal() {
                     {/* VENTAS */}
                     <div className="bg-[#141414] border border-red-500/20 rounded-lg overflow-hidden">
                       <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
-                        <h4 className="font-bold text-red-400 flex items-center gap-2">
-                          <ArrowDownRight size={18} />
-                          VENTAS
-                        </h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-bold text-red-400 flex items-center gap-2">
+                            <ArrowDownRight size={18} />
+                            VENTAS
+                          </h4>
+                          {libroOrdenes.mejor_ask !== undefined && libroOrdenes.mejor_ask !== null && (
+                            <div className="text-right">
+                              <span className="text-[10px] text-slate-400 block">Mejor Venta</span>
+                              <span className="text-base font-bold text-red-400">
+                                {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                               <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -631,16 +665,31 @@ export default function BloombergTerminal() {
                                 </td>
                               </tr>
                             ) : (
-                              libroOrdenes.ventas.map((orden, idx) => (
-                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-3 px-3 text-right font-mono font-bold text-red-400 text-base">
-                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </td>
-                                  <td className="py-3 px-3 text-right font-mono text-slate-300 text-base">
-                                    {orden.cantidad.toLocaleString('es-VE')}
-                                  </td>
-                                </tr>
-                              ))
+                              libroOrdenes.ventas.map((orden, idx) => {
+                                // Calcular el volumen máximo para la barra
+                                const maxVolumen = Math.max(...(libroOrdenes.compras?.map((o: any) => o.cantidad) || [1]), ...libroOrdenes.ventas.map((o: any) => o.cantidad));
+                                const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
+                                const barWidth = Math.max(8, volumenRatio * 100); // Mínimo 8%, máximo 100%
+                                
+                                return (
+                                  <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a] relative">
+                                    <td className="py-3 px-3 text-right font-mono text-slate-300 text-base relative">
+                                      {orden.cantidad.toLocaleString('es-VE')}
+                                      {/* Barra de volumen */}
+                                      <div 
+                                        className="absolute inset-y-0 right-0 bg-red-500/20 transition-all duration-300"
+                                        style={{ 
+                                          width: `${barWidth}%`,
+                                          left: 'auto'
+                                        }}
+                                      />
+                                    </td>
+                                    <td className="py-3 px-3 text-right font-mono font-bold text-red-400 text-base relative">
+                                      {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                  </tr>
+                                );
+                              })
                             )}
                           </tbody>
                         </table>
@@ -649,40 +698,24 @@ export default function BloombergTerminal() {
                   </div>
                 )}
 
-                {/* Spread Info */}
+                {/* Spread Info - CENTRADO */}
                 {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
                   <div className="mt-4 p-4 bg-[#141414] border border-[#262626] rounded-lg">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <span className="text-xs text-slate-400 block">Spread</span>
-                          <span className="text-lg font-bold text-white">
-                            {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-xs text-slate-400 block">Spread %</span>
-                          <span className={cn(
-                            "text-lg font-bold",
-                            (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
-                          )}>
-                            {formatPercent(libroOrdenes.spread_pct, 2)}
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-center gap-8">
+                      <div className="text-center">
+                        <span className="text-xs text-slate-400 block">Spread</span>
+                        <span className="text-lg font-bold text-white">
+                          {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
+                        </span>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <span className="text-xs text-slate-400 block">Mejor Compra</span>
-                          <span className="text-lg font-bold text-emerald-400">
-                            {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-xs text-slate-400 block">Mejor Venta</span>
-                          <span className="text-lg font-bold text-red-400">
-                            {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
+                      <div className="text-center">
+                        <span className="text-xs text-slate-400 block">Spread %</span>
+                        <span className={cn(
+                          "text-lg font-bold",
+                          (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
+                        )}>
+                          {formatPercent(libroOrdenes.spread_pct, 2)}
+                        </span>
                       </div>
                     </div>
                   </div>
