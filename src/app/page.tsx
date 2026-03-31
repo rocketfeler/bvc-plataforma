@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 // Tipos
-import { TasasData, BVCData, PatrimonioData, MacroRow, ActiveTab } from './types';
+import { TasasData, BVCData, PatrimonioData, MacroRow, ActiveTab, LibroOrdenesData } from './types';
 
 // Componentes
 import {
@@ -58,6 +58,11 @@ export default function BloombergTerminal() {
 
   // Estado del mercado
   const [marketStatus, setMarketStatus] = useState<{ estado: string } | null>(null);
+
+  // Libro de órdenes
+  const [libroOrdenes, setLibroOrdenes] = useState<LibroOrdenesData | null>(null);
+  const [libroOrdenesLoading, setLibroOrdenesLoading] = useState(false);
+  const [libroOrdenesSimbolo, setLibroOrdenesSimbolo] = useState<string | null>(null);
 
   // Efecto de montaje para gráficos (evita error de width -1 en Recharts)
   useEffect(() => {
@@ -188,6 +193,36 @@ export default function BloombergTerminal() {
   const tasaBinanceFallback = patrimonio?.tasa_binance_usada || CONFIG.FALLBACK_TASA_BINANCE;
 
   // ============================================================================
+  // LIBRO DE ÓRDENES
+  // ============================================================================
+
+  const fetchLibroOrdenes = async (simbolo: string) => {
+    setLibroOrdenesLoading(true);
+    setLibroOrdenesSimbolo(simbolo);
+    
+    try {
+      const response = await fetch(`${CONFIG.API_URL}/api/bvc/${simbolo}/libro-ordenes`);
+      const data = await response.json();
+      setLibroOrdenes(data);
+    } catch (err) {
+      console.error(`Error al obtener libro de órdenes para ${simbolo}:`, err);
+      setLibroOrdenes({
+        simbolo,
+        compras: [],
+        ventas: [],
+        error: 'No se pudo cargar el libro de órdenes'
+      });
+    } finally {
+      setLibroOrdenesLoading(false);
+    }
+  };
+
+  const cerrarLibroOrdenes = () => {
+    setLibroOrdenes(null);
+    setLibroOrdenesSimbolo(null);
+  };
+
+  // ============================================================================
   // FETCH INICIAL + REVALIDACIÓN (Stale-While-Revalidate)
   // ============================================================================
   useEffect(() => {
@@ -315,12 +350,12 @@ export default function BloombergTerminal() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
+    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans">
       {/* Background Grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-[#262626]">
+      <header className="sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-xl border-b border-[#262626]">
         <div className="max-w-[2000px] mx-auto px-4">
           {/* Top bar */}
           <div className="flex items-center justify-between py-3">
@@ -798,10 +833,10 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
           <div className="min-w-[1450px]">
             <table className="w-full">
               <thead>
-                <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#141414] border-b border-[#262626]">
-                  <th className="text-left py-2.5 px-3 font-medium sticky left-0 bg-[#141414] z-10">Símbolo</th>
-                  <th className="text-right py-2.5 px-3 font-medium sticky left-[100px] bg-[#141414] z-10">Precio (Bs)</th>
-                  <th className="text-right py-2.5 px-3 font-medium sticky left-[200px] bg-[#141414] z-10">Precio ($)</th>
+                <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#1a1a1a] border-b border-[#262626]">
+                  <th className="text-left py-2.5 px-3 font-medium sticky left-0 bg-[#1a1a1a] z-10">Símbolo</th>
+                  <th className="text-right py-2.5 px-3 font-medium sticky left-[100px] bg-[#1a1a1a] z-10">Precio (Bs)</th>
+                  <th className="text-right py-2.5 px-3 font-medium sticky left-[200px] bg-[#1a1a1a] z-10">Precio ($)</th>
                   <th className="text-right py-2.5 px-3 font-medium">Compra (Vol)</th>
                   <th className="text-right py-2.5 px-3 font-medium">Precio Compra</th>
                   <th className="text-right py-2.5 px-3 font-medium">Precio Venta</th>
@@ -836,7 +871,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       className="border-b border-[#262626] hover:bg-[#1a1a1a] transition-colors"
                     >
                       {/* 1. Símbolo (simbolo) */}
-                      <td className="py-2 px-3 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#1a1a1a]">
+                      <td className="py-2 px-3 sticky left-0 bg-[#1a1a1a] group-hover:bg-[#262626]">
                         <div className="flex items-center gap-2">
                           <div className={cn(
                             "w-7 h-7 rounded flex items-center justify-center font-bold text-[10px] border",
@@ -850,16 +885,23 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                             <span className="font-semibold text-xs text-white block">{simbolo}</span>
                             <span className="text-[9px] text-slate-500 truncate block max-w-[100px]" title={descSimb}>{descSimb}</span>
                           </div>
+                          <button
+                            onClick={() => fetchLibroOrdenes(simbolo)}
+                            className="ml-2 px-2 py-1 text-[9px] bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 rounded transition-colors flex items-center gap-1"
+                            title="Ver libro de órdenes"
+                          >
+                            📊 Libro
+                          </button>
                         </div>
                       </td>
 
                       {/* 2. Precio (Bs) */}
-                      <td className="py-2 px-3 text-right sticky left-[100px] bg-[#0a0a0a] group-hover:bg-[#1a1a1a]">
+                      <td className="py-2 px-3 text-right sticky left-[100px] bg-[#1a1a1a] group-hover:bg-[#262626]">
                         <span className="text-white font-bold font-mono text-xs">{formatValue(precioActual, 2)}</span>
                       </td>
 
                       {/* 3. Precio ($) - 2 decimales */}
-                      <td className="py-2 px-3 text-right sticky left-[200px] bg-[#0a0a0a] group-hover:bg-[#1a1a1a]">
+                      <td className="py-2 px-3 text-right sticky left-[200px] bg-[#1a1a1a] group-hover:bg-[#262626]">
                         <span className="text-emerald-400 font-bold font-mono text-xs">
                           {precioUSD !== null ? formatValue(precioUSD, 2) : '-'}
                         </span>
@@ -1679,6 +1721,189 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           </div>
         </Card>
       </div>
+
+      {/* MODAL LIBRO DE ÓRDENES */}
+      <AnimatePresence>
+        {libroOrdenes && libroOrdenesSimbolo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={cerrarLibroOrdenes}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#141414]">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📊</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Libro de Órdenes - {libroOrdenesSimbolo}</h3>
+                    <p className="text-xs text-slate-400">
+                      {libroOrdenes.fuente === 'cache' ? ' Datos en caché' : libroOrdenes.fuente === 'directo' ? '🔴 Datos en tiempo real' : '🟡 Fallback'}
+                      {libroOrdenes.ultima_actualizacion && ` • ${new Date(libroOrdenes.ultima_actualizacion).toLocaleTimeString()}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={cerrarLibroOrdenes}
+                  className="p-2 hover:bg-[#262626] rounded transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Contenido */}
+              <div className="p-4 overflow-auto max-h-[calc(80vh-140px)]">
+                {libroOrdenesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="animate-spin text-red-400" size={32} />
+                    <span className="ml-3 text-slate-400">Cargando libro de órdenes...</span>
+                  </div>
+                ) : libroOrdenes.error ? (
+                  <div className="flex items-center justify-center py-12">
+                    <AlertCircle className="text-red-400" size={32} />
+                    <span className="ml-3 text-red-400">{libroOrdenes.error}</span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* COMPRAS (BID) */}
+                    <div className="bg-[#141414] border border-emerald-500/20 rounded-lg overflow-hidden">
+                      <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
+                        <h4 className="font-bold text-emerald-400 flex items-center gap-2">
+                          <ArrowUpRight size={18} />
+                          COMPRAS (BID)
+                        </h4>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="text-slate-400 border-b border-[#262626]">
+                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
+                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {libroOrdenes.compras.length === 0 ? (
+                              <tr>
+                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                  Sin órdenes de compra
+                                </td>
+                              </tr>
+                            ) : (
+                              libroOrdenes.compras.map((orden, idx) => (
+                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
+                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
+                                  <td className="py-2 px-3 text-right font-mono font-bold text-emerald-400">
+                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                    {orden.cantidad.toLocaleString('es-VE')}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* VENTAS (ASK) */}
+                    <div className="bg-[#141414] border border-red-500/20 rounded-lg overflow-hidden">
+                      <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
+                        <h4 className="font-bold text-red-400 flex items-center gap-2">
+                          <ArrowDownRight size={18} />
+                          VENTAS (ASK)
+                        </h4>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="text-slate-400 border-b border-[#262626]">
+                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
+                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {libroOrdenes.ventas.length === 0 ? (
+                              <tr>
+                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                  Sin órdenes de venta
+                                </td>
+                              </tr>
+                            ) : (
+                              libroOrdenes.ventas.map((orden, idx) => (
+                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
+                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
+                                  <td className="py-2 px-3 text-right font-mono font-bold text-red-400">
+                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                    {orden.cantidad.toLocaleString('es-VE')}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Spread Info */}
+                {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
+                  <div className="mt-4 p-4 bg-[#141414] border border-[#262626] rounded-lg">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-xs text-slate-400 block">Spread</span>
+                          <span className="text-lg font-bold text-white">
+                            {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-slate-400 block">Spread %</span>
+                          <span className={cn(
+                            "text-lg font-bold",
+                            (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
+                          )}>
+                            {libroOrdenes.spread_pct?.toFixed(2)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-xs text-slate-400 block">Mejor Bid</span>
+                          <span className="text-lg font-bold text-emerald-400">
+                            {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-slate-400 block">Mejor Ask</span>
+                          <span className="text-lg font-bold text-red-400">
+                            {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -76,3 +76,24 @@ export interface MacroRow {
 }
 
 export type ActiveTab = 'dashboard' | 'calculadora' | 'pizarra' | 'portafolio';
+
+export interface LibroOrdenesData {
+  simbolo: string;
+  compras: Array<{
+    nivel: number;
+    precio: number;
+    cantidad: number;
+  }>;
+  ventas: Array<{
+    nivel: number;
+    precio: number;
+    cantidad: number;
+  }>;
+  spread?: number | null;
+  spread_pct?: number | null;
+  mejor_bid?: number | null;
+  mejor_ask?: number | null;
+  fuente?: 'cache' | 'directo' | 'fallback';
+  ultima_actualizacion?: string | null;
+  error?: string;
+}
