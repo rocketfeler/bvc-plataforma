@@ -37,13 +37,9 @@ export default function BloombergTerminal() {
   const { fetchWithRetry } = useFetchWithRetry({ maxRetries: 3, retryDelay: 1000 });
   const router = useRouter();
 
-  // Redirigir a login si no está autenticado
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace('/login');
-    }
-  }, [authLoading, user, router]);
-  // Estados
+  // ============================================================================
+  // ESTADOS - TODOS LOS HOOKS useState DEBEN ESTAR PRIMERO
+  // ============================================================================
   const [tasas, setTasas] = useState<TasasData | null>(null);
   const [bvc, setBvc] = useState<BVCData[]>([]);
   const [patrimonio, setPatrimonio] = useState<PatrimonioData | null>(null);
@@ -55,8 +51,6 @@ export default function BloombergTerminal() {
   const [previousBvc, setPreviousBvc] = useState<BVCData[]>([]);
   const [mounted, setMounted] = useState(false);
   const [noticias, setNoticias] = useState<{titular: string; contenido: string; fecha: string}[]>([]);
-
-  // Estado del mercado
   const [marketStatus, setMarketStatus] = useState<{ estado: string } | null>(null);
 
   // Libro de órdenes
@@ -64,7 +58,10 @@ export default function BloombergTerminal() {
   const [libroOrdenesLoading, setLibroOrdenesLoading] = useState(false);
   const [libroOrdenesSimbolo, setLibroOrdenesSimbolo] = useState<string | null>(null);
 
-  // Funciones del libro de órdenes
+  // ============================================================================
+  // FUNCIONES - Antes de cualquier useEffect
+  // ============================================================================
+
   const fetchLibroOrdenes = async (simbolo: string) => {
     setLibroOrdenesLoading(true);
     setLibroOrdenesSimbolo(simbolo);
@@ -91,7 +88,18 @@ export default function BloombergTerminal() {
     setLibroOrdenesSimbolo(null);
   };
 
-  // Efecto de montaje para gráficos (evita error de width -1 en Recharts)
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Redirigir a login si no está autenticado
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/login');
+    }
+  }, [authLoading, user, router]);
+
+  // Efecto de montaje para gráficos
   useEffect(() => {
     setMounted(true);
   }, []);
