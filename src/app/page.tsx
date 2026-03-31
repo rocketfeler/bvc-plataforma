@@ -64,6 +64,33 @@ export default function BloombergTerminal() {
   const [libroOrdenesLoading, setLibroOrdenesLoading] = useState(false);
   const [libroOrdenesSimbolo, setLibroOrdenesSimbolo] = useState<string | null>(null);
 
+  // Funciones del libro de órdenes
+  const fetchLibroOrdenes = async (simbolo: string) => {
+    setLibroOrdenesLoading(true);
+    setLibroOrdenesSimbolo(simbolo);
+
+    try {
+      const response = await fetch(`${CONFIG.API_URL}/api/bvc/${simbolo}/libro-ordenes`);
+      const data = await response.json();
+      setLibroOrdenes(data);
+    } catch (err) {
+      console.error(`Error al obtener libro de órdenes para ${simbolo}:`, err);
+      setLibroOrdenes({
+        simbolo,
+        compras: [],
+        ventas: [],
+        error: 'No se pudo cargar el libro de órdenes'
+      });
+    } finally {
+      setLibroOrdenesLoading(false);
+    }
+  };
+
+  const cerrarLibroOrdenes = () => {
+    setLibroOrdenes(null);
+    setLibroOrdenesSimbolo(null);
+  };
+
   // Efecto de montaje para gráficos (evita error de width -1 en Recharts)
   useEffect(() => {
     setMounted(true);
@@ -193,36 +220,6 @@ export default function BloombergTerminal() {
   const tasaBinanceFallback = patrimonio?.tasa_binance_usada || CONFIG.FALLBACK_TASA_BINANCE;
 
   // ============================================================================
-  // LIBRO DE ÓRDENES
-  // ============================================================================
-
-  const fetchLibroOrdenes = async (simbolo: string) => {
-    setLibroOrdenesLoading(true);
-    setLibroOrdenesSimbolo(simbolo);
-    
-    try {
-      const response = await fetch(`${CONFIG.API_URL}/api/bvc/${simbolo}/libro-ordenes`);
-      const data = await response.json();
-      setLibroOrdenes(data);
-    } catch (err) {
-      console.error(`Error al obtener libro de órdenes para ${simbolo}:`, err);
-      setLibroOrdenes({
-        simbolo,
-        compras: [],
-        ventas: [],
-        error: 'No se pudo cargar el libro de órdenes'
-      });
-    } finally {
-      setLibroOrdenesLoading(false);
-    }
-  };
-
-  const cerrarLibroOrdenes = () => {
-    setLibroOrdenes(null);
-    setLibroOrdenesSimbolo(null);
-  };
-
-  // ============================================================================
   // FETCH INICIAL + REVALIDACIÓN (Stale-While-Revalidate)
   // ============================================================================
   useEffect(() => {
@@ -317,7 +314,7 @@ export default function BloombergTerminal() {
   // Redirigiendo o cargando auth
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
         <Loader2 className="w-12 h-12 animate-spin text-emerald-400" />
       </div>
     );
@@ -328,7 +325,7 @@ export default function BloombergTerminal() {
   // ============================================================================
   if (loading && !tasas?.bcv && bvc.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -1456,7 +1453,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                   required
                   readOnly={!!editPosition}
                   className={cn(
-                    "w-full bg-[#0a0a0a] border rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase",
+                    "w-full bg-[#1a1a1a] border rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase",
                     editPosition
                       ? "border-slate-600 text-slate-400 cursor-not-allowed"
                       : "border-[#262626] focus:border-emerald-500"
@@ -1499,7 +1496,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 min="0"
                 step="0.01"
                 required
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div>
@@ -1511,7 +1508,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 min="0"
                 step="0.01"
                 required
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div className="sm:col-span-2">
@@ -1520,7 +1517,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 type="date"
                 value={addFecha}
                 onChange={(e) => setAddFecha(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div className="sm:col-span-2 flex gap-3 justify-end">
@@ -1736,7 +1733,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              className="bg-[#1a1a1a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
