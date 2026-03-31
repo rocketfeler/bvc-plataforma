@@ -493,6 +493,7 @@ export default function BloombergTerminal() {
             tasaBinanceFallback={tasaBinanceFallback}
             marketStatus={marketStatus}
             tasas={tasas}
+            fetchLibroOrdenes={fetchLibroOrdenes}
           />
         )}
 
@@ -787,7 +788,7 @@ function formatInt(val: number | null | undefined): string {
   return num.toLocaleString('de-DE');
 }
 
-function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas }: any) {
+function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas, fetchLibroOrdenes }: any) {
   // Determinar estado del mercado para el badge
   const isMarketOpen = marketStatus?.estado === 'Abierto';
   const marketStatusColor = isMarketOpen ? 'bg-emerald-500 animate-pulse' :
