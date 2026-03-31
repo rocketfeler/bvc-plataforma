@@ -949,22 +949,24 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
 /**
  * Formatea números de forma segura - Muestra '-' solo si es null/undefined
  * Si el valor es 0, lo muestra (es un valor válido)
+ * Formato venezolano: puntos para miles, comas para decimales (ej: 1.234,56)
  */
 function formatValue(val: number | null | undefined, decimals: number = 2): string {
   if (val === null || val === undefined) return '-';
   const num = Number(val);
   if (isNaN(num)) return '-';
-  return num.toLocaleString('de-DE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return num.toLocaleString('es-VE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 /**
  * Formatea enteros - Muestra '-' solo si es null/undefined
+ * Formato venezolano: puntos para miles (ej: 1.234)
  */
 function formatInt(val: number | null | undefined): string {
   if (val === null || val === undefined) return '-';
   const num = Number(val);
   if (isNaN(num)) return '-';
-  return num.toLocaleString('de-DE');
+  return num.toLocaleString('es-VE');
 }
 
 function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas, fetchLibroOrdenes }: any) {
@@ -1024,6 +1026,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                   <th className="text-right py-2.5 px-3 font-medium sticky left-[200px] bg-[#1a1a1a] z-10">Precio ($)</th>
                   <th className="text-right py-2.5 px-3 font-medium">Compra (Vol)</th>
                   <th className="text-right py-2.5 px-3 font-medium">Precio Compra</th>
+                  <th className="text-right py-2.5 px-3 font-medium">Spread</th>
                   <th className="text-right py-2.5 px-3 font-medium">Precio Venta</th>
                   <th className="text-right py-2.5 px-3 font-medium">Venta (Vol)</th>
                   <th className="text-right py-2.5 px-3 font-medium">Precio Apertura</th>
@@ -1102,22 +1105,39 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         <span className="text-blue-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
                       </td>
 
-                      {/* 6. Precio Venta (precio_vta) */}
+                      {/* 6. Spread (precio_venta - precio_compra) */}
+                      <td className="py-2 px-3 text-right">
+                        {(() => {
+                          const compra = accion.precio_compra ?? 0;
+                          const venta = accion.precio_vta ?? 0;
+                          const spread = venta > 0 && compra > 0 ? venta - compra : null;
+                          return (
+                            <span className={cn(
+                              "font-mono text-xs",
+                              spread !== null && spread > 0 ? 'text-amber-400 font-bold' : 'text-slate-500'
+                            )}>
+                              {spread !== null && spread > 0 ? formatValue(spread, 2) : '-'}
+                            </span>
+                          );
+                        })()}
+                      </td>
+
+                      {/* 7. Precio Venta (precio_vta) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-amber-400 font-mono text-xs">{formatValue(accion.precio_vta, 2)}</span>
                       </td>
 
-                      {/* 7. Venta (Vol) (vol_vta) */}
+                      {/* 8. Venta (Vol) (vol_vta) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_vta)}</span>
                       </td>
 
-                      {/* 8. Precio Apertura (precio_apert) */}
+                      {/* 9. Precio Apertura (precio_apert) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-slate-300 font-mono text-xs">{formatValue(accion.precio_apert, 2)}</span>
                       </td>
 
-                      {/* 9. Var % (variacion_pct) - Color: Verde si es +, Rojo si es - */}
+                      {/* 10. Var % (variacion_pct) - Color: Verde si es +, Rojo si es - */}
                       <td className="py-2 px-3 text-right">
                         <span className={cn(
                           "inline-flex items-center justify-end gap-1 font-bold text-xs",
@@ -1128,7 +1148,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </span>
                       </td>
 
-                      {/* 10. Var Abs (variacion_abs) - 2 decimales */}
+                      {/* 11. Var Abs (variacion_abs) - 2 decimales */}
                       <td className="py-2 px-3 text-right">
                         <span className={cn(
                           "font-mono text-xs",
@@ -1138,27 +1158,27 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </span>
                       </td>
 
-                      {/* 11. Volumen Total (volumen) */}
+                      {/* 12. Volumen Total (volumen) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.volumen)}</span>
                       </td>
 
-                      {/* 11. Efectivo (monto_efectivo) */}
+                      {/* 13. Efectivo (monto_efectivo) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-slate-300 font-mono text-xs">{formatValue(accion.monto_efectivo, 2)}</span>
                       </td>
 
-                      {/* 12. Operaciones (tot_op_negoc) */}
+                      {/* 14. Operaciones (tot_op_negoc) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-slate-500 font-mono text-xs">{formatInt(accion.tot_op_negoc)}</span>
                       </td>
 
-                      {/* 13. Máximo (precio_max) */}
+                      {/* 15. Máximo (precio_max) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-emerald-400/80 font-mono text-xs">{formatValue(accion.precio_max, 2)}</span>
                       </td>
 
-                      {/* 14. Mínimo (precio_min) */}
+                      {/* 16. Mínimo (precio_min) */}
                       <td className="py-2 px-3 text-right">
                         <span className="text-red-400/80 font-mono text-xs">{formatValue(accion.precio_min, 2)}</span>
                       </td>
@@ -1568,7 +1588,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 </div>
                 <div className="bg-[#141414] p-3 rounded">
                   <p className="text-slate-500 text-xs">Cantidad Total</p>
-                  <p className="font-mono font-bold">{historicoData.total_cantidad?.toLocaleString('de-DE', {minimumFractionDigits: 4})}</p>
+                  <p className="font-mono font-bold">{historicoData.total_cantidad?.toLocaleString('es-VE', {minimumFractionDigits: 4})}</p>
                 </div>
                 <div className="bg-[#141414] p-3 rounded">
                   <p className="text-slate-500 text-xs">Precio Promedio</p>
@@ -1590,7 +1610,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                     {historicoData.compras?.map((compra: any) => (
                       <tr key={compra.id} className="hover:bg-[#141414]">
                         <td className="py-2 text-slate-300">{compra.fecha_compra || 'N/A'}</td>
-                        <td className="py-2 text-right font-mono">{compra.cantidad?.toLocaleString('de-DE')}</td>
+                        <td className="py-2 text-right font-mono">{compra.cantidad?.toLocaleString('es-VE')}</td>
                         <td className="py-2 text-right font-mono text-slate-400">{compra.precio_compra?.toFixed(4)} Bs</td>
                         <td className="py-2 text-right font-mono font-bold">{(compra.cantidad * compra.precio_compra)?.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
                         <td className="py-2 text-right">

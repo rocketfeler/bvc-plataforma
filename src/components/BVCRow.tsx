@@ -13,12 +13,13 @@ interface BVCRowProps {
 
 /**
  * Formatea enteros - Muestra '-' solo si es null/undefined
+ * Formato venezolano: puntos para miles (ej: 1.234)
  */
 function formatInt(val: number | null | undefined): string {
   if (val === null || val === undefined) return '-';
   const num = Number(val);
   if (isNaN(num)) return '-';
-  return num.toLocaleString('de-DE');
+  return num.toLocaleString('es-VE');
 }
 
 /**
