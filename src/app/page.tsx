@@ -512,6 +512,189 @@ export default function BloombergTerminal() {
           />
         )}
       </main>
+
+      {/* MODAL LIBRO DE ÓRDENES */}
+      <AnimatePresence>
+        {libroOrdenes && libroOrdenesSimbolo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={cerrarLibroOrdenes}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#1a1a1a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#141414]">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📊</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Libro de Órdenes - {libroOrdenesSimbolo}</h3>
+                    <p className="text-xs text-slate-400">
+                      {libroOrdenes.fuente === 'cache' ? ' Datos en caché' : libroOrdenes.fuente === 'directo' ? '🔴 Datos en tiempo real' : '🟡 Fallback'}
+                      {libroOrdenes.ultima_actualizacion && ` • ${new Date(libroOrdenes.ultima_actualizacion).toLocaleTimeString()}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={cerrarLibroOrdenes}
+                  className="p-2 hover:bg-[#262626] rounded transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Contenido */}
+              <div className="p-4 overflow-auto max-h-[calc(80vh-140px)]">
+                {libroOrdenesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="animate-spin text-red-400" size={32} />
+                    <span className="ml-3 text-slate-400">Cargando libro de órdenes...</span>
+                  </div>
+                ) : libroOrdenes.error ? (
+                  <div className="flex items-center justify-center py-12">
+                    <AlertCircle className="text-red-400" size={32} />
+                    <span className="ml-3 text-red-400">{libroOrdenes.error}</span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* COMPRAS (BID) */}
+                    <div className="bg-[#141414] border border-emerald-500/20 rounded-lg overflow-hidden">
+                      <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
+                        <h4 className="font-bold text-emerald-400 flex items-center gap-2">
+                          <ArrowUpRight size={18} />
+                          COMPRAS (BID)
+                        </h4>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="text-slate-400 border-b border-[#262626]">
+                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
+                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {libroOrdenes.compras.length === 0 ? (
+                              <tr>
+                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                  Sin órdenes de compra
+                                </td>
+                              </tr>
+                            ) : (
+                              libroOrdenes.compras.map((orden, idx) => (
+                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
+                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
+                                  <td className="py-2 px-3 text-right font-mono font-bold text-emerald-400">
+                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                    {orden.cantidad.toLocaleString('es-VE')}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* VENTAS (ASK) */}
+                    <div className="bg-[#141414] border border-red-500/20 rounded-lg overflow-hidden">
+                      <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
+                        <h4 className="font-bold text-red-400 flex items-center gap-2">
+                          <ArrowDownRight size={18} />
+                          VENTAS (ASK)
+                        </h4>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="text-slate-400 border-b border-[#262626]">
+                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
+                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
+                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {libroOrdenes.ventas.length === 0 ? (
+                              <tr>
+                                <td colSpan={3} className="text-center py-8 text-slate-500">
+                                  Sin órdenes de venta
+                                </td>
+                              </tr>
+                            ) : (
+                              libroOrdenes.ventas.map((orden, idx) => (
+                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
+                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
+                                  <td className="py-2 px-3 text-right font-mono font-bold text-red-400">
+                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </td>
+                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
+                                    {orden.cantidad.toLocaleString('es-VE')}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Spread Info */}
+                {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
+                  <div className="mt-4 p-4 bg-[#141414] border border-[#262626] rounded-lg">
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-xs text-slate-400 block">Spread</span>
+                          <span className="text-lg font-bold text-white">
+                            {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-slate-400 block">Spread %</span>
+                          <span className={cn(
+                            "text-lg font-bold",
+                            (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
+                          )}>
+                            {libroOrdenes.spread_pct?.toFixed(2)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span className="text-xs text-slate-400 block">Mejor Bid</span>
+                          <span className="text-lg font-bold text-emerald-400">
+                            {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-xs text-slate-400 block">Mejor Ask</span>
+                          <span className="text-lg font-bold text-red-400">
+                            {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -1727,189 +1910,6 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           </div>
         </Card>
       </div>
-
-      {/* MODAL LIBRO DE ÓRDENES */}
-      <AnimatePresence>
-        {libroOrdenes && libroOrdenesSimbolo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={cerrarLibroOrdenes}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#1a1a1a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#141414]">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">📊</span>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Libro de Órdenes - {libroOrdenesSimbolo}</h3>
-                    <p className="text-xs text-slate-400">
-                      {libroOrdenes.fuente === 'cache' ? ' Datos en caché' : libroOrdenes.fuente === 'directo' ? '🔴 Datos en tiempo real' : '🟡 Fallback'}
-                      {libroOrdenes.ultima_actualizacion && ` • ${new Date(libroOrdenes.ultima_actualizacion).toLocaleTimeString()}`}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={cerrarLibroOrdenes}
-                  className="p-2 hover:bg-[#262626] rounded transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Contenido */}
-              <div className="p-4 overflow-auto max-h-[calc(80vh-140px)]">
-                {libroOrdenesLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="animate-spin text-red-400" size={32} />
-                    <span className="ml-3 text-slate-400">Cargando libro de órdenes...</span>
-                  </div>
-                ) : libroOrdenes.error ? (
-                  <div className="flex items-center justify-center py-12">
-                    <AlertCircle className="text-red-400" size={32} />
-                    <span className="ml-3 text-red-400">{libroOrdenes.error}</span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* COMPRAS (BID) */}
-                    <div className="bg-[#141414] border border-emerald-500/20 rounded-lg overflow-hidden">
-                      <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
-                        <h4 className="font-bold text-emerald-400 flex items-center gap-2">
-                          <ArrowUpRight size={18} />
-                          COMPRAS (BID)
-                        </h4>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
-                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {libroOrdenes.compras.length === 0 ? (
-                              <tr>
-                                <td colSpan={3} className="text-center py-8 text-slate-500">
-                                  Sin órdenes de compra
-                                </td>
-                              </tr>
-                            ) : (
-                              libroOrdenes.compras.map((orden, idx) => (
-                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
-                                  <td className="py-2 px-3 text-right font-mono font-bold text-emerald-400">
-                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </td>
-                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
-                                    {orden.cantidad.toLocaleString('es-VE')}
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* VENTAS (ASK) */}
-                    <div className="bg-[#141414] border border-red-500/20 rounded-lg overflow-hidden">
-                      <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
-                        <h4 className="font-bold text-red-400 flex items-center gap-2">
-                          <ArrowDownRight size={18} />
-                          VENTAS (ASK)
-                        </h4>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium">Nivel</th>
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
-                              <th className="text-right py-2 px-3 font-medium">Cantidad</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {libroOrdenes.ventas.length === 0 ? (
-                              <tr>
-                                <td colSpan={3} className="text-center py-8 text-slate-500">
-                                  Sin órdenes de venta
-                                </td>
-                              </tr>
-                            ) : (
-                              libroOrdenes.ventas.map((orden, idx) => (
-                                <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                  <td className="py-2 px-3 text-slate-400">{orden.nivel + 1}</td>
-                                  <td className="py-2 px-3 text-right font-mono font-bold text-red-400">
-                                    {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </td>
-                                  <td className="py-2 px-3 text-right font-mono text-slate-300">
-                                    {orden.cantidad.toLocaleString('es-VE')}
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Spread Info */}
-                {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
-                  <div className="mt-4 p-4 bg-[#141414] border border-[#262626] rounded-lg">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <span className="text-xs text-slate-400 block">Spread</span>
-                          <span className="text-lg font-bold text-white">
-                            {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-xs text-slate-400 block">Spread %</span>
-                          <span className={cn(
-                            "text-lg font-bold",
-                            (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
-                          )}>
-                            {libroOrdenes.spread_pct?.toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <span className="text-xs text-slate-400 block">Mejor Bid</span>
-                          <span className="text-lg font-bold text-emerald-400">
-                            {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-xs text-slate-400 block">Mejor Ask</span>
-                          <span className="text-lg font-bold text-red-400">
-                            {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
