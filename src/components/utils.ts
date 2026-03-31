@@ -44,6 +44,17 @@ export function formatPercent(val: number | null | undefined, decimals: number =
 }
 
 /**
+ * Formatea porcentajes SIN signo (solo valor absoluto)
+ * Formato venezolano: puntos para miles, comas para decimales (ej: 12,34%)
+ */
+export function formatPercentSimple(val: number | null | undefined, decimals: number = 2): string {
+  if (val === null || val === undefined) return '-';
+  const num = Math.abs(Number(val));
+  if (isNaN(num)) return '-';
+  return `${num.toLocaleString('es-VE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}%`;
+}
+
+/**
  * Formatea números simples (sin formato venezolano, para valores pequeños como tasas)
  * Usa punto como separador decimal (estándar internacional para tasas)
  */

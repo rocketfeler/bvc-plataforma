@@ -20,7 +20,7 @@ import { TasasData, BVCData, PatrimonioData, MacroRow, ActiveTab, LibroOrdenesDa
 // Componentes
 import {
   PriceTicker, BVCRow, MetricCard, Card, FlashPrice, NewsTicker,
-  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent
+  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent, formatPercentSimple
 } from '@/components';
 
 // Socket.IO Hook
@@ -67,7 +67,8 @@ export default function BloombergTerminal() {
     setLibroOrdenesSimbolo(simbolo);
 
     try {
-      const response = await fetch(`${CONFIG.API_URL}/api/bvc/${simbolo}/libro-ordenes`);
+      // NOTA: desde_cache=false para obtener datos en tiempo real de la BVC
+      const response = await fetch(`${CONFIG.API_URL}/api/bvc/${simbolo}/libro-ordenes?desde_cache=false`);
       const data = await response.json();
       setLibroOrdenes(data);
     } catch (err) {

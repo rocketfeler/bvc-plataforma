@@ -67,7 +67,7 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
           isPositive ? 'text-emerald-400' : 'text-red-400'
         )}>
           {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-          {formatPercent(Math.abs(variacionPct), 2)}
+          {formatPercent(variacionPct, 2)}
         </span>
       </td>
       <td className="py-3 px-4 text-center">

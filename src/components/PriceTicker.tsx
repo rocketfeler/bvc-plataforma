@@ -1,6 +1,6 @@
 'use client';
 
-import { cn, formatValue, formatPercent } from './utils';
+import { cn, formatValue, formatPercentSimple } from './utils';
 
 interface TickerItem {
   label: string;
@@ -25,7 +25,7 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
 
   const items: TickerItem[] = [
     { label: 'BCV', value: formatValue(tasasSafe.bcv, 2), change: null, type: 'rate' as const },
-    { label: 'BINANCE', value: formatValue(tasasSafe.binance, 2), change: formatPercent(tasasSafe.brecha_binance_pct, 2), type: 'rate' as const },
+    { label: 'BINANCE', value: formatValue(tasasSafe.binance, 2), change: formatPercentSimple(tasasSafe.brecha_binance_pct, 2), type: 'rate' as const },
     // BLINDAJE: Slice seguro con verificación de longitud
     ...bvcSafe.slice(0, 8).map(a => {
       const precio = (a?.precio ?? a?.precio_vta ?? a?.precio_compra) ?? 0;
@@ -33,7 +33,7 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
       return ({
         label: a?.simbolo || 'S/N',
         value: formatValue(precio, 2),
-        change: formatPercent(variacion, 2),
+        change: formatPercentSimple(variacion, 2),
         type: 'stock' as const
       });
     })
@@ -44,7 +44,7 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
       <div className="flex animate-ticker gap-8 whitespace-nowrap">
         {[...items, ...items].map((item, idx) => {
           // BLINDAJE: Parseo seguro del cambio
-          const changeNum = item.change && item.change !== '-' ? parseFloat(item.change.replace('%', '').replace('+', '')) : null;
+          const changeNum = item.change && item.change !== '-' ? parseFloat(item.change.replace('%', '')) : null;
           const isPositive = changeNum !== null && changeNum >= 0;
 
           return (
