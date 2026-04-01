@@ -1149,35 +1149,34 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       key={simbolo}
                       className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a] transition-colors"
                     >
-                      {/* 1. Star Favorite */}
+                      {/* 1. Símbolo (info) con Star Favorite integrada */}
                       <td className="py-2 px-2 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-20">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(simbolo);
-                          }}
-                          className={cn(
-                            "p-1 rounded transition-colors",
-                            favoriteSymbols.includes(simbolo)
-                              ? 'text-amber-400 hover:text-amber-300'
-                              : 'text-slate-600 hover:text-amber-400'
-                          )}
-                          title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                        >
-                          <Star className={cn("w-4 h-4", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
-                        </button>
-                      </td>
-
-                      {/* 2. Símbolo (info) */}
-                      <td className="py-2 px-2 sticky left-[40px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-6 h-6 rounded flex items-center justify-center font-bold text-[9px] border flex-shrink-0",
-                            isPositive
-                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                              : 'bg-red-500/10 border-red-500/30 text-red-400'
-                          )}>
-                            {simboloCorto}
+                          <div className="relative">
+                            <div className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center font-bold text-[9px] border flex-shrink-0",
+                              isPositive
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                : 'bg-red-500/10 border-red-500/30 text-red-400'
+                            )}>
+                              {simboloCorto}
+                            </div>
+                            {/* Star Favorite - esquina superior derecha del cuadrado */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(simbolo);
+                              }}
+                              className={cn(
+                                "absolute -top-1 -right-1 p-0.5 rounded transition-colors bg-[#0a0a0a]",
+                                favoriteSymbols.includes(simbolo)
+                                  ? 'text-amber-400 hover:text-amber-300'
+                                  : 'text-slate-600 hover:text-amber-400'
+                              )}
+                              title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                            >
+                              <Star className="w-2 h-2" />
+                            </button>
                           </div>
                           <div className="min-w-0">
                             <span className="font-semibold text-xs text-white block">{simbolo}</span>
