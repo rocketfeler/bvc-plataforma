@@ -378,7 +378,7 @@ export default function BloombergTerminal() {
                 </div>
               </div>
               {/* Indicador de Mercado - Vinculado al endpoint /api/estado-mercado */}
-              <div className="hidden md:flex items-center gap-2 ml-4 px-3 py-1 bg-[#141414] rounded border border-[#262626]">
+              <div className="hidden md:flex items-center gap-2 ml-4 px-3 py-1 bg-[#0a0a0a] rounded border border-[#262626]">
                 <div className={cn(
                   "w-2 h-2 rounded-full",
                   marketStatus?.estado === 'Abierto' ? 'bg-emerald-500 animate-pulse' :
@@ -422,13 +422,13 @@ export default function BloombergTerminal() {
                     console.error('[Refresh] Error:', err);
                   }
                 }}
-                className="p-2 hover:bg-[#141414] rounded transition-colors group"
+                className="p-2 hover:bg-[#0a0a0a] rounded transition-colors group"
               >
                 <RefreshCw size={18} className="text-slate-500 group-hover:text-emerald-400 transition-colors" />
               </button>
               <button
                 onClick={() => { logout(); router.replace('/login'); }}
-                className="p-2 hover:bg-[#141414] rounded transition-colors group"
+                className="p-2 hover:bg-[#0a0a0a] rounded transition-colors group"
                 title="Cerrar sesión"
               >
                 <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors" />
@@ -528,11 +528,11 @@ export default function BloombergTerminal() {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#0d0d0d] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#141414]">
+              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#0a0a0a]">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-500/20 border border-red-500/30 rounded">
                     <span className="text-xl">📊</span>
@@ -569,7 +569,7 @@ export default function BloombergTerminal() {
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
                     {/* COMPRAS */}
-                    <div className="bg-[#0d0d0d] border border-emerald-500/20 rounded-lg overflow-hidden">
+                    <div className="bg-[#0a0a0a] border border-emerald-500/20 rounded-lg overflow-hidden">
                       <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
                         <div className="flex items-center justify-between">
                           <h4 className="font-bold text-emerald-400 flex items-center gap-2">
@@ -609,7 +609,7 @@ export default function BloombergTerminal() {
                                   const barWidth = Math.min(90, Math.max(4, volumenRatio * 90));
 
                                   return (
-                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0f0f0f]">
+                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a]">
                                       <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/4">
                                         {orden.cantidad.toLocaleString('es-VE')}
                                       </td>
@@ -638,7 +638,7 @@ export default function BloombergTerminal() {
                     </div>
 
                     {/* VENTAS */}
-                    <div className="bg-[#0d0d0d] border border-red-500/20 rounded-lg overflow-hidden">
+                    <div className="bg-[#0a0a0a] border border-red-500/20 rounded-lg overflow-hidden">
                       <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
                         <div className="flex items-center justify-between">
                           <h4 className="font-bold text-red-400 flex items-center gap-2">
@@ -678,7 +678,7 @@ export default function BloombergTerminal() {
                                   const barWidth = Math.min(90, Math.max(4, volumenRatio * 90));
 
                                   return (
-                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0f0f0f]">
+                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a]">
                                       <td className="py-3 px-0 w-3/4 relative">
                                         <div className="flex items-center justify-start gap-2">
                                           <span className="font-mono font-bold text-red-400 text-base whitespace-nowrap">
@@ -710,7 +710,7 @@ export default function BloombergTerminal() {
 
                 {/* Spread Info - CENTRADO */}
                 {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
-                  <div className="mt-4 p-4 bg-[#0d0d0d] border border-[#262626] rounded-lg">
+                  <div className="mt-4 p-4 bg-[#0a0a0a] border border-[#262626] rounded-lg">
                     <div className="flex items-center justify-center gap-8">
                       <div className="text-center">
                         <span className="text-xs text-slate-400 block">Spread</span>
@@ -1059,15 +1059,9 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
     <div className="space-y-4">
       <Card className="p-0 overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-[#262626]">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-semibold">PIZARRA BVC - TERMINAL PROFESIONAL</h3>
-            </div>
-            <div className="h-4 w-px bg-[#262626]" />
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-red-500/10 border border-red-500/30 rounded">
-              <span className="text-[9px] font-mono text-red-400 uppercase tracking-wider">📊 Libro de Órdenes</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-sm font-semibold">PIZARRA BVC - TERMINAL PROFESIONAL</h3>
           </div>
           <div className="flex items-center gap-3">
             {/* Botón para filtrar favoritos */}
@@ -1077,7 +1071,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                 "flex items-center gap-1.5 px-3 py-1.5 rounded border text-[10px] font-mono uppercase tracking-wider transition-all",
                 showOnlyFavorites
                   ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                  : 'bg-[#141414] border-[#262626] text-slate-500 hover:text-amber-400 hover:border-amber-500/30'
+                  : 'bg-[#0a0a0a] border-[#262626] text-slate-500 hover:text-amber-400 hover:border-amber-500/30'
               )}
               title={showOnlyFavorites ? "Mostrar todos" : "Mostrar solo favoritos"}
             >
@@ -1086,7 +1080,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                 <span>{favoriteSymbols.length}</span>
               )}
             </button>
-            
+
             <div className="text-xs font-mono text-slate-500">
               {bvc?.length || 0} INSTRUMENTOS
             </div>
@@ -1112,26 +1106,28 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
 
         {/* Contenedor con scroll horizontal para responsive */}
         <div className="overflow-x-auto">
-          <div className="min-w-[1450px]">
+          <div className="min-w-[1500px]">
             <table className="w-full">
               <thead>
-                <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#0d0d0d] border-b border-[#262626]">
-                  <th className="text-center py-2.5 px-3 font-medium sticky left-0 bg-[#0d0d0d] z-10 w-[180px]">Símbolo</th>
-                  <th className="text-center py-2.5 px-3 font-medium sticky left-[180px] bg-[#0d0d0d] z-10 w-[100px]">Precio (Bs)</th>
-                  <th className="text-center py-2.5 px-3 font-medium sticky left-[280px] bg-[#0d0d0d] z-10 w-[100px]">Precio ($)</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[100px]">Compra (Vol)</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[110px]">Precio Compra</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[90px]">Spread</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[110px]">Precio Venta</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[100px]">Venta (Vol)</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[110px]">Precio Apertura</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[90px]">Var %</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[90px]">Var Abs</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[110px]">Volumen Total</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[120px]">Efectivo</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[90px]">Operaciones</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[100px]">Máximo</th>
-                  <th className="text-center py-2.5 px-3 font-medium w-[100px]">Mínimo</th>
+                <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#0a0a0a] border-b border-[#262626]">
+                  <th className="text-center py-3 px-2 font-medium sticky left-0 bg-[#0a0a0a] z-20 w-[40px]"></th>
+                  <th className="text-left py-3 px-2 font-medium sticky left-[40px] bg-[#0a0a0a] z-10 w-[140px]">Símbolo</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[180px] bg-[#0a0a0a] z-10 w-[70px]">Libro de Órdenes</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[250px] bg-[#0a0a0a] z-10 w-[100px]">Precio (Bs)</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[350px] bg-[#0a0a0a] z-10 w-[90px]">Precio ($)</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Compra (Vol)</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Compra</th>
+                  <th className="text-center py-3 px-2 font-medium w-[90px]">Spread</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Venta</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Venta (Vol)</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Apertura</th>
+                  <th className="text-center py-3 px-2 font-medium w-[90px]">Var %</th>
+                  <th className="text-center py-3 px-2 font-medium w-[90px]">Var Abs</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Volumen Total</th>
+                  <th className="text-center py-3 px-2 font-medium w-[120px]">Efectivo</th>
+                  <th className="text-center py-3 px-2 font-medium w-[90px]">Operaciones</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Máximo</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Mínimo</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -1151,74 +1147,80 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                   return (
                     <tr
                       key={simbolo}
-                      className="border-b border-[#1a1a1a] hover:bg-[#0f0f0f] transition-colors"
+                      className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a] transition-colors"
                     >
-                      {/* 1. Símbolo + Libro de Órdenes */}
-                      <td className="py-2 px-3 sticky left-0 bg-[#0d0d0d] group-hover:bg-[#0f0f0f]">
-                        <div className="flex items-center justify-center gap-2">
-                          {/* Star Favorite Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(simbolo);
-                            }}
-                            className={cn(
-                              "p-1 rounded transition-colors flex-shrink-0",
-                              favoriteSymbols.includes(simbolo)
-                                ? 'text-amber-400 hover:text-amber-300'
-                                : 'text-slate-600 hover:text-amber-400'
-                            )}
-                            title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                          >
-                            <Star className={cn("w-4 h-4", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
-                          </button>
+                      {/* 1. Star Favorite */}
+                      <td className="py-2 px-2 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-20">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(simbolo);
+                          }}
+                          className={cn(
+                            "p-1 rounded transition-colors",
+                            favoriteSymbols.includes(simbolo)
+                              ? 'text-amber-400 hover:text-amber-300'
+                              : 'text-slate-600 hover:text-amber-400'
+                          )}
+                          title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                        >
+                          <Star className={cn("w-4 h-4", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
+                        </button>
+                      </td>
 
+                      {/* 2. Símbolo (info) */}
+                      <td className="py-2 px-2 sticky left-[40px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
+                        <div className="flex items-center gap-2">
                           <div className={cn(
-                            "w-7 h-7 rounded flex items-center justify-center font-bold text-[10px] border flex-shrink-0",
+                            "w-6 h-6 rounded flex items-center justify-center font-bold text-[9px] border flex-shrink-0",
                             isPositive
                               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                               : 'bg-red-500/10 border-red-500/30 text-red-400'
                           )}>
                             {simboloCorto}
                           </div>
-                          <div className="min-w-0 flex-shrink-0">
+                          <div className="min-w-0">
                             <span className="font-semibold text-xs text-white block">{simbolo}</span>
-                            <span className="text-[9px] text-slate-500 truncate block max-w-[80px]" title={descSimb}>{descSimb}</span>
+                            <span className="text-[9px] text-slate-500 truncate block max-w-[100px]" title={descSimb}>{descSimb}</span>
                           </div>
-                          <button
-                            onClick={() => fetchLibroOrdenes(simbolo)}
-                            className="ml-1 px-2 py-1 text-[9px] bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 rounded transition-colors flex items-center gap-1 flex-shrink-0"
-                            title={`Ver libro de órdenes de ${simbolo} - Compras y Ventas en tiempo real`}
-                          >
-                            📊 Libro
-                          </button>
                         </div>
                       </td>
 
-                      {/* 2. Precio (Bs) */}
-                      <td className="py-2 px-3 text-center sticky left-[180px] bg-[#0d0d0d] group-hover:bg-[#0f0f0f]">
+                      {/* 3. Libro de Órdenes */}
+                      <td className="py-2 px-2 text-center sticky left-[180px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
+                        <button
+                          onClick={() => fetchLibroOrdenes(simbolo)}
+                          className="px-2 py-1 text-[9px] bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 rounded transition-colors"
+                          title={`Ver libro de órdenes de ${simbolo}`}
+                        >
+                          📊 Libro
+                        </button>
+                      </td>
+
+                      {/* 4. Precio (Bs) */}
+                      <td className="py-2 px-2 text-center sticky left-[250px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <span className="text-white font-bold font-mono text-xs">{formatValue(precioActual, 2)}</span>
                       </td>
 
-                      {/* 3. Precio ($) - 2 decimales */}
-                      <td className="py-2 px-3 text-center sticky left-[280px] bg-[#0d0d0d] group-hover:bg-[#0f0f0f]">
+                      {/* 5. Precio ($) - 2 decimales */}
+                      <td className="py-2 px-2 text-center sticky left-[350px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <span className="text-emerald-400 font-bold font-mono text-xs">
                           {precioUSD !== null ? formatValue(precioUSD, 2) : '-'}
                         </span>
                       </td>
 
-                      {/* 4. Compra (Vol) (vol_cmp) */}
-                      <td className="py-2 px-3 text-center">
+                      {/* 6. Compra (Vol) (vol_cmp) */}
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_cmp)}</span>
                       </td>
 
-                      {/* 5. Precio Compra (precio_compra) */}
-                      <td className="py-2 px-3 text-center">
+                      {/* 7. Precio Compra (precio_compra) */}
+                      <td className="py-2 px-2 text-center">
                         <span className="text-blue-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
                       </td>
 
                       {/* 6. Spread % ((precio_venta - precio_compra) / precio_compra * 100) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         {(() => {
                           const compra = accion.precio_compra ?? 0;
                           const venta = accion.precio_vta ?? 0;
@@ -1235,22 +1237,22 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       </td>
 
                       {/* 7. Precio Venta (precio_vta) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-amber-400 font-mono text-xs">{formatValue(accion.precio_vta, 2)}</span>
                       </td>
 
                       {/* 8. Venta (Vol) (vol_vta) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_vta)}</span>
                       </td>
 
                       {/* 9. Precio Apertura (precio_apert) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-300 font-mono text-xs">{formatValue(accion.precio_apert, 2)}</span>
                       </td>
 
                       {/* 10. Var % (variacion_pct) - Color: Verde si es +, Rojo si es - */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className={cn(
                           "inline-flex items-center justify-center gap-1 font-bold text-xs",
                           isPositive ? 'text-emerald-400' : 'text-red-400'
@@ -1261,7 +1263,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       </td>
 
                       {/* 11. Var Abs (variacion_abs) - 2 decimales */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className={cn(
                           "font-mono text-xs",
                           isPositive ? 'text-emerald-400/80' : 'text-red-400/80'
@@ -1271,27 +1273,27 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       </td>
 
                       {/* 12. Volumen Total (volumen) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.volumen)}</span>
                       </td>
 
                       {/* 13. Efectivo (monto_efectivo) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-300 font-mono text-xs">{formatValue(accion.monto_efectivo, 2)}</span>
                       </td>
 
                       {/* 14. Operaciones (tot_op_negoc) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-slate-500 font-mono text-xs">{formatInt(accion.tot_op_negoc)}</span>
                       </td>
 
                       {/* 15. Máximo (precio_max) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-emerald-400/80 font-mono text-xs">{formatValue(accion.precio_max, 2)}</span>
                       </td>
 
                       {/* 16. Mínimo (precio_min) */}
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2 px-2 text-center">
                         <span className="text-red-400/80 font-mono text-xs">{formatValue(accion.precio_min, 2)}</span>
                       </td>
                     </tr>

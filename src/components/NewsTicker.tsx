@@ -25,7 +25,7 @@ export function NewsTicker({ noticias }: NewsTickerProps) {
   }
 
   return (
-    <div className="w-full bg-[#141414] border-b border-[#262626] overflow-hidden py-2">
+    <div className="w-full bg-[#0a0a0a] border-b border-[#262626] overflow-hidden py-2">
       <div className="flex items-center gap-4">
         {/* Icono fijo */}
         <div className="flex items-center gap-2 px-4 flex-shrink-0">
