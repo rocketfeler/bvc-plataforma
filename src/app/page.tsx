@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   TrendingUp, DollarSign, Loader2, AlertCircle, RefreshCw, Calculator,
   PieChart, Activity, Wallet, Building2, Layers, Zap, Globe, Shield, Cpu,
-  BarChart3, ArrowUpRight, ArrowDownRight, LogOut
+  BarChart3, ArrowUpRight, ArrowDownRight, LogOut, Star
 } from "lucide-react";
 import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -999,8 +999,59 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
   // PARACAÍDAS MATEMÁTICO: Tasa BCV para conversión a USD (validación estricta)
   const tasaBCV = ((tasas?.bcv ?? 0) > 0) ? tasas.bcv : CONFIG.FALLBACK_TASA_BCV;
 
-  // ORDENAMIENTO ALFABÉTICO: A-Z por símbolo
-  const bvcOrdenada = [...(bvc ?? [])].sort((a, b) => a.simbolo.localeCompare(b.simbolo));
+  // FAVORITOS: Estado y persistencia en localStorage
+  const [favoriteSymbols, setFavoriteSymbols] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('bvc_favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch (err) {
+      console.error('[Favorites] Error loading from localStorage:', err);
+      return [];
+    }
+  });
+
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+
+  // Guardar favoritos en localStorage cuando cambien
+  useEffect(() => {
+    try {
+      localStorage.setItem('bvc_favorites', JSON.stringify(favoriteSymbols));
+      console.log('[Favorites] Guardados:', favoriteSymbols.length, 'símbolos');
+    } catch (err) {
+      console.error('[Favorites] Error saving to localStorage:', err);
+    }
+  }, [favoriteSymbols]);
+
+  // Toggle favorite
+  const toggleFavorite = useCallback((simbolo: string) => {
+    setFavoriteSymbols((prev: string[]) => {
+      if (prev.includes(simbolo)) {
+        return prev.filter((s) => s !== simbolo);
+      } else {
+        return [...prev, simbolo];
+      }
+    });
+  }, []);
+
+  // ORDENAMIENTO ALFABÉTICO: A-Z por símbolo, pero favoritos primero
+  const bvcOrdenada = [...(bvc ?? [])]
+    .filter((accion: BVCData) => {
+      if (showOnlyFavorites) {
+        return favoriteSymbols.includes(accion.simbolo);
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const aIsFavorite = favoriteSymbols.includes(a.simbolo);
+      const bIsFavorite = favoriteSymbols.includes(b.simbolo);
+      
+      // Si uno es favorito y el otro no, el favorito va primero
+      if (aIsFavorite && !bIsFavorite) return -1;
+      if (!aIsFavorite && bIsFavorite) return 1;
+      
+      // Si ambos son favoritos o ninguno lo es, orden alfabético
+      return a.simbolo.localeCompare(b.simbolo);
+    });
   
   return (
     <div className="space-y-4">
@@ -1011,6 +1062,23 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
             PIZARRA BVC - TERMINAL PROFESIONAL
           </h3>
           <div className="flex items-center gap-3">
+            {/* Botón para filtrar favoritos */}
+            <button
+              onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded border text-[10px] font-mono uppercase tracking-wider transition-all",
+                showOnlyFavorites
+                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                  : 'bg-[#141414] border-[#262626] text-slate-500 hover:text-amber-400 hover:border-amber-500/30'
+              )}
+              title={showOnlyFavorites ? "Mostrar todos" : "Mostrar solo favoritos"}
+            >
+              <Star className={cn("w-3.5 h-3.5", showOnlyFavorites ? "fill-amber-400" : "")} />
+              {favoriteSymbols.length > 0 && (
+                <span>{favoriteSymbols.length}</span>
+              )}
+            </button>
+            
             <div className="text-xs font-mono text-slate-500">
               {bvc?.length || 0} INSTRUMENTOS
             </div>
@@ -1080,6 +1148,23 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       {/* 1. Símbolo (simbolo) */}
                       <td className="py-2 px-3 sticky left-0 bg-[#1a1a1a] group-hover:bg-[#262626]">
                         <div className="flex items-center gap-2">
+                          {/* Star Favorite Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(simbolo);
+                            }}
+                            className={cn(
+                              "p-1 rounded transition-colors",
+                              favoriteSymbols.includes(simbolo)
+                                ? 'text-amber-400 hover:text-amber-300'
+                                : 'text-slate-600 hover:text-amber-400'
+                            )}
+                            title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                          >
+                            <Star className={cn("w-4 h-4", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
+                          </button>
+                          
                           <div className={cn(
                             "w-7 h-7 rounded flex items-center justify-center font-bold text-[10px] border",
                             isPositive
