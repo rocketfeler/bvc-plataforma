@@ -612,10 +612,10 @@ export default function BloombergTerminal() {
                                       <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/4">
                                         {orden.cantidad.toLocaleString('es-VE')}
                                       </td>
-                                      <td className="py-3 px-3 w-2/4 relative">
+                                      <td className="py-3 px-1 w-2/4 relative">
                                         {/* Barra de volumen - crece desde la derecha hacia izquierda */}
                                         <div
-                                          className="absolute top-1/2 -translate-y-1/2 right-2 h-2 bg-emerald-500/30 rounded-full transition-all duration-300"
+                                          className="absolute top-1/2 -translate-y-1/2 right-1 h-2 bg-emerald-500/30 rounded-full transition-all duration-300"
                                           style={{
                                             width: `${barWidth}%`,
                                           }}
@@ -680,10 +680,10 @@ export default function BloombergTerminal() {
                                       <td className="py-3 px-3 font-mono font-bold text-red-400 text-base text-left w-1/4">
                                         {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                       </td>
-                                      <td className="py-3 px-3 w-2/4 relative">
+                                      <td className="py-3 px-1 w-2/4 relative">
                                         {/* Barra de volumen - crece desde la izquierda hacia derecha */}
                                         <div
-                                          className="absolute top-1/2 -translate-y-1/2 left-2 h-2 bg-red-500/30 rounded-full transition-all duration-300"
+                                          className="absolute top-1/2 -translate-y-1/2 left-1 h-2 bg-red-500/30 rounded-full transition-all duration-300"
                                           style={{
                                             width: `${barWidth}%`,
                                           }}
