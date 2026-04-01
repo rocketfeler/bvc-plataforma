@@ -1110,11 +1110,10 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
             <table className="w-full">
               <thead>
                 <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#0a0a0a] border-b border-[#262626]">
-                  <th className="text-center py-3 px-2 font-medium sticky left-0 bg-[#0a0a0a] z-20 w-[40px]"></th>
-                  <th className="text-left py-3 px-2 font-medium sticky left-[40px] bg-[#0a0a0a] z-10 w-[140px]">Símbolo</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[180px] bg-[#0a0a0a] z-10 w-[70px]">Libro de Órdenes</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[250px] bg-[#0a0a0a] z-10 w-[100px]">Precio (Bs)</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[350px] bg-[#0a0a0a] z-10 w-[90px]">Precio ($)</th>
+                  <th className="text-left py-3 px-2 font-medium sticky left-0 bg-[#0a0a0a] z-10 w-[180px]">Símbolo</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[180px] bg-[#0a0a0a] z-10 w-[100px]">Libro de Órdenes</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[280px] bg-[#0a0a0a] z-10 w-[100px]">Precio (Bs)</th>
+                  <th className="text-center py-3 px-2 font-medium sticky left-[380px] bg-[#0a0a0a] z-10 w-[90px]">Precio ($)</th>
                   <th className="text-center py-3 px-2 font-medium w-[100px]">Compra (Vol)</th>
                   <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Compra</th>
                   <th className="text-center py-3 px-2 font-medium w-[90px]">Spread</th>
@@ -1150,7 +1149,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                       className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a] transition-colors"
                     >
                       {/* 1. Símbolo (info) con Star Favorite integrada */}
-                      <td className="py-2 px-2 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-20">
+                      <td className="py-2 px-2 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <div className="flex items-center gap-2">
                           <div className="relative">
                             <div className={cn(
@@ -1185,7 +1184,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </div>
                       </td>
 
-                      {/* 3. Libro de Órdenes */}
+                      {/* 2. Libro de Órdenes */}
                       <td className="py-2 px-2 text-center sticky left-[180px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <button
                           onClick={() => fetchLibroOrdenes(simbolo)}
@@ -1196,13 +1195,13 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </button>
                       </td>
 
-                      {/* 4. Precio (Bs) */}
-                      <td className="py-2 px-2 text-center sticky left-[250px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
+                      {/* 3. Precio (Bs) */}
+                      <td className="py-2 px-2 text-center sticky left-[280px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <span className="text-white font-bold font-mono text-xs">{formatValue(precioActual, 2)}</span>
                       </td>
 
-                      {/* 3. Precio ($) - 2 decimales */}
-                      <td className="py-2 px-2 text-center sticky left-[350px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
+                      {/* 4. Precio ($) - 2 decimales */}
+                      <td className="py-2 px-2 text-center sticky left-[380px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
                         <span className="text-slate-400 font-mono text-xs">
                           {precioUSD !== null ? formatValue(precioUSD, 2) : '-'}
                         </span>
