@@ -1115,11 +1115,11 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                   <th className="text-center py-3 px-2 font-medium sticky left-[180px] bg-[#0a0a0a] z-10 w-[70px]">Libro de Órdenes</th>
                   <th className="text-center py-3 px-2 font-medium sticky left-[250px] bg-[#0a0a0a] z-10 w-[100px]">Precio (Bs)</th>
                   <th className="text-center py-3 px-2 font-medium sticky left-[350px] bg-[#0a0a0a] z-10 w-[90px]">Precio ($)</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px] bg-emerald-500/20 text-emerald-400">Compra (Vol)</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px] bg-emerald-500/30 text-emerald-300">Precio Compra</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Compra (Vol)</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Compra</th>
                   <th className="text-center py-3 px-2 font-medium w-[90px]">Spread</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px] bg-red-500/30 text-red-300">Precio Venta</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px] bg-red-500/20 text-red-400">Venta (Vol)</th>
+                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Venta</th>
+                  <th className="text-center py-3 px-2 font-medium w-[100px]">Venta (Vol)</th>
                   <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Apertura</th>
                   <th className="text-center py-3 px-2 font-medium w-[90px]">Var %</th>
                   <th className="text-center py-3 px-2 font-medium w-[90px]">Var Abs</th>
@@ -1209,17 +1209,17 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </span>
                       </td>
 
-                      {/* 6. Compra (Vol) (vol_cmp) - Fondo Verde */}
-                      <td className="py-2 px-2 text-center bg-emerald-500/20">
-                        <span className="text-emerald-300 font-mono text-xs font-bold">{formatInt(accion.vol_cmp)}</span>
+                      {/* 6. Compra (Vol) (vol_cmp) - Fondo Verde Oscuro */}
+                      <td className="py-2 px-2 text-center bg-emerald-900/40">
+                        <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_cmp)}</span>
                       </td>
 
-                      {/* 7. Precio Compra (precio_compra) - Fondo Verde */}
-                      <td className="py-2 px-2 text-center bg-emerald-500/30">
-                        <span className="text-emerald-200 font-mono text-xs font-bold">{formatValue(accion.precio_compra, 2)}</span>
+                      {/* 7. Precio Compra (precio_compra) - Fondo Verde Oscuro */}
+                      <td className="py-2 px-2 text-center bg-emerald-900/40">
+                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
                       </td>
 
-                      {/* 6. Spread % - Condicional: Verde (bueno <10%), Amarillo (regular 10-25%), Rojo (malo >25%) */}
+                      {/* 6. Spread % - Solo color de texto: Verde (bueno <10%), Amarillo (regular 10-25%), Rojo (malo >25%) */}
                       <td className="py-2 px-2 text-center">
                         {(() => {
                           const compra = accion.precio_compra ?? 0;
@@ -1228,25 +1228,20 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                           
                           // Determinar color del spread
                           let spreadColor = 'text-slate-500';
-                          let spreadBg = '';
                           if (spreadPercent !== null && spreadPercent > 0) {
                             if (spreadPercent < 10) {
                               spreadColor = 'text-emerald-400 font-bold';
-                              spreadBg = 'bg-emerald-500/20';
                             } else if (spreadPercent < 25) {
                               spreadColor = 'text-amber-400 font-bold';
-                              spreadBg = 'bg-amber-500/20';
                             } else {
                               spreadColor = 'text-red-400 font-bold';
-                              spreadBg = 'bg-red-500/20';
                             }
                           }
                           
                           return (
                             <span className={cn(
-                              "font-mono text-xs px-2 py-1 rounded",
-                              spreadColor,
-                              spreadBg
+                              "font-mono text-xs",
+                              spreadColor
                             )}>
                               {spreadPercent !== null && spreadPercent > 0 ? formatValue(spreadPercent, 2) + ' %' : '-'}
                             </span>
@@ -1254,14 +1249,14 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         })()}
                       </td>
 
-                      {/* 7. Precio Venta (precio_vta) - Fondo Rojo */}
-                      <td className="py-2 px-2 text-center bg-red-500/30">
-                        <span className="text-red-200 font-mono text-xs font-bold">{formatValue(accion.precio_vta, 2)}</span>
+                      {/* 7. Precio Venta (precio_vta) - Fondo Rojo Oscuro */}
+                      <td className="py-2 px-2 text-center bg-red-900/40">
+                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_vta, 2)}</span>
                       </td>
 
-                      {/* 8. Venta (Vol) (vol_vta) - Fondo Rojo */}
-                      <td className="py-2 px-2 text-center bg-red-500/20">
-                        <span className="text-red-300 font-mono text-xs font-bold">{formatInt(accion.vol_vta)}</span>
+                      {/* 8. Venta (Vol) (vol_vta) - Fondo Rojo Oscuro */}
+                      <td className="py-2 px-2 text-center bg-red-900/40">
+                        <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_vta)}</span>
                       </td>
 
                       {/* 9. Precio Apertura (precio_apert) */}
