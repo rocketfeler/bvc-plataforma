@@ -1209,13 +1209,13 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         </span>
                       </td>
 
-                      {/* 6. Compra (Vol) (vol_cmp) - Fondo Verde Oscuro */}
-                      <td className="py-2 px-2 text-center bg-emerald-900/40">
+                      {/* 6. Compra (Vol) (vol_cmp) - Fondo Verde Claro */}
+                      <td className="py-2 px-2 text-center bg-emerald-700/50">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_cmp)}</span>
                       </td>
 
-                      {/* 7. Precio Compra (precio_compra) - Fondo Verde Oscuro */}
-                      <td className="py-2 px-2 text-center bg-emerald-900/40">
+                      {/* 7. Precio Compra (precio_compra) - Fondo Verde Claro */}
+                      <td className="py-2 px-2 text-center bg-emerald-700/50">
                         <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
                       </td>
 
@@ -1249,13 +1249,13 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                         })()}
                       </td>
 
-                      {/* 7. Precio Venta (precio_vta) - Fondo Rojo Oscuro */}
-                      <td className="py-2 px-2 text-center bg-red-900/40">
+                      {/* 7. Precio Venta (precio_vta) - Fondo Rojo Claro */}
+                      <td className="py-2 px-2 text-center bg-red-700/50">
                         <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_vta, 2)}</span>
                       </td>
 
-                      {/* 8. Venta (Vol) (vol_vta) - Fondo Rojo Oscuro */}
-                      <td className="py-2 px-2 text-center bg-red-900/40">
+                      {/* 8. Venta (Vol) (vol_vta) - Fondo Rojo Claro */}
+                      <td className="py-2 px-2 text-center bg-red-700/50">
                         <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_vta)}</span>
                       </td>
 
