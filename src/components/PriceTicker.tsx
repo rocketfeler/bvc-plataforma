@@ -1,11 +1,12 @@
 'use client';
 
-import { cn, formatValue, formatPercentSimple } from './utils';
+import { cn, formatValue, formatPercent } from './utils';
 
 interface TickerItem {
   label: string;
   value: string | undefined;
   change: string | null;
+  changeNum: number | null;
   type: 'rate' | 'stock';
 }
 
@@ -17,6 +18,7 @@ interface PriceTickerProps {
 /**
  * Cinta de precios en movimiento
  * BLINDADO: Maneja casos donde tasas o bvc son undefined/null
+ * CORREGIDO: Usa formatPercent para preservar el signo negativo
  */
 export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
   // BLINDAJE: Verificar que tasas exista antes de acceder a sus propiedades
@@ -24,8 +26,14 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
   const bvcSafe = Array.isArray(bvc) ? bvc : [];
 
   const items: TickerItem[] = [
-    { label: 'BCV', value: formatValue(tasasSafe.bcv, 2), change: null, type: 'rate' as const },
-    { label: 'BINANCE', value: formatValue(tasasSafe.binance, 2), change: formatPercentSimple(tasasSafe.brecha_binance_pct, 2), type: 'rate' as const },
+    { label: 'BCV', value: formatValue(tasasSafe.bcv, 2), change: null, changeNum: null, type: 'rate' as const },
+    { 
+      label: 'BINANCE', 
+      value: formatValue(tasasSafe.binance, 2), 
+      change: formatPercent(tasasSafe.brecha_binance_pct, 2), 
+      changeNum: tasasSafe.brecha_binance_pct,
+      type: 'rate' as const 
+    },
     // BLINDAJE: Slice seguro con verificación de longitud
     ...bvcSafe.slice(0, 8).map(a => {
       const precio = (a?.precio ?? a?.precio_vta ?? a?.precio_compra) ?? 0;
@@ -33,7 +41,8 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
       return ({
         label: a?.simbolo || 'S/N',
         value: formatValue(precio, 2),
-        change: formatPercentSimple(variacion, 2),
+        change: formatPercent(variacion, 2),
+        changeNum: variacion,
         type: 'stock' as const
       });
     })
@@ -43,9 +52,8 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
     <div className="w-full bg-[#0a0a0a] border-b border-[#262626] overflow-hidden py-2">
       <div className="flex animate-ticker gap-8 whitespace-nowrap">
         {[...items, ...items].map((item, idx) => {
-          // BLINDAJE: Parseo seguro del cambio
-          const changeNum = item.change && item.change !== '-' ? parseFloat(item.change.replace('%', '')) : null;
-          const isPositive = changeNum !== null && changeNum >= 0;
+          // BLINDAJE: Usar changeNum directamente (ya tiene el signo correcto)
+          const isPositive = item.changeNum !== null && item.changeNum >= 0;
 
           return (
             <div key={idx} className="flex items-center gap-2 text-xs font-mono">
