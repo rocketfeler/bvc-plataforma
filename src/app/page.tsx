@@ -1175,7 +1175,7 @@ function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasa
                               )}
                               title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
                             >
-                              <Star className="w-2 h-2" />
+                              <Star className={cn("w-3 h-3", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
                             </button>
                           </div>
                           <div className="min-w-0">
