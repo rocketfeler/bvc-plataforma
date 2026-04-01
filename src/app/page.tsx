@@ -615,13 +615,13 @@ export default function BloombergTerminal() {
                                       <td className="py-3 px-0 w-2/4 relative">
                                         {/* Barra de volumen - crece desde la derecha hacia izquierda */}
                                         <div
-                                          className="absolute top-1/2 -translate-y-1/2 right-0 h-3 bg-emerald-500/30 rounded-full transition-all duration-300"
+                                          className="absolute top-1/2 -translate-y-1/2 right-0 h-2 bg-emerald-500/30 rounded-full transition-all duration-300"
                                           style={{
                                             width: `${barWidth}%`,
                                           }}
                                         />
                                       </td>
-                                      <td className="py-3 pr-1 font-mono font-bold text-emerald-400 text-base text-right w-1/4">
+                                      <td className="py-3 px-0 font-mono font-bold text-emerald-400 text-base text-right w-1/4">
                                         {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                       </td>
                                     </tr>
@@ -677,13 +677,13 @@ export default function BloombergTerminal() {
 
                                   return (
                                     <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                      <td className="py-3 pl-1 font-mono font-bold text-red-400 text-base text-left w-1/4">
+                                      <td className="py-3 px-0 font-mono font-bold text-red-400 text-base text-left w-1/4">
                                         {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                       </td>
                                       <td className="py-3 px-0 w-2/4 relative">
                                         {/* Barra de volumen - crece desde la izquierda hacia derecha */}
                                         <div
-                                          className="absolute top-1/2 -translate-y-1/2 left-0 h-3 bg-red-500/30 rounded-full transition-all duration-300"
+                                          className="absolute top-1/2 -translate-y-1/2 left-0 h-2 bg-red-500/30 rounded-full transition-all duration-300"
                                           style={{
                                             width: `${barWidth}%`,
                                           }}
