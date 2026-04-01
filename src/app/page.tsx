@@ -608,19 +608,19 @@ export default function BloombergTerminal() {
                                 
                                 return (
                                   <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/3 relative">
+                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/3">
                                       {orden.cantidad.toLocaleString('es-VE')}
                                     </td>
                                     <td className="py-3 px-3 font-mono font-bold text-emerald-400 text-base text-right w-2/3 relative">
                                       {/* Barra de volumen - crece desde la derecha hacia izquierda */}
-                                      <div 
+                                      <div
                                         className="absolute inset-y-2 right-0 bg-emerald-500/20 transition-all duration-300"
-                                        style={{ 
+                                        style={{
                                           width: `${barWidth}%`,
                                           borderRadius: '9999px'
                                         }}
                                       />
-                                      <span className="relative z-10">{orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                      <span className="relative z-10 pr-12">{orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </td>
                                   </tr>
                                 );
@@ -653,8 +653,8 @@ export default function BloombergTerminal() {
                         <table className="w-full text-sm table-fixed">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-right py-2 px-3 font-medium w-2/3">Precio (Bs)</th>
-                              <th className="text-left py-2 px-3 font-medium w-1/3">Cantidad</th>
+                              <th className="text-left py-2 px-3 font-medium w-1/3">Precio (Bs)</th>
+                              <th className="text-right py-2 px-3 font-medium w-2/3">Cantidad</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -670,22 +670,22 @@ export default function BloombergTerminal() {
                                 const maxVolumen = Math.max(...(libroOrdenes.compras?.map((o: any) => o.cantidad) || [1]), ...libroOrdenes.ventas.map((o: any) => o.cantidad));
                                 const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
                                 const barWidth = Math.min(70, Math.max(4, volumenRatio * 70)); // Mínimo 4%, máximo 70%
-                                
+
                                 return (
                                   <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                    <td className="py-3 px-3 font-mono font-bold text-red-400 text-base text-right w-2/3 relative">
-                                      {/* Barra de volumen - crece desde la izquierda hacia derecha */}
-                                      <div 
-                                        className="absolute inset-y-2 left-0 bg-red-500/20 transition-all duration-300"
-                                        style={{ 
+                                    <td className="py-3 px-3 font-mono font-bold text-red-400 text-base text-left w-1/3">
+                                      {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-right w-2/3 relative">
+                                      {/* Barra de volumen - crece desde la derecha hacia izquierda */}
+                                      <div
+                                        className="absolute inset-y-2 right-0 bg-red-500/20 transition-all duration-300"
+                                        style={{
                                           width: `${barWidth}%`,
                                           borderRadius: '9999px'
                                         }}
                                       />
-                                      <span className="relative z-10">{orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                    </td>
-                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/3">
-                                      {orden.cantidad.toLocaleString('es-VE')}
+                                      <span className="relative z-10 pr-12">{orden.cantidad.toLocaleString('es-VE')}</span>
                                     </td>
                                   </tr>
                                 );
