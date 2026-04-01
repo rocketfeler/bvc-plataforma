@@ -585,11 +585,11 @@ export default function BloombergTerminal() {
                         </div>
                       </div>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-sm table-fixed">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium">Cantidad</th>
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
+                              <th className="text-left py-2 px-3 font-medium w-1/3">Cantidad</th>
+                              <th className="text-right py-2 px-3 font-medium w-2/3">Precio (Bs)</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -604,20 +604,19 @@ export default function BloombergTerminal() {
                                 // Calcular el volumen máximo para la barra
                                 const maxVolumen = Math.max(...libroOrdenes.compras.map((o: any) => o.cantidad), ...(libroOrdenes.ventas?.map((o: any) => o.cantidad) || [1]));
                                 const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
-                                const barWidth = Math.min(60, Math.max(4, volumenRatio * 60)); // Mínimo 4%, máximo 60%
+                                const barWidth = Math.min(70, Math.max(4, volumenRatio * 70)); // Mínimo 4%, máximo 70%
                                 
                                 return (
                                   <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/3">
+                                    <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/3 relative">
                                       {orden.cantidad.toLocaleString('es-VE')}
                                     </td>
-                                    <td className="py-3 px-3 font-mono font-bold text-emerald-400 text-base text-right relative w-2/3">
-                                      {/* Barra de volumen - crece desde la derecha hacia izquierda, con bordes muy redondeados */}
+                                    <td className="py-3 px-3 font-mono font-bold text-emerald-400 text-base text-right w-2/3 relative">
+                                      {/* Barra de volumen - crece desde la derecha hacia izquierda */}
                                       <div 
                                         className="absolute inset-y-2 right-0 bg-emerald-500/20 transition-all duration-300"
                                         style={{ 
                                           width: `${barWidth}%`,
-                                          left: `calc(100% - ${barWidth}%)`,
                                           borderRadius: '9999px'
                                         }}
                                       />
@@ -651,11 +650,11 @@ export default function BloombergTerminal() {
                         </div>
                       </div>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-sm table-fixed">
                           <thead>
                             <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-right py-2 px-3 font-medium">Precio (Bs)</th>
-                              <th className="text-left py-2 px-3 font-medium">Cantidad</th>
+                              <th className="text-right py-2 px-3 font-medium w-2/3">Precio (Bs)</th>
+                              <th className="text-left py-2 px-3 font-medium w-1/3">Cantidad</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -670,17 +669,16 @@ export default function BloombergTerminal() {
                                 // Calcular el volumen máximo para la barra
                                 const maxVolumen = Math.max(...(libroOrdenes.compras?.map((o: any) => o.cantidad) || [1]), ...libroOrdenes.ventas.map((o: any) => o.cantidad));
                                 const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
-                                const barWidth = Math.min(60, Math.max(4, volumenRatio * 60)); // Mínimo 4%, máximo 60%
+                                const barWidth = Math.min(70, Math.max(4, volumenRatio * 70)); // Mínimo 4%, máximo 70%
                                 
                                 return (
                                   <tr key={idx} className="border-b border-[#262626] hover:bg-[#1a1a1a]">
-                                    <td className="py-3 px-3 font-mono font-bold text-red-400 text-base text-right relative w-2/3">
-                                      {/* Barra de volumen - crece desde la izquierda hacia derecha, con bordes muy redondeados */}
+                                    <td className="py-3 px-3 font-mono font-bold text-red-400 text-base text-right w-2/3 relative">
+                                      {/* Barra de volumen - crece desde la izquierda hacia derecha */}
                                       <div 
                                         className="absolute inset-y-2 left-0 bg-red-500/20 transition-all duration-300"
                                         style={{ 
                                           width: `${barWidth}%`,
-                                          right: 'auto',
                                           borderRadius: '9999px'
                                         }}
                                       />
