@@ -462,6 +462,7 @@ export default function BloombergTerminal() {
                 tasaBinanceFallback={tasaBinanceFallback}
                 mounted={mounted}
                 loading={loading}
+                onStockClick={abrirStockDetail}
               />
             )}
 
@@ -740,7 +741,7 @@ function ModalContent({
 // VISTA: DASHBOARD
 // ============================================================================
 
-function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinanceFallback, mounted, loading }: any) {
+function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinanceFallback, mounted, loading, onStockClick }: any) {
   // Mostrar skeleton loading cuando no hay datos
   if (loading && !tasas) {
     return (
@@ -872,7 +873,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
                       accion={accion}
                       previous={previous}
                       tasaBinance={tasaBinanceFallback}
-                      onStockClick={abrirStockDetail}
+                      onStockClick={onStockClick}
                     />
                   );
                 })}
