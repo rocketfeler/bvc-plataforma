@@ -111,4 +111,4 @@ export const MetricCard = React.memo(function MetricCard({
       </Card>
     </motion.div>
   );
-}
+});

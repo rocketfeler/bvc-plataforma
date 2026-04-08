@@ -90,4 +90,4 @@ export const Sparkline = React.memo(function Sparkline({
       </ResponsiveContainer>
     </div>
   );
-}
+});

@@ -36,4 +36,4 @@ export const FlashPrice = React.memo(function FlashPrice({ value, previous, deci
       {formatValue(value, decimals)}{suffix && ` ${suffix}`}
     </span>
   );
-}
+});
