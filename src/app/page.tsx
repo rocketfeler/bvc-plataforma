@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   TrendingUp, DollarSign, Loader2, AlertCircle, RefreshCw, Calculator,
   PieChart, Activity, Wallet, Layers, Zap, Globe, Shield, Cpu,
-  BarChart3, ArrowUpRight, ArrowDownRight, LogOut, Star, Download
+  BarChart3, ArrowUpRight, ArrowDownRight, LogOut, Star, Download,
+  ArrowLeftRight, Coins, TrendingDown, Plus, X, History, Edit2, Trash2,
+  ChevronDown, Check, Info
 } from "lucide-react";
 import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -19,8 +21,10 @@ import { TasasData, BVCData, PatrimonioData, MacroRow, LibroOrdenesData } from '
 
 // Componentes
 import {
-  PriceTicker, BVCRow, MetricCard, Card, FlashPrice, NewsTicker,
-  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent, formatPercentSimple, Header
+  PriceTicker, BVCRow, Card, FlashPrice, NewsTicker,
+  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent, formatPercentSimple, Header,
+  MarketKPIs, MarketRankings, OrderBook, StockStats, MarketTable, StockDetailView,
+  DashboardCards, Skeleton
 } from '@/components';
 import { Sidebar, type ActiveTab } from '@/components/Sidebar';
 
@@ -59,6 +63,10 @@ export default function BloombergTerminal() {
   const [libroOrdenesLoading, setLibroOrdenesLoading] = useState(false);
   const [libroOrdenesSimbolo, setLibroOrdenesSimbolo] = useState<string | null>(null);
 
+  // Estado para la vista detallada de acción
+  const [showStockDetail, setShowStockDetail] = useState(false);
+  const [detailStockData, setDetailStockData] = useState<BVCData | null>(null);
+
   // ============================================================================
   // FUNCIONES - Antes de cualquier useEffect
   // ============================================================================
@@ -88,6 +96,16 @@ export default function BloombergTerminal() {
   const cerrarLibroOrdenes = () => {
     setLibroOrdenes(null);
     setLibroOrdenesSimbolo(null);
+  };
+
+  const abrirStockDetail = (stock: BVCData) => {
+    setDetailStockData(stock);
+    setShowStockDetail(true);
+  };
+
+  const cerrarStockDetail = () => {
+    setShowStockDetail(false);
+    setDetailStockData(null);
   };
 
   // ============================================================================
@@ -425,68 +443,82 @@ export default function BloombergTerminal() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="ml-0 lg:ml-60 px-4 lg:px-6 py-4 relative z-10">
-        {activeTab === 'dashboard' && (
-          <DashboardView
-            tasas={tasas}
-            bvc={bvc}
-            patrimonio={patrimonio}
-            macro={macro}
-            previousBvc={previousBvc}
-            tasaBinanceFallback={tasaBinanceFallback}
-            mounted={mounted}
-          />
-        )}
+      <main id="main-content" className="ml-0 lg:ml-60 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 relative z-10" tabIndex={-1}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                tasas={tasas}
+                bvc={bvc}
+                patrimonio={patrimonio}
+                macro={macro}
+                previousBvc={previousBvc}
+                tasaBinanceFallback={tasaBinanceFallback}
+                mounted={mounted}
+                loading={loading}
+              />
+            )}
 
-        {activeTab === 'calculadora' && (
-          <CalculadoraView tasas={tasas} bvc={bvc} />
-        )}
+            {activeTab === 'calculadora' && (
+              <CalculadoraView tasas={tasas} bvc={bvc} loading={loading} />
+            )}
 
-        {activeTab === 'pizarra' && (
-          <PizarraView
-            bvc={bvc}
-            previousBvc={previousBvc}
-            tasaBinanceFallback={tasaBinanceFallback}
-            marketStatus={marketStatus}
-            tasas={tasas}
-            fetchLibroOrdenes={fetchLibroOrdenes}
-          />
-        )}
+            {activeTab === 'pizarra' && (
+              <PizarraView
+                bvc={bvc}
+                previousBvc={previousBvc}
+                tasaBinanceFallback={tasaBinanceFallback}
+                marketStatus={marketStatus}
+                tasas={tasas}
+                fetchLibroOrdenes={fetchLibroOrdenes}
+                loading={loading}
+              />
+            )}
 
-        {activeTab === 'portafolio' && (
-          <PortafolioView
-            patrimonio={patrimonio}
-            mounted={mounted}
-            onRefresh={async () => {
-              const headers = getAuthHeaders();
-              const data = await fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers });
-              if (data?.detalles) setPatrimonio(data);
-            }}
-            fetchWithRetry={fetchWithRetry}
-            getAuthHeaders={getAuthHeaders}
-            apiUrl={CONFIG.API_URL}
-          />
-        )}
+            {activeTab === 'portafolio' && (
+              <PortafolioView
+                patrimonio={patrimonio}
+                mounted={mounted}
+                onRefresh={async () => {
+                  const headers = getAuthHeaders();
+                  const data = await fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers });
+                  if (data?.detalles) setPatrimonio(data);
+                }}
+                fetchWithRetry={fetchWithRetry}
+                getAuthHeaders={getAuthHeaders}
+                apiUrl={CONFIG.API_URL}
+                loading={loading}
+              />
+            )}
 
-        {activeTab === 'mercado' && (
-          <MercadoResumenView
-            bvc={bvc}
-            previousBvc={previousBvc}
-            tasas={tasas}
-            mounted={mounted}
-          />
-        )}
+            {activeTab === 'mercado' && (
+              <MercadoResumenView
+                bvc={bvc}
+                previousBvc={previousBvc}
+                tasas={tasas}
+                mounted={mounted}
+                loading={loading}
+              />
+            )}
 
-        {activeTab === 'alertas' && (
-          <AlertasView tasas={tasas} />
-        )}
+            {activeTab === 'alertas' && (
+              <AlertasView tasas={tasas} loading={loading} />
+            )}
 
-        {activeTab === 'exportar' && (
-          <ExportarView apiUrl={CONFIG.API_URL} getAuthHeaders={getAuthHeaders} />
-        )}
+            {activeTab === 'exportar' && (
+              <ExportarView apiUrl={CONFIG.API_URL} getAuthHeaders={getAuthHeaders} />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
-      {/* MODAL LIBRO DE ÓRDENES */}
+      {/* MODAL LIBRO DE ÓRDENES + ESTADÍSTICAS */}
       <AnimatePresence>
         {libroOrdenes && libroOrdenesSimbolo && (
           <motion.div
@@ -495,213 +527,206 @@ export default function BloombergTerminal() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={cerrarLibroOrdenes}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Libro de órdenes y estadísticas de ${libroOrdenesSimbolo}`}
           >
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
+              role="document"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#0a0a0a]">
-                <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div className="p-2 bg-red-500/20 border border-red-500/30 rounded">
-                    <span className="text-xl">📊</span>
+                    <span className="text-xl" aria-hidden="true">📊</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">LIBRO DE ÓRDENES - {libroOrdenesSimbolo}</h3>
-                    <p className="text-xs text-slate-400 font-mono">
-                      {libroOrdenes.fuente === 'cache' ? '● Datos en caché' : libroOrdenes.fuente === 'directo' ? '● Datos en tiempo real' : '● Datos disponibles'}
+                    <h3 className="text-sm sm:text-lg font-bold text-white">{libroOrdenesSimbolo}</h3>
+                    <p className="text-[10px] sm:text-xs text-slate-400 font-mono">
+                      {libroOrdenes.fuente === 'cache' ? '● Datos en caché' : libroOrdenes.fuente === 'directo' || libroOrdenes.fuente === 'directo-bvc' ? '● Datos en tiempo real' : '● Datos disponibles'}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={cerrarLibroOrdenes}
-                  className="p-2 hover:bg-[#262626] rounded transition-colors group"
+                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                  aria-label="Cerrar modal"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
                     <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                   </svg>
                 </button>
               </div>
 
-              {/* Contenido */}
-              <div className="p-4 overflow-auto max-h-[calc(80vh-140px)]">
-                {libroOrdenesLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="animate-spin text-red-400" size={32} />
-                    <span className="ml-3 text-slate-400">Cargando libro de órdenes...</span>
-                  </div>
-                ) : libroOrdenes.error ? (
-                  <div className="flex items-center justify-center py-12">
-                    <AlertCircle className="text-red-400" size={32} />
-                    <span className="ml-3 text-red-400">{libroOrdenes.error}</span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* COMPRAS */}
-                    <div className="bg-[#0a0a0a] border border-emerald-500/20 rounded-lg overflow-hidden">
-                      <div className="bg-emerald-500/10 px-4 py-3 border-b border-emerald-500/20">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-emerald-400 flex items-center gap-2">
-                            <ArrowUpRight size={18} />
-                            COMPRAS
-                          </h4>
-                          {libroOrdenes.mejor_bid !== undefined && libroOrdenes.mejor_bid !== null && (
-                            <div className="text-right">
-                              <span className="text-[10px] text-slate-400 block">Mejor Compra</span>
-                              <span className="text-base font-bold text-emerald-400">
-                                {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm table-fixed">
-                          <thead>
-                            <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium w-1/4">Cantidad</th>
-                              <th className="text-right py-2 px-3 font-medium w-3/4">Precio (Bs)</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {libroOrdenes.compras.length === 0 ? (
-                              <tr>
-                                <td colSpan={2} className="text-center py-8 text-slate-500">
-                                  Sin órdenes de compra
-                                </td>
-                              </tr>
-                            ) : (
-                              (() => {
-                                const maxVolumen = Math.max(...libroOrdenes.compras.map((o: any) => o.cantidad), ...(libroOrdenes.ventas?.map((o: any) => o.cantidad) || [1]));
-                                return libroOrdenes.compras.map((orden, idx) => {
-                                  const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
-                                  const barWidth = Math.min(90, Math.max(4, volumenRatio * 90));
+              {/* Tabs: Libro de Órdenes | Estadísticas */}
+              <ModalContent
+                libroOrdenes={libroOrdenes}
+                libroOrdenesLoading={libroOrdenesLoading}
+                libroOrdenesSimbolo={libroOrdenesSimbolo}
+                bvc={bvc}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
-                                  return (
-                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a]">
-                                      <td className="py-3 px-3 font-mono text-slate-300 text-base text-left w-1/4">
-                                        {orden.cantidad.toLocaleString('es-VE')}
-                                      </td>
-                                      <td className="py-3 px-0 w-3/4 relative">
-                                        <div className="flex items-center justify-end gap-2">
-                                          {/* Barra de volumen - crece desde la derecha hacia izquierda, pegada al precio */}
-                                          <div
-                                            className="h-2 bg-emerald-500/30 rounded-full transition-all duration-300"
-                                            style={{
-                                              width: `${barWidth}%`,
-                                            }}
-                                          />
-                                          <span className="font-mono font-bold text-emerald-400 text-base whitespace-nowrap">
-                                            {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                          </span>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                });
-                              })()
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+// ============================================================================
+// COMPONENTE: MODAL CONTENT (TABS: Libro de Órdenes | Estadísticas)
+// ============================================================================
 
-                    {/* VENTAS */}
-                    <div className="bg-[#0a0a0a] border border-red-500/20 rounded-lg overflow-hidden">
-                      <div className="bg-red-500/10 px-4 py-3 border-b border-red-500/20">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-red-400 flex items-center gap-2">
-                            <ArrowDownRight size={18} />
-                            VENTAS
-                          </h4>
-                          {libroOrdenes.mejor_ask !== undefined && libroOrdenes.mejor_ask !== null && (
-                            <div className="text-right">
-                              <span className="text-[10px] text-slate-400 block">Mejor Venta</span>
-                              <span className="text-base font-bold text-red-400">
-                                {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm table-fixed">
-                          <thead>
-                            <tr className="text-slate-400 border-b border-[#262626]">
-                              <th className="text-left py-2 px-3 font-medium w-3/4">Precio (Bs)</th>
-                              <th className="text-right py-2 px-3 font-medium w-1/4">Cantidad</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {libroOrdenes.ventas.length === 0 ? (
-                              <tr>
-                                <td colSpan={2} className="text-center py-8 text-slate-500">
-                                  Sin órdenes de venta
-                                </td>
-                              </tr>
-                            ) : (
-                              (() => {
-                                const maxVolumen = Math.max(...(libroOrdenes.compras?.map((o: any) => o.cantidad) || [1]), ...libroOrdenes.ventas.map((o: any) => o.cantidad));
-                                return libroOrdenes.ventas.map((orden, idx) => {
-                                  const volumenRatio = maxVolumen > 0 ? orden.cantidad / maxVolumen : 0;
-                                  const barWidth = Math.min(90, Math.max(4, volumenRatio * 90));
+function ModalContent({
+  libroOrdenes,
+  libroOrdenesLoading,
+  libroOrdenesSimbolo,
+  bvc,
+}: {
+  libroOrdenes: LibroOrdenesData | null;
+  libroOrdenesLoading: boolean;
+  libroOrdenesSimbolo: string | null;
+  bvc: BVCData[];
+}) {
+  const [activeTab, setActiveTab] = useState<'orderbook' | 'stats'>('orderbook');
 
-                                  return (
-                                    <tr key={idx} className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a]">
-                                      <td className="py-3 px-0 w-3/4 relative">
-                                        <div className="flex items-center justify-start gap-2">
-                                          <span className="font-mono font-bold text-red-400 text-base whitespace-nowrap">
-                                            {orden.precio.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                          </span>
-                                          {/* Barra de volumen - crece desde la izquierda hacia derecha, pegada al precio */}
-                                          <div
-                                            className="h-2 bg-red-500/30 rounded-full transition-all duration-300"
-                                            style={{
-                                              width: `${barWidth}%`,
-                                            }}
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="py-3 px-3 font-mono text-slate-300 text-base text-right w-1/4">
-                                        {orden.cantidad.toLocaleString('es-VE')}
-                                      </td>
-                                    </tr>
-                                  );
-                                });
-                              })()
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+  // Encontrar los datos de la acción seleccionada
+  const stockData = useMemo(() => {
+    if (!libroOrdenesSimbolo) return null;
+    return bvc.find((s) => s.simbolo === libroOrdenesSimbolo) || null;
+  }, [bvc, libroOrdenesSimbolo]);
+
+  return (
+    <div className="flex flex-col max-h-[calc(90vh-80px)]">
+      {/* Tabs */}
+      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-[#262626] bg-[#0a0a0a]" role="tablist" aria-label="Vista del modal">
+        <button
+          onClick={() => setActiveTab('orderbook')}
+          className={cn(
+            "px-3 sm:px-4 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]",
+            activeTab === 'orderbook'
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+              : 'text-slate-400 hover:text-white hover:bg-[#1a1a1a]'
+          )}
+          role="tab"
+          aria-selected={activeTab === 'orderbook'}
+          aria-controls="panel-orderbook"
+          id="tab-orderbook"
+        >
+          📊 Libro de Órdenes
+        </button>
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={cn(
+            "px-3 sm:px-4 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]",
+            activeTab === 'stats'
+              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              : 'text-slate-400 hover:text-white hover:bg-[#1a1a1a]'
+          )}
+          role="tab"
+          aria-selected={activeTab === 'stats'}
+          aria-controls="panel-stats"
+          id="tab-stats"
+        >
+          📈 Estadísticas
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-3 sm:p-4">
+        {activeTab === 'orderbook' && (
+          <div role="tabpanel" id="panel-orderbook" aria-labelledby="tab-orderbook">
+          <OrderBook
+            data={libroOrdenes || { simbolo: '', compras: [], ventas: [] }}
+            loading={libroOrdenesLoading}
+            error={libroOrdenes?.error || null}
+          />
+          </div>
+        )}
+
+        {activeTab === 'stats' && (
+          <div role="tabpanel" id="panel-stats" aria-labelledby="tab-stats">
+          {stockData ? (
+            <StockStats stock={stockData} />
+          ) : (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <p className="text-slate-400 text-sm">
+                  No hay datos disponibles para {libroOrdenesSimbolo}
+                </p>
+              </div>
+            </div>
+          )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+      </AnimatePresence>
+
+      {/* MODAL VISTA DETALLADA DE ACCIÓN */}
+      <AnimatePresence>
+        {showStockDetail && detailStockData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={cerrarStockDetail}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Vista detallada de ${detailStockData.simbolo}`}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-[#0a0a0a] border border-[#262626] rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              role="document"
+            >
+              {/* Header con botón de cerrar */}
+              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-red-500/20 border border-red-500/30 rounded" aria-hidden="true">
+                    <span className="text-base">📈</span>
                   </div>
-                )}
+                  <h3 className="text-sm sm:text-base font-bold text-white">VISTA DETALLADA</h3>
+                </div>
+                <button
+                  onClick={cerrarStockDetail}
+                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                  aria-label="Cerrar vista detallada"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              </div>
 
-                {/* Spread Info - CENTRADO */}
-                {!libroOrdenesLoading && !libroOrdenes.error && libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
-                  <div className="mt-4 p-4 bg-[#0a0a0a] border border-[#262626] rounded-lg">
-                    <div className="flex items-center justify-center gap-8">
-                      <div className="text-center">
-                        <span className="text-xs text-slate-400 block">Spread</span>
-                        <span className="text-lg font-bold text-white">
-                          {libroOrdenes.spread.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs
-                        </span>
-                      </div>
-                      <div className="text-center">
-                        <span className="text-xs text-slate-400 block">Spread %</span>
-                        <span className={cn(
-                          "text-lg font-bold",
-                          (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
-                        )}>
-                          {formatPercent(libroOrdenes.spread_pct, 2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+              {/* Contenido - StockDetailView */}
+              <div className="h-[calc(90vh-60px)] overflow-hidden">
+                <StockDetailView
+                  simbolo={detailStockData.simbolo}
+                  nombre={detailStockData.desc_simb}
+                  precioActual={detailStockData.precio}
+                  variacionPct={detailStockData.variacion_pct}
+                  volumen={detailStockData.volumen}
+                  precioMax={detailStockData.precio_max}
+                  precioMin={detailStockData.precio_min}
+                  precioApert={detailStockData.precio_apert}
+                  montoEfectivo={detailStockData.monto_efectivo}
+                  libroOrdenes={libroOrdenes}
+                  apiUrl={CONFIG.API_URL}
+                  onClose={cerrarStockDetail}
+                />
               </div>
             </motion.div>
           </motion.div>
@@ -719,7 +744,61 @@ export default function BloombergTerminal() {
 // VISTA: DASHBOARD
 // ============================================================================
 
-function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinanceFallback, mounted }: any) {
+function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinanceFallback, mounted, loading }: any) {
+  // Mostrar skeleton loading cuando no hay datos
+  if (loading && !tasas) {
+    return (
+      <div className="space-y-4">
+        {/* Skeleton Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+            >
+              <Card className="p-4" hover={false} animate={false}>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Skeleton variant="text-sm" className="w-20" shimmer />
+                    <Skeleton variant="circular" className="w-6 h-6" shimmer />
+                  </div>
+                  <Skeleton variant="text-xl" className="w-2/3" shimmer />
+                  <Skeleton variant="text-sm" className="w-1/2" shimmer />
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Skeleton Table */}
+        <Card className="lg:col-span-2 p-0 overflow-hidden" hover={false} animate={false}>
+          <div className="p-4 border-b border-[var(--border)]">
+            <Skeleton variant="text" className="w-32" shimmer />
+          </div>
+          <div className="p-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex gap-4 py-3 border-b border-[var(--border)] last:border-0">
+                <Skeleton variant="circular" className="w-8 h-8 flex-shrink-0" shimmer />
+                <Skeleton variant="text" className="flex-1" shimmer />
+                <Skeleton variant="text" className="w-16" shimmer />
+                <Skeleton variant="text" className="w-12" shimmer />
+                <Skeleton variant="text" className="w-14" shimmer />
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Skeleton Chart */}
+        <Card className="p-4" hover={false} animate={false}>
+          <Skeleton variant="text" className="w-24 mb-4" shimmer />
+          <Skeleton variant="rectangular" className="w-full h-48" shimmer />
+        </Card>
+      </div>
+    );
+  }
+
   if (!tasas) return null;
 
   // PARACAÍDAS MATEMÁTICO: Calcular brechas de forma segura
@@ -752,68 +831,43 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
   }).slice(0, 10);
 
   return (
-    <div className="space-y-4">
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <MetricCard
-          title="BCV OFICIAL"
-          value={formatValue(tasas?.bcv, 2)}
-          suffix="Bs/USD"
-          icon={<DollarSign size={18} />}
-          variant="blue"
-          subValue="Tasa Oficial"
-        />
-        <MetricCard
-          title="EURO OFICIAL"
-          value={formatValue(tasas?.bcv_eur, 2)}
-          suffix="Bs/EUR"
-          icon={<Globe size={18} />}
-          variant="purple"
-          subValue={`Brecha: ${formatPercent(brechaEuro, 2)}`}
-        />
-        <MetricCard
-          title="BINANCE"
-          value={formatValue(tasas?.binance, 2)}
-          suffix="Bs/USDT"
-          icon={<TrendingUp size={18} />}
-          variant="amber"
-          subValue={`Brecha: ${formatPercent(brechaBinanceDisplay, 2)}`}
-        />
-        <MetricCard
-          title="PATRIMONIO BVC"
-          value={patrimonio?.total_ves?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '—'}
-          suffix="Bs"
-          icon={<Wallet size={18} />}
-          variant={patrimonio?.roi_pct && patrimonio.roi_pct >= 0 ? 'emerald' : 'red'}
-          subValue={`ROI: ${formatPercent(patrimonio?.roi_pct, 2)}`}
-        />
-      </div>
+    <div className="space-y-3 sm:space-y-4">
+      {/* NUEVO: Dashboard Cards - 4 cards rediseñadas */}
+      <DashboardCards
+        tasas={tasas}
+        bvc={bvc}
+        patrimonio={patrimonio}
+        macro={macro}
+        previousBvc={previousBvc}
+        tasaBinanceFallback={tasaBinanceFallback}
+      />
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Main Grid - Tabla BVC + Gráfico Brecha */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* BVC Summary */}
         <Card className="lg:col-span-2 p-0 overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-[#262626]">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626]">
+            <h3 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" aria-hidden="true" />
               MERCADO BVC
             </h3>
-            <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono text-slate-500">
               <span className="px-2 py-0.5 bg-[#141414] rounded">{bvc?.length || 0} ACCIONES</span>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="overflow-x-auto" role="region" aria-label="Tabla resumen del mercado BVC" tabIndex={0}>
+            <table className="w-full" aria-label="Top 10 acciones más relevantes del mercado BVC">
+              <caption className="sr-only">Las 10 acciones con mayor variación porcentual en la Bolsa de Valores de Caracas</caption>
               <thead>
                 <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-[#262626]">
-                  <th className="text-left py-3 px-4 font-medium">Símbolo</th>
-                  <th className="text-center py-3 px-4 font-medium">Precio Bs</th>
-                  <th className="text-center py-3 px-4 font-medium">Var %</th>
-                  <th className="text-center py-3 px-4 font-medium">Volumen</th>
-                  <th className="text-center py-3 px-4 font-medium">$</th>
+                  <th className="text-left py-3 px-3 sm:px-4 font-medium" scope="col">Símbolo</th>
+                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Precio Bs</th>
+                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Var %</th>
+                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Volumen</th>
+                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">$</th>
                 </tr>
               </thead>
-              <tbody className="text-sm">
+              <tbody className="text-xs sm:text-sm">
                 {bvcRelevantes.map((accion: BVCData) => {
                   const previous = previousBvc.find((p: BVCData) => p.simbolo === accion.simbolo);
                   return (
@@ -822,6 +876,7 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
                       accion={accion}
                       previous={previous}
                       tasaBinance={tasaBinanceFallback}
+                      onStockClick={abrirStockDetail}
                     />
                   );
                 })}
@@ -941,348 +996,40 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
   );
 }
 
-// ============================================================================
 // VISTA: PIZARRA
 // ============================================================================
 
-function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas, fetchLibroOrdenes }: any) {
-  // Determinar estado del mercado para el badge
-  const isMarketOpen = marketStatus?.estado === 'Abierto';
-  const marketStatusColor = isMarketOpen ? 'bg-emerald-500 animate-pulse' :
-                           marketStatus?.estado === 'Cerrado' ? 'bg-slate-500' :
-                           'bg-amber-500';
-  const marketStatusLabel = marketStatus?.estado || 'LIVE';
-
-  // PARACAÍDAS MATEMÁTICO: Tasa BCV para conversión a USD (validación estricta)
-  const tasaBCV = ((tasas?.bcv ?? 0) > 0) ? tasas.bcv : CONFIG.FALLBACK_TASA_BCV;
-
-  // FAVORITOS: Estado y persistencia en localStorage
-  const [favoriteSymbols, setFavoriteSymbols] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('bvc_favorites');
-      return saved ? JSON.parse(saved) : [];
-    } catch (err) {
-      console.error('[Favorites] Error loading from localStorage:', err);
-      return [];
-    }
-  });
-
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
-
-  // Guardar favoritos en localStorage cuando cambien
-  useEffect(() => {
-    try {
-      localStorage.setItem('bvc_favorites', JSON.stringify(favoriteSymbols));
-      console.log('[Favorites] Guardados:', favoriteSymbols.length, 'símbolos');
-    } catch (err) {
-      console.error('[Favorites] Error saving to localStorage:', err);
-    }
-  }, [favoriteSymbols]);
-
-  // Toggle favorite
-  const toggleFavorite = useCallback((simbolo: string) => {
-    setFavoriteSymbols((prev: string[]) => {
-      if (prev.includes(simbolo)) {
-        return prev.filter((s) => s !== simbolo);
-      } else {
-        return [...prev, simbolo];
-      }
-    });
-  }, []);
-
-  // ORDENAMIENTO ALFABÉTICO: A-Z por símbolo, pero favoritos primero
-  const bvcOrdenada = [...(bvc ?? [])]
-    .filter((accion: BVCData) => {
-      if (showOnlyFavorites) {
-        return favoriteSymbols.includes(accion.simbolo);
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      const aIsFavorite = favoriteSymbols.includes(a.simbolo);
-      const bIsFavorite = favoriteSymbols.includes(b.simbolo);
-      
-      // Si uno es favorito y el otro no, el favorito va primero
-      if (aIsFavorite && !bIsFavorite) return -1;
-      if (!aIsFavorite && bIsFavorite) return 1;
-      
-      // Si ambos son favoritos o ninguno lo es, orden alfabético
-      return a.simbolo.localeCompare(b.simbolo);
-    });
-  
+function PizarraView({ bvc, previousBvc, tasaBinanceFallback, marketStatus, tasas, fetchLibroOrdenes, loading }: any) {
   return (
     <div className="space-y-4">
-      <Card className="p-0 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-[#262626]">
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-semibold">PIZARRA BVC - TERMINAL PROFESIONAL</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            {/* Botón para filtrar favoritos */}
-            <button
-              onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded border text-[10px] font-mono uppercase tracking-wider transition-all",
-                showOnlyFavorites
-                  ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                  : 'bg-[#0a0a0a] border-[#262626] text-slate-500 hover:text-amber-400 hover:border-amber-500/30'
-              )}
-              title={showOnlyFavorites ? "Mostrar todos" : "Mostrar solo favoritos"}
-            >
-              <Star className={cn("w-3.5 h-3.5", showOnlyFavorites ? "fill-amber-400" : "")} />
-              {favoriteSymbols.length > 0 && (
-                <span>{favoriteSymbols.length}</span>
-              )}
-            </button>
+      {/* KPIs de Mercado */}
+      <MarketKPIs bvc={bvc} />
 
-            <div className="text-xs font-mono text-slate-500">
-              {bvc?.length || 0} INSTRUMENTOS
-            </div>
-            {/* Badge LIVE vinculado al estado del mercado */}
-            <div className={cn(
-              "flex items-center gap-1.5 px-2 py-1 rounded border",
-              isMarketOpen ? 'bg-emerald-500/10 border-emerald-500/30' :
-              marketStatus?.estado === 'Cerrado' ? 'bg-slate-500/10 border-slate-500/30' :
-              'bg-amber-500/10 border-amber-500/30'
-            )}>
-              <div className={cn("w-1.5 h-1.5 rounded-full", marketStatusColor)} />
-              <span className={cn(
-                "text-[9px] font-mono",
-                isMarketOpen ? 'text-emerald-400' :
-                marketStatus?.estado === 'Cerrado' ? 'text-slate-400' :
-                'text-amber-400'
-              )}>
-                {marketStatusLabel}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* Rankings de Mercado */}
+      <MarketRankings bvc={bvc} />
 
-        {/* Contenedor con scroll horizontal para responsive */}
-        <div className="overflow-x-auto">
-          <div className="min-w-[1500px]">
-            <table className="w-full">
-              <thead>
-                <tr className="text-[9px] uppercase tracking-wider text-slate-500 bg-[#0a0a0a] border-b border-[#262626]">
-                  <th className="text-left py-3 px-2 font-medium sticky left-0 bg-[#0a0a0a] z-10 w-[180px]">Símbolo</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[180px] bg-[#0a0a0a] z-10 w-[100px]">Libro de Órdenes</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[280px] bg-[#0a0a0a] z-10 w-[100px]">Precio (Bs)</th>
-                  <th className="text-center py-3 px-2 font-medium sticky left-[380px] bg-[#0a0a0a] z-10 w-[90px]">Precio ($)</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px]">Compra (Vol)</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Compra</th>
-                  <th className="text-center py-3 px-2 font-medium w-[90px]">Spread</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Venta</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px]">Venta (Vol)</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px]">Precio Apertura</th>
-                  <th className="text-center py-3 px-2 font-medium w-[90px]">Var %</th>
-                  <th className="text-center py-3 px-2 font-medium w-[90px]">Var Abs</th>
-                  <th className="text-center py-3 px-2 font-medium w-[110px]">Volumen Total</th>
-                  <th className="text-center py-3 px-2 font-medium w-[120px]">Efectivo</th>
-                  <th className="text-center py-3 px-2 font-medium w-[90px]">Operaciones</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px]">Máximo</th>
-                  <th className="text-center py-3 px-2 font-medium w-[100px]">Mínimo</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs">
-                {bvcOrdenada?.map((accion: BVCData) => {
-                  // BLINDAJE: Símbolo seguro con fallback
-                  const simbolo = accion.simbolo || 'S/N';
-                  const descSimb = accion.desc_simb || 'Sin descripción';
-                  const simboloCorto = simbolo.substring(0, 3).toUpperCase();
-
-                  // Determinar si es positivo para el color (maneja null)
-                  const isPositive = (accion.variacion_pct ?? 0) >= 0;
-                  // Usar precio actual o precio_vta como fallback
-                  const precioActual = accion.precio ?? accion.precio_vta ?? accion.precio_compra ?? 0;
-                  // PARACAÍDAS MATEMÁTICO: Calcular precio en USD (solo si hay tasa BCV válida)
-                  const precioUSD = (tasaBCV && tasaBCV > 0 && precioActual > 0) ? (precioActual / tasaBCV) : null;
-
-                  return (
-                    <tr
-                      key={simbolo}
-                      className="border-b border-[#1a1a1a] hover:bg-[#0a0a0a] transition-colors"
-                    >
-                      {/* 1. Símbolo (info) con Star Favorite integrada */}
-                      <td className="py-2 px-2 sticky left-0 bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
-                        <div className="flex items-center gap-2">
-                          <div className="relative">
-                            <div className={cn(
-                              "w-6 h-6 rounded flex items-center justify-center font-bold text-[9px] border flex-shrink-0",
-                              isPositive
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                : 'bg-red-500/10 border-red-500/30 text-red-400'
-                            )}>
-                              {simboloCorto}
-                            </div>
-                            {/* Star Favorite - esquina superior derecha del cuadrado */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleFavorite(simbolo);
-                              }}
-                              className={cn(
-                                "absolute -top-1 -right-1 p-0.5 rounded transition-colors bg-[#0a0a0a]",
-                                favoriteSymbols.includes(simbolo)
-                                  ? 'text-amber-400 hover:text-amber-300'
-                                  : 'text-slate-600 hover:text-amber-400'
-                              )}
-                              title={favoriteSymbols.includes(simbolo) ? "Quitar de favoritos" : "Agregar a favoritos"}
-                            >
-                              <Star className={cn("w-3 h-3", favoriteSymbols.includes(simbolo) ? "fill-amber-400" : "")} />
-                            </button>
-                          </div>
-                          <div className="min-w-0">
-                            <span className="font-semibold text-xs text-white block">{simbolo}</span>
-                            <span className="text-[9px] text-slate-500 truncate block max-w-[100px]" title={descSimb}>{descSimb}</span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* 2. Libro de Órdenes */}
-                      <td className="py-2 px-2 text-center sticky left-[180px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
-                        <button
-                          onClick={() => fetchLibroOrdenes(simbolo)}
-                          className="px-2 py-1 text-[9px] bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 rounded transition-colors"
-                          title={`Ver libro de órdenes de ${simbolo}`}
-                        >
-                          📊 Libro
-                        </button>
-                      </td>
-
-                      {/* 3. Precio (Bs) */}
-                      <td className="py-2 px-2 text-center sticky left-[280px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
-                        <span className="text-white font-bold font-mono text-xs">{formatValue(precioActual, 2)}</span>
-                      </td>
-
-                      {/* 4. Precio ($) - 2 decimales */}
-                      <td className="py-2 px-2 text-center sticky left-[380px] bg-[#0a0a0a] group-hover:bg-[#0a0a0a] z-10">
-                        <span className="text-slate-400 font-mono text-xs">
-                          {precioUSD !== null ? formatValue(precioUSD, 2) : '-'}
-                        </span>
-                      </td>
-
-                      {/* 6. Compra (Vol) (vol_cmp) - Fondo Verde Vivo Claro Transparente */}
-                      <td className="py-2 px-2 text-center bg-emerald-400/15">
-                        <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_cmp)}</span>
-                      </td>
-
-                      {/* 7. Precio Compra (precio_compra) - Fondo Verde Vivo Claro Transparente */}
-                      <td className="py-2 px-2 text-center bg-emerald-400/15">
-                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_compra, 2)}</span>
-                      </td>
-
-                      {/* 6. Spread % - Solo color de texto: Verde (bueno <10%), Amarillo (regular 10-25%), Rojo (malo >25%) */}
-                      <td className="py-2 px-2 text-center">
-                        {(() => {
-                          const compra = accion.precio_compra ?? 0;
-                          const venta = accion.precio_vta ?? 0;
-                          const spreadPercent = venta > 0 && compra > 0 ? ((venta - compra) / compra) * 100 : null;
-                          
-                          // Determinar color del spread
-                          let spreadColor = 'text-slate-500';
-                          if (spreadPercent !== null && spreadPercent > 0) {
-                            if (spreadPercent < 10) {
-                              spreadColor = 'text-emerald-400 font-bold';
-                            } else if (spreadPercent < 25) {
-                              spreadColor = 'text-amber-400 font-bold';
-                            } else {
-                              spreadColor = 'text-red-400 font-bold';
-                            }
-                          }
-                          
-                          return (
-                            <span className={cn(
-                              "font-mono text-xs",
-                              spreadColor
-                            )}>
-                              {spreadPercent !== null && spreadPercent > 0 ? formatValue(spreadPercent, 2) + ' %' : '-'}
-                            </span>
-                          );
-                        })()}
-                      </td>
-
-                      {/* 7. Precio Venta (precio_vta) - Fondo Rojo Vivo Claro Transparente */}
-                      <td className="py-2 px-2 text-center bg-red-400/15">
-                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_vta, 2)}</span>
-                      </td>
-
-                      {/* 8. Venta (Vol) (vol_vta) - Fondo Rojo Vivo Claro Transparente */}
-                      <td className="py-2 px-2 text-center bg-red-400/15">
-                        <span className="text-slate-400 font-mono text-xs">{formatInt(accion.vol_vta)}</span>
-                      </td>
-
-                      {/* 9. Precio Apertura (precio_apert) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-300 font-mono text-xs">{formatValue(accion.precio_apert, 2)}</span>
-                      </td>
-
-                      {/* 10. Var % (variacion_pct) - Color: Verde si es +, Rojo si es - */}
-                      <td className="py-2 px-2 text-center">
-                        <span className={cn(
-                          "inline-flex items-center justify-center gap-1 font-bold text-xs",
-                          isPositive ? 'text-emerald-400' : 'text-red-400'
-                        )}>
-                          {isPositive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                          {formatValue(accion.variacion_pct, 2)}%
-                        </span>
-                      </td>
-
-                      {/* 11. Var Abs (variacion_abs) - 2 decimales */}
-                      <td className="py-2 px-2 text-center">
-                        <span className={cn(
-                          "font-mono text-xs",
-                          isPositive ? 'text-emerald-400/80' : 'text-red-400/80'
-                        )}>
-                          {formatValue(accion.variacion_abs, 2)}
-                        </span>
-                      </td>
-
-                      {/* 12. Volumen Total (volumen) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-400 font-mono text-xs">{formatInt(accion.volumen)}</span>
-                      </td>
-
-                      {/* 13. Efectivo (monto_efectivo) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-300 font-mono text-xs">{formatValue(accion.monto_efectivo, 2)}</span>
-                      </td>
-
-                      {/* 14. Operaciones (tot_op_negoc) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-500 font-mono text-xs">{formatInt(accion.tot_op_negoc)}</span>
-                      </td>
-
-                      {/* 15. Máximo (precio_max) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_max, 2)}</span>
-                      </td>
-
-                      {/* 16. Mínimo (precio_min) */}
-                      <td className="py-2 px-2 text-center">
-                        <span className="text-slate-400 font-mono text-xs">{formatValue(accion.precio_min, 2)}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </Card>
+      {/* Tabla profesional de mercado */}
+      <MarketTable
+        bvc={bvc}
+        previousBvc={previousBvc}
+        tasas={tasas}
+        marketStatus={marketStatus}
+        onFetchLibroOrdenes={fetchLibroOrdenes}
+      />
     </div>
   );
 }
 
 // ============================================================================
-// VISTA: CALCULADORA
+// // VISTA: CALCULADORA
 // ============================================================================
 
-function CalculadoraView({ tasas, bvc }: any) {
+function CalculadoraView({ tasas, bvc, loading }: any) {
   const [tradeTipo, setTradeTipo] = useState<'COMPRA'|'VENTA'>('COMPRA');
   const [tradeAcciones, setTradeAcciones] = useState<number>(1000);
   const [tradePrecio, setTradePrecio] = useState<number>(0);
   const [selectedSymbol, setSelectedSymbol] = useState<string>('');
+  const [swapAnim, setSwapAnim] = useState(false);
 
   // Auto-completar precio al seleccionar símbolo
   const handleSymbolChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1294,6 +1041,18 @@ function CalculadoraView({ tasas, bvc }: any) {
     }
   };
 
+  // Swap rápido USD↔VES
+  const handleSwap = () => {
+    setSwapAnim(true);
+    setTimeout(() => setSwapAnim(false), 400);
+    // Intercambiar valores de referencia visual
+    const tmp = tradeAcciones;
+    if (tradePrecio > 0) {
+      setTradeAcciones(tradePrecio);
+      setTradePrecio(tmp / tradeAcciones || 0);
+    }
+  };
+
   // Constantes de comisiones (Aprox 1% total ida o vuelta)
   const COMISION_PCT = 0.01;
 
@@ -1301,7 +1060,7 @@ function CalculadoraView({ tasas, bvc }: any) {
   const comision = subtotal * COMISION_PCT;
   const total = tradeTipo === 'COMPRA' ? subtotal + comision : subtotal - comision;
 
-  // Break-even (Para recuperar la inversión al comprar, hay que vender más caro para cubrir 1% entrada y 1% salida)
+  // Break-even
   const breakEven = (tradePrecio || 0) * (1 + (COMISION_PCT * 2));
 
   // Impacto Cambiario
@@ -1311,141 +1070,273 @@ function CalculadoraView({ tasas, bvc }: any) {
   const totalUSD = total / tasaBcv;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4">
-      <Card className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded shadow-lg shadow-emerald-500/20">
-            <Calculator className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">TRADING SIMULATOR PRO</h2>
-            <p className="text-slate-500 text-xs font-mono">Cálculo de posiciones con comisiones reales (≈1%)</p>
-          </div>
-        </div>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* ── Card Principal con Gradiente ── */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-emerald-500/5">
+        {/* Fondo gradiente sutil */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/60 via-slate-900 to-teal-950/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 
-        {/* Formulario Principal */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            {/* Tipo de Operación */}
-            <div className="flex gap-2">
+        <div className="relative p-6 md:p-8">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                <Calculator className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white tracking-tight">Simulador de Trading</h2>
+              <p className="text-slate-400 text-sm">Calcula posiciones con comisiones reales (~1%)</p>
+            </div>
+          </div>
+
+          {/* Formulario Principal */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-5">
+              {/* Tipo de Operación */}
+              <div>
+                <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Tipo de Operación</label>
+                <div className="flex gap-2 p-1 bg-black/30 rounded-xl">
+                  <button
+                    onClick={() => setTradeTipo('COMPRA')}
+                    className={cn(
+                      "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition-all duration-200",
+                      tradeTipo === 'COMPRA'
+                        ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <ArrowDownRight className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                    Compra
+                  </button>
+                  <button
+                    onClick={() => setTradeTipo('VENTA')}
+                    className={cn(
+                      "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition-all duration-200",
+                      tradeTipo === 'VENTA'
+                        ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg shadow-red-500/20"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <ArrowUpRight className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+                    Venta
+                  </button>
+                </div>
+              </div>
+
+              {/* Selector de Símbolo con icono */}
+              <div>
+                <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Activo</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                    <BarChart3 className="w-4 h-4" />
+                  </div>
+                  <select
+                    value={selectedSymbol}
+                    onChange={handleSymbolChange}
+                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-slate-200 appearance-none cursor-pointer transition-all"
+                  >
+                    <option value="">Seleccionar activo...</option>
+                    {bvc && bvc.length > 0 && bvc.map((a: any) => (
+                      <option key={a.simbolo} value={a.simbolo} className="bg-slate-900">
+                        {a.simbolo} — Bs {formatValue(a.precio, 2)}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Cantidad y Precio */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Cantidad</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-mono">#</div>
+                    <input
+                      type="number"
+                      value={tradeAcciones}
+                      onChange={(e) => setTradeAcciones(parseFloat(e.target.value) || 0)}
+                      className="w-full bg-black/30 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white transition-all"
+                      min="1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Precio (Bs)</label>
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs font-bold">Bs</div>
+                    <input
+                      type="number"
+                      value={tradePrecio}
+                      onChange={(e) => setTradePrecio(parseFloat(e.target.value) || 0)}
+                      className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white transition-all"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón Swap */}
               <button
-                onClick={() => setTradeTipo('COMPRA')}
+                onClick={handleSwap}
                 className={cn(
-                  "flex-1 py-3 px-4 rounded font-bold text-xs uppercase tracking-wider transition-all",
-                  tradeTipo === 'COMPRA' 
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50" 
-                    : "bg-[#141414] text-slate-500 border border-[#262626] hover:bg-[#1a1a1a]"
+                  "w-full py-2.5 rounded-xl border border-white/10 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/5 hover:border-emerald-500/30",
+                  swapAnim && "scale-95 rotate-180"
                 )}
               >
-                Compra (Long)
+                <ArrowLeftRight className="w-4 h-4 text-slate-400" />
+                <span className="text-slate-400">Intercambiar valores</span>
               </button>
-              <button
-                onClick={() => setTradeTipo('VENTA')}
-                className={cn(
-                  "flex-1 py-3 px-4 rounded font-bold text-xs uppercase tracking-wider transition-all",
-                  tradeTipo === 'VENTA' 
-                    ? "bg-red-500/20 text-red-400 border border-red-500/50" 
-                    : "bg-[#141414] text-slate-500 border border-[#262626] hover:bg-[#1a1a1a]"
+            </div>
+
+            {/* Recibo de Operación */}
+            <div className="bg-black/30 border border-white/10 rounded-xl p-6 flex flex-col justify-between backdrop-blur-sm">
+              <div>
+                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-white/10">
+                  <Layers className="w-4 h-4 text-emerald-400" />
+                  <p className="text-xs font-mono text-slate-400 uppercase tracking-wider">Desglose de Operación</p>
+                </div>
+
+                <div className="space-y-3 font-mono text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Subtotal</span>
+                    <span className="text-slate-200 font-semibold">{subtotal.toLocaleString('es-VE', {minimumFractionDigits: 2})} <span className="text-slate-500 text-xs">Bs</span></span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Comisión (1%)</span>
+                    <span className={cn(
+                      "font-semibold",
+                      tradeTipo === 'VENTA' ? 'text-red-400' : 'text-amber-400'
+                    )}>
+                      {tradeTipo === 'VENTA' ? '−' : '+'}{comision.toLocaleString('es-VE', {minimumFractionDigits: 2})} <span className="text-slate-500 text-xs">Bs</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Monto Neto Destacado */}
+                <div className={cn(
+                  "mt-5 p-4 rounded-xl border transition-all",
+                  tradeTipo === 'COMPRA'
+                    ? "bg-emerald-500/10 border-emerald-500/30"
+                    : "bg-red-500/10 border-red-500/30"
+                )}>
+                  <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
+                    {tradeTipo === 'COMPRA' ? 'Total a Pagar' : 'Total a Recibir'}
+                  </p>
+                  <p className={cn(
+                    "text-3xl font-bold font-mono tracking-tight",
+                    tradeTipo === 'COMPRA' ? 'text-emerald-400' : 'text-red-400'
+                  )}>
+                    {total.toLocaleString('es-VE', {minimumFractionDigits: 2})}
+                    <span className="text-lg text-slate-500 ml-1">Bs</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer del recibo */}
+              <div className="mt-5 space-y-2.5">
+                <div className={cn(
+                  "flex justify-between items-center px-3 py-2.5 rounded-lg border text-xs font-mono",
+                  "bg-blue-500/10 border-blue-500/20"
+                )}>
+                  <span className="text-blue-300">Equivalente USDT</span>
+                  <span className="text-blue-400 font-bold text-sm">{totalUSDT.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div className={cn(
+                  "flex justify-between items-center px-3 py-2.5 rounded-lg border text-xs font-mono",
+                  "bg-indigo-500/10 border-indigo-500/20"
+                )}>
+                  <span className="text-indigo-300">Equivalente USD (BCV)</span>
+                  <span className="text-indigo-400 font-bold text-sm">{totalUSD.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+                </div>
+                {tradeTipo === 'COMPRA' && (
+                  <div className="flex justify-between items-center px-3 py-2.5 rounded-lg border text-xs font-mono bg-amber-500/10 border-amber-500/20">
+                    <span className="text-amber-300">Break-Even</span>
+                    <span className="text-amber-400 font-bold text-sm">{breakEven.toLocaleString('es-VE', {minimumFractionDigits: 3})} Bs</span>
+                  </div>
                 )}
-              >
-                Venta (Short)
-              </button>
-            </div>
-
-            {/* Selector de Símbolo (Opcional) */}
-            <div>
-              <label className="block text-xs text-slate-400 mb-2 font-mono uppercase">Ticket (Auto-precio)</label>
-              <select
-                value={selectedSymbol}
-                onChange={handleSymbolChange}
-                className="w-full bg-[#141414] border border-[#262626] rounded px-4 py-3 focus:outline-none focus:border-emerald-500/50 transition-all text-sm font-mono text-slate-300"
-              >
-                <option value="">Selección manual...</option>
-                {bvc && bvc.length > 0 && bvc.map((a: any) => (
-                  <option key={a.simbolo} value={a.simbolo}>{a.simbolo} - Bs {formatValue(a.precio, 2)}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Cantidad y Precio */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-slate-400 mb-2 font-mono uppercase">Acciones</label>
-                <input
-                  type="number"
-                  value={tradeAcciones}
-                  onChange={(e) => setTradeAcciones(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-[#141414] border border-[#262626] rounded px-4 py-3 text-lg font-mono focus:outline-none focus:border-emerald-500/50"
-                  min="1"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-400 mb-2 font-mono uppercase">Precio Base (Bs)</label>
-                <input
-                  type="number"
-                  value={tradePrecio}
-                  onChange={(e) => setTradePrecio(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-[#141414] border border-[#262626] rounded px-4 py-3 text-lg font-mono focus:outline-none focus:border-emerald-500/50"
-                  min="0"
-                  step="0.01"
-                />
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Recibo de Operación */}
-          <div className="bg-[#141414] border border-[#262626] rounded-lg p-5 flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-mono text-slate-500 uppercase mb-4 border-b border-[#262626] pb-2">Desglose de Operación</p>
-              
-              <div className="space-y-3 font-mono text-sm">
-                <div className="flex justify-between items-center text-slate-300">
-                  <span>Subtotal:</span>
-                  <span>{subtotal.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</span>
-                </div>
-                <div className="flex justify-between items-center text-red-400">
-                  <span>Comisión Estimada (1%):</span>
-                  <span>{tradeTipo === 'VENTA' ? '-' : '+'}{comision.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</span>
-                </div>
-                
-                <div className="border-t border-[#262626] my-3 pt-3 flex justify-between items-center font-bold text-lg text-white">
-                  <span>MONTO NETO:</span>
-                  <span>{total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</span>
-                </div>
+      {/* ── Tasas de Cambio en Vista ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Tasa BCV */}
+        <div className="relative rounded-xl overflow-hidden border border-blue-500/20 bg-gradient-to-br from-blue-950/40 to-slate-900">
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <span className="text-sm font-bold text-blue-400">🇻🇪</span>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-medium">Tasa BCV</p>
+                <p className="text-[10px] text-slate-600 font-mono">Oficial</p>
               </div>
             </div>
-
-            <div className="mt-6 pt-4 border-t border-[#262626] space-y-3">
-              <div className="flex justify-between items-center bg-blue-500/10 px-3 py-2 rounded text-blue-400 font-mono text-xs border border-blue-500/20">
-                <span>Impacto Cambiario Binance:</span>
-                <span className="font-bold">{totalUSDT.toLocaleString('es-VE', {minimumFractionDigits: 2})} USDT</span>
-              </div>
-              {tradeTipo === 'COMPRA' && (
-                <div className="flex justify-between items-center bg-amber-500/10 px-3 py-2 rounded text-amber-400 font-mono text-xs border border-amber-500/20">
-                  <span>Break-Even (Precio venta):</span>
-                  <span className="font-bold">{breakEven.toLocaleString('es-VE', {minimumFractionDigits: 3})} Bs</span>
-                </div>
-              )}
-            </div>
+            <p className="text-2xl font-bold font-mono text-blue-400">
+              {formatValue(tasaBcv, 2)}
+              <span className="text-sm text-slate-500 ml-1">Bs/$</span>
+            </p>
           </div>
         </div>
-      </Card>
-      
-      {/* Mercado Secundario / Convertidor Simple */}
-      <Card className="p-4 grid grid-cols-3 gap-4 text-center">
-        <div>
-          <p className="text-xs text-slate-500 font-mono mb-1">TASA BCV</p>
-          <p className="text-base font-bold font-mono text-blue-400">{formatValue(tasaBcv, 2)} Bs</p>
+
+        {/* Tasa Binance */}
+        <div className="relative rounded-xl overflow-hidden border border-amber-500/20 bg-gradient-to-br from-amber-950/40 to-slate-900">
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Coins className="w-4 h-4 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-medium">Tasa Binance</p>
+                <p className="text-[10px] text-slate-600 font-mono">P2P</p>
+              </div>
+            </div>
+            <p className="text-2xl font-bold font-mono text-amber-400">
+              {formatValue(tasaBinance, 2)}
+              <span className="text-sm text-slate-500 ml-1">Bs/USDT</span>
+            </p>
+          </div>
         </div>
-        <div className="border-x border-[#262626]">
-          <p className="text-xs text-slate-500 font-mono mb-1">TASA BINANCE</p>
-          <p className="text-base font-bold font-mono text-amber-400">{formatValue(tasaBinance, 2)} Bs</p>
+
+        {/* Brecha */}
+        <div className={cn(
+          "relative rounded-xl overflow-hidden border bg-gradient-to-br to-slate-900",
+          (tasas?.brecha_binance_pct || 0) >= 0
+            ? "border-red-500/20 from-red-950/40"
+            : "border-emerald-500/20 from-emerald-950/40"
+        )}>
+          <div className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center",
+                (tasas?.brecha_binance_pct || 0) >= 0 ? "bg-red-500/20" : "bg-emerald-500/20"
+              )}>
+                {(tasas?.brecha_binance_pct || 0) >= 0
+                  ? <TrendingUp className="w-4 h-4 text-red-400" />
+                  : <TrendingDown className="w-4 h-4 text-emerald-400" />
+                }
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-medium">Brecha P2P</p>
+                <p className="text-[10px] text-slate-600 font-mono">Diferencial</p>
+              </div>
+            </div>
+            <p className={cn(
+              "text-2xl font-bold font-mono",
+              (tasas?.brecha_binance_pct || 0) >= 0 ? 'text-red-400' : 'text-emerald-400'
+            )}>
+              {formatPercent(tasas?.brecha_binance_pct, 2)}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-xs text-slate-500 font-mono mb-1">BRECHA P2P</p>
-          <p className="text-base font-bold font-mono text-red-400">{formatPercent(tasas?.brecha_binance_pct, 2)}</p>
-        </div>
-      </Card>
+      </div>
     </div>
   );
 }
@@ -1454,9 +1345,7 @@ function CalculadoraView({ tasas, bvc }: any) {
 // VISTA: PORTAFOLIO - VERSIÓN MEJORADA
 // ============================================================================
 
-function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAuthHeaders, apiUrl }: any) {
-  // Lista de símbolos disponibles en la BVC (ordenados A-Z con nombres)
-  // Basado en las 35 empresas que cotizan en la Bolsa de Valores de Caracas
+function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAuthHeaders, apiUrl, loading }: any) {
   const BVC_SYMBOLS = [
     { symbol: 'ABC.A', name: 'BCO. CARIBE "A"' },
     { symbol: 'ARC.B', name: 'ARCA INM.VAL. "B"' },
@@ -1493,7 +1382,6 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
     { symbol: 'TPG', name: 'T. PALO GRANDE' }
   ].sort((a, b) => a.symbol.localeCompare(b.symbol));
 
-  // Estados para formulario de agregar/editar
   const [showAdd, setShowAdd] = useState(false);
   const [editPosition, setEditPosition] = useState<any | null>(null);
   const [addTicker, setAddTicker] = useState('');
@@ -1504,28 +1392,17 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   const [addError, setAddError] = useState('');
   const [showSymbolDropdown, setShowSymbolDropdown] = useState(false);
 
-  // Estados para histórico de compras
   const [showHistorico, setShowHistorico] = useState<any | null>(null);
   const [historicoData, setHistoricoData] = useState<any>(null);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
 
-  // Resetear formulario
   const resetForm = () => {
-    setAddTicker('');
-    setAddCantidad('');
-    setAddPrecio('');
-    setAddFecha('');
-    setAddError('');
-    setShowAdd(false);
-    setEditPosition(null);
-    setShowSymbolDropdown(false);
+    setAddTicker(''); setAddCantidad(''); setAddPrecio(''); setAddFecha('');
+    setAddError(''); setShowAdd(false); setEditPosition(null); setShowSymbolDropdown(false);
   };
 
-  // Agregar/Editar posición
   const handleSavePosition = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAddError('');
-    setAddLoading(true);
+    e.preventDefault(); setAddError(''); setAddLoading(true);
     try {
       const body: any = {
         ticker: addTicker.toUpperCase().trim(),
@@ -1533,478 +1410,474 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         precio_compra: parseFloat(addPrecio),
         fecha_compra: addFecha || undefined,
       };
-
-      const url = editPosition
-        ? `${apiUrl}/api/portafolio/${editPosition.id}`
-        : `${apiUrl}/api/portafolio`;
+      const url = editPosition ? `${apiUrl}/api/portafolio/${editPosition.id}` : `${apiUrl}/api/portafolio`;
       const method = editPosition ? 'PUT' : 'POST';
-
-      console.log('[Portafolio] Enviando petición:', method, url, body);
-      
+      console.log('[Portafolio] Enviando:', method, url, body);
       const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(body),
+        method, headers: { 'Content-Type': 'application/json', ...getAuthHeaders() }, body: JSON.stringify(body),
       });
-
-      console.log('[Portafolio] Status:', response.status);
-      
       const data = await response.json();
-      console.log('[Portafolio] Respuesta:', data);
-
-      if (!response.ok) {
-        throw new Error(data.detail || data.message || 'Error al guardar posición');
-      }
-
-      resetForm();
-      await onRefresh?.();
+      if (!response.ok) throw new Error(data.detail || data.message || 'Error al guardar');
+      resetForm(); await onRefresh?.();
     } catch (err: unknown) {
       console.error('[Portafolio] Error:', err);
       setAddError(err instanceof Error ? err.message : 'Error al guardar');
-    } finally {
-      setAddLoading(false);
-    }
+    } finally { setAddLoading(false); }
   };
 
-  // Eliminar posición
   const handleDeletePosition = async (id: number) => {
-    console.log('[Eliminar] Eliminando ID:', id);
     try {
-      const response = await fetch(`${apiUrl}/api/portafolio/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
-      
-      console.log('[Eliminar] Status:', response.status);
-      
-      if (response.ok) {
-        await onRefresh?.();
-      } else {
-        const error = await response.json();
-        console.error('[Eliminar] Error:', error);
-      }
-    } catch (err: unknown) {
-      console.error('[Eliminar] Error:', err);
-    }
+      const response = await fetch(`${apiUrl}/api/portafolio/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (response.ok) await onRefresh?.();
+    } catch (err) { console.error('[Eliminar] Error:', err); }
   };
 
-  // Abrir edición
   const handleOpenEdit = (pos: any) => {
-    console.log('[Editar] Posición recibida:', pos);
-    setEditPosition({ 
-      id: pos.id || pos.portafolio_id,
-      ticker: pos.ticker 
-    });
-    setAddTicker(pos.ticker);
-    setAddCantidad(pos.cantidad?.toString() || '');
-    setAddPrecio(pos.precio_compra?.toString() || '');
-    setAddFecha(pos.fecha_compra || '');
+    setEditPosition({ id: pos.id || pos.portafolio_id, ticker: pos.ticker });
+    setAddTicker(pos.ticker); setAddCantidad(pos.cantidad?.toString() || '');
+    setAddPrecio(pos.precio_compra?.toString() || ''); setAddFecha(pos.fecha_compra || '');
     setShowAdd(true);
   };
 
-  // Ver histórico de compras
   const handleVerHistorico = async (ticker: string) => {
     setLoadingHistorico(true);
     try {
-      const data = await fetchWithRetry(`${apiUrl}/api/portafolio/historico/${ticker}`, {
-        headers: getAuthHeaders(),
-      });
-      setHistoricoData(data);
-      setShowHistorico(ticker);
-    } catch (err) {
-      console.error('Error al cargar histórico:', err);
-    } finally {
-      setLoadingHistorico(false);
-    }
+      const data = await fetchWithRetry(`${apiUrl}/api/portafolio/historico/${ticker}`, { headers: getAuthHeaders() });
+      setHistoricoData(data); setShowHistorico(ticker);
+    } catch (err) { console.error('Error histórico:', err); }
+    finally { setLoadingHistorico(false); }
   };
 
-  // Cerrar modal de histórico
-  const closeHistorico = () => {
-    setShowHistorico(null);
-    setHistoricoData(null);
-  };
+  const closeHistorico = () => { setShowHistorico(null); setHistoricoData(null); };
 
   const roiColor = (patrimonio?.roi_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
-  const RoiIcon = (patrimonio?.roi_pct || 0) >= 0 ? TrendingUp : ArrowDownRight;
-  const gainLossColor = (patrimonio?.ganancia_perdida || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+  const RoiIcon = (patrimonio?.roi_pct || 0) >= 0 ? TrendingUp : TrendingDown;
+  const isProfit = (patrimonio?.ganancia_perdida || 0) >= 0;
 
-  // Vista cuando está vacío
+  // ── Estado vacío ──
   if (!patrimonio?.detalles?.length && !showAdd) {
     return (
-      <div className="max-w-4xl mx-auto space-y-4">
-        <Card className="p-8 text-center">
-          <PieChart className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Tu portafolio está vacío</h3>
-          <p className="text-slate-400 mb-6">Comienza agregando tu primera posición.</p>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg font-semibold text-white transition-colors"
-          >
-            + Agregar posición
-          </button>
-        </Card>
+      <div className="max-w-2xl mx-auto">
+        <div className="relative rounded-2xl overflow-hidden border border-white/5">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20" />
+          <div className="relative p-12 text-center">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center mx-auto mb-6 border border-white/5">
+              <PieChart className="w-10 h-10 text-slate-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Portafolio vacío</h3>
+            <p className="text-slate-400 mb-8 max-w-sm mx-auto">
+              Comienza agregando tu primera posición para hacer seguimiento de tus inversiones en la BVC.
+            </p>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl font-semibold text-white transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+            >
+              <Plus className="w-5 h-5" />
+              Agregar primera posición
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 w-full">
-      {/* Modal Histórico de Compras */}
+    <div className="space-y-6 w-full">
+      {/* ── Modal Histórico ── */}
       {showHistorico && historicoData && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Activity className="w-5 h-5 text-emerald-400" />
-                Histórico: {showHistorico}
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
+          <div className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <History className="w-5 h-5 text-emerald-400" />
+                Histórico: <span className="font-mono text-white">{showHistorico}</span>
               </h3>
-              <button onClick={closeHistorico} className="text-slate-400 hover:text-white text-xl">×</button>
+              <button onClick={closeHistorico} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-3 text-sm">
-                <div className="bg-[#141414] p-3 rounded">
-                  <p className="text-slate-500 text-xs">Total Invertido</p>
-                  <p className="font-mono font-bold">{formatValue(historicoData.total_invertido, 2)} Bs</p>
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Total Invertido</p>
+                <p className="font-mono font-bold text-white text-lg">{formatValue(historicoData.total_invertido, 2)} <span className="text-xs text-slate-500">Bs</span></p>
+              </div>
+              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Cantidad</p>
+                <p className="font-mono font-bold text-white text-lg">{formatValue(historicoData.total_cantidad, 0)}</p>
+              </div>
+              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Promedio</p>
+                <p className="font-mono font-bold text-blue-400 text-lg">{formatValue(historicoData.precio_promedio, 4)} <span className="text-xs text-slate-500">Bs</span></p>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-[10px] text-slate-500 border-b border-white/10 uppercase font-mono">
+                  <tr>
+                    <th className="text-left py-2">Fecha</th>
+                    <th className="text-right py-2">Cant.</th>
+                    <th className="text-right py-2">Precio</th>
+                    <th className="text-right py-2">Total</th>
+                    <th className="text-right py-2"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {historicoData.compras?.map((compra: any) => (
+                    <tr key={compra.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-2.5 text-slate-300 text-xs">{compra.fecha_compra || 'N/A'}</td>
+                      <td className="py-2.5 text-right font-mono text-slate-300">{formatValue(compra.cantidad, 0)}</td>
+                      <td className="py-2.5 text-right font-mono text-slate-400 text-xs">{formatValue(compra.precio_compra, 4)} Bs</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-white">{formatValue((compra.cantidad * compra.precio_compra), 2)} Bs</td>
+                      <td className="py-2.5 text-right">
+                        <button
+                          onClick={async () => {
+                            if (!confirm('¿Eliminar esta compra?')) return;
+                            await fetchWithRetry(`${apiUrl}/api/portafolio/compra/${compra.id}`, { method: 'DELETE', headers: getAuthHeaders() });
+                            handleVerHistorico(showHistorico); await onRefresh?.();
+                          }}
+                          className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Formulario Agregar/Editar ── */}
+      {showAdd && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden border border-white/10">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+          <div className="relative p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-base font-bold flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  {editPosition ? <Edit2 className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4 text-emerald-400" />}
                 </div>
-                <div className="bg-[#141414] p-3 rounded">
-                  <p className="text-slate-500 text-xs">Cantidad Total</p>
-                  <p className="font-mono font-bold">{formatValue(historicoData.total_cantidad, 4)}</p>
-                </div>
-                <div className="bg-[#141414] p-3 rounded">
-                  <p className="text-slate-500 text-xs">Precio Promedio</p>
-                  <p className="font-mono font-bold text-blue-400">{formatValue(historicoData.precio_promedio, 4)} Bs</p>
+                {editPosition ? 'Editar Posición' : 'Nueva Posición'}
+              </h3>
+              <button onClick={resetForm} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2 relative">
+                <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Activo</label>
+                <div className="relative">
+                  <input
+                    type="text" value={addTicker}
+                    onChange={(e) => { setAddTicker(e.target.value.toUpperCase()); setShowSymbolDropdown(true); }}
+                    onFocus={() => setShowSymbolDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
+                    placeholder={editPosition ? "No editable" : "Buscar símbolo..."}
+                    required readOnly={!!editPosition}
+                    className={cn(
+                      "w-full bg-black/30 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 uppercase transition-all",
+                      editPosition ? "border-white/5 text-slate-500 cursor-not-allowed" : "border-white/10 text-white placeholder:text-slate-600"
+                    )}
+                  />
+                  {showSymbolDropdown && !editPosition && (
+                    <div className="absolute z-50 w-full mt-1.5 bg-slate-900 border border-white/10 rounded-xl max-h-48 overflow-y-auto shadow-2xl">
+                      {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).map(sym => (
+                        <button key={sym.symbol} type="button"
+                          onClick={() => { setAddTicker(sym.symbol); setShowSymbolDropdown(false); }}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-500/10 text-slate-300 hover:text-emerald-400 transition-colors flex items-center justify-between"
+                        >
+                          <div>
+                            <span className="font-mono font-bold text-sm">{sym.symbol}</span>
+                            <span className="text-xs text-slate-500 ml-2">{sym.name}</span>
+                          </div>
+                          <Check className="w-3.5 h-3.5 text-slate-600" />
+                        </button>
+                      ))}
+                      {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
+                        <div className="px-4 py-3 text-sm text-slate-500">Sin coincidencias</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-[10px] text-slate-500 border-b border-[#262626] uppercase font-mono">
-                    <tr>
-                      <th className="text-left py-2">Fecha</th>
-                      <th className="text-right py-2">Cantidad</th>
-                      <th className="text-right py-2">Precio</th>
-                      <th className="text-right py-2">Total</th>
-                      <th className="text-right py-2">Acciones</th>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Cantidad</label>
+                <input type="number" value={addCantidad} onChange={(e) => setAddCantidad(e.target.value)}
+                  min="0" step="0.01" required
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Precio (Bs)</label>
+                <input type="number" value={addPrecio} onChange={(e) => setAddPrecio(e.target.value)}
+                  min="0" step="0.01" required
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Fecha (opcional)</label>
+                <input type="date" value={addFecha} onChange={(e) => setAddFecha(e.target.value)}
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+              </div>
+              {addError && <div className="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"><AlertCircle className="w-4 h-4" />{addError}</div>}
+              <div className="sm:col-span-2 flex gap-3 justify-end pt-2">
+                <button type="button" onClick={resetForm} className="px-5 py-2.5 text-slate-400 hover:text-white text-sm border border-white/10 rounded-xl hover:bg-white/5 transition-colors font-medium">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={addLoading}
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl text-sm font-semibold disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/20">
+                  {addLoading ? 'Guardando...' : editPosition ? 'Actualizar' : 'Agregar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Resumen del Portafolio ── */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/30 via-slate-900 to-slate-950" />
+        <div className="relative p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-base font-bold flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-emerald-400" />
+              Resumen del Portafolio
+            </h3>
+            <button
+              onClick={() => { resetForm(); setShowAdd(true); }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-emerald-500/20"
+            >
+              <Plus className="w-4 h-4" />
+              Agregar
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Valor Total VES */}
+            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                  <span className="text-xs font-bold text-emerald-400">Bs</span>
+                </div>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Valor Total</span>
+              </div>
+              <p className="text-2xl font-bold text-white font-mono">
+                {patrimonio.total_ves?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
+              </p>
+              <div className={cn("inline-flex items-center gap-1 text-xs font-bold mt-2 px-2 py-1 rounded-md bg-black/30 border border-white/5", roiColor)}>
+                <RoiIcon size={12} />
+                ROI: {formatPercent(patrimonio.roi_pct, 2)}
+              </div>
+            </div>
+
+            {/* USD BCV */}
+            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-400">$</span>
+                </div>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">USD (BCV)</span>
+              </div>
+              <p className="text-xl font-bold text-blue-400 font-mono">
+                {patrimonio.total_usd?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
+              </p>
+              <p className="text-[10px] text-slate-600 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_bcv_usada, 2)}</p>
+            </div>
+
+            {/* USDT Binance */}
+            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                  <Coins className="w-3.5 h-3.5 text-amber-400" />
+                </div>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">USDT (P2P)</span>
+              </div>
+              <p className="text-xl font-bold text-amber-400 font-mono">
+                {patrimonio.total_usdt?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
+              </p>
+              <p className="text-[10px] text-slate-600 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_binance_usada, 2)}</p>
+            </div>
+
+            {/* P&L */}
+            <div className={cn(
+              "bg-black/20 border rounded-xl p-4",
+              isProfit ? "border-emerald-500/20" : "border-red-500/20"
+            )}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center",
+                  isProfit ? "bg-emerald-500/15" : "bg-red-500/15"
+                )}>
+                  {isProfit ? <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> : <TrendingDown className="w-3.5 h-3.5 text-red-400" />}
+                </div>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">P&L</span>
+              </div>
+              <p className={cn("text-xl font-bold font-mono", isProfit ? 'text-emerald-400' : 'text-red-400')}>
+                {isProfit ? '+' : ''}{patrimonio?.ganancia_perdida?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
+              </p>
+              <p className="text-[10px] text-slate-600 font-mono mt-1">Inv: {patrimonio?.total_inversion?.toLocaleString('es-VE', {minimumFractionDigits: 2}) ?? '0.00'} Bs</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Layout: Gráfico + Tabla ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Pie Chart */}
+        {patrimonio.detalles.length > 1 && (
+          <div className="lg:col-span-4">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 h-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+              <div className="relative p-5">
+                <h4 className="text-sm font-bold mb-4 flex items-center gap-2">
+                  <PieChart className="w-4 h-4 text-purple-400" />
+                  Distribución
+                </h4>
+                <div className="h-56">
+                  {mounted && (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPie data={patrimonio.detalles}>
+                        <Pie
+                          data={patrimonio.detalles}
+                          cx="50%" cy="50%"
+                          innerRadius={50} outerRadius={75}
+                          paddingAngle={4}
+                          dataKey="valor_usdt" nameKey="ticker"
+                          stroke="none"
+                        >
+                          {patrimonio.detalles.map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '12px', color: '#e2e8f0' }}
+                          formatter={(value: any) => [`${formatValue(Number(value), 2)} USDT`, 'Valor']}
+                        />
+                      </RechartsPie>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+                {/* Leyenda */}
+                <div className="mt-3 space-y-1.5">
+                  {patrimonio.detalles.map((item: any, idx: number) => (
+                    <div key={item.ticker} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                        <span className="font-mono text-slate-300 font-medium">{item.ticker}</span>
+                      </div>
+                      <span className="font-mono text-slate-500">{formatValue(Number(item.valor_usdt), 0)} USDT</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tabla de Posiciones */}
+        <div className={cn("lg:col-span-12", patrimonio.detalles.length > 1 && "lg:col-span-8")}>
+          <div className="relative rounded-2xl overflow-hidden border border-white/10">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+            <div className="relative p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h4 className="text-sm font-bold flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-emerald-400" />
+                  Posiciones Activas
+                </h4>
+                <span className="text-xs text-slate-500 font-mono bg-black/30 px-3 py-1 rounded-lg border border-white/5">
+                  {patrimonio.detalles.length} activo{patrimonio.detalles.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              <div className="overflow-x-auto -mx-5 px-5">
+                <table className="w-full text-sm font-mono">
+                  <thead>
+                    <tr className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-white/10">
+                      <th className="text-left py-3 px-3 font-medium">Activo</th>
+                      <th className="text-center py-3 px-3 font-medium">Cant.</th>
+                      <th className="text-center py-3 px-3 font-medium">P. Compra</th>
+                      <th className="text-center py-3 px-3 font-medium">P. Actual</th>
+                      <th className="text-center py-3 px-3 font-medium">P&L %</th>
+                      <th className="text-center py-3 px-3 font-medium">Valor Bs</th>
+                      <th className="text-center py-3 px-3 font-medium">Valor USDT</th>
+                      <th className="text-center py-3 px-3 font-medium"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#262626]">
-                    {historicoData.compras?.map((compra: any) => (
-                      <tr key={compra.id} className="hover:bg-[#141414]">
-                        <td className="py-2 text-slate-300">{compra.fecha_compra || 'N/A'}</td>
-                        <td className="py-2 text-right font-mono">{formatValue(compra.cantidad, 0)}</td>
-                        <td className="py-2 text-right font-mono text-slate-400">{formatValue(compra.precio_compra, 4)} Bs</td>
-                        <td className="py-2 text-right font-mono font-bold">{formatValue((compra.cantidad * compra.precio_compra), 2)} Bs</td>
-                        <td className="py-2 text-right">
-                          <button
-                            onClick={async () => {
-                              if (!confirm('¿Eliminar esta compra?')) return;
-                              await fetchWithRetry(`${apiUrl}/api/portafolio/compra/${compra.id}`, { method: 'DELETE', headers: getAuthHeaders() });
-                              handleVerHistorico(showHistorico);
-                              await onRefresh?.();
-                            }}
-                            className="text-xs text-red-400 hover:text-red-300"
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-white/5">
+                    {patrimonio.detalles.map((item: any, idx: number) => {
+                      const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+                      const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
+                      const tasaBinance = patrimonio.tasa_binance_usada || 1;
+                      const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
+                      const montoUsdt = montoValorActual / tasaBinance;
+                      return (
+                        <tr key={item.ticker} className="hover:bg-white/5 transition-colors group">
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                              <div>
+                                <span className="font-bold text-white text-sm">{item.ticker}</span>
+                                {item.sector && <p className="text-[10px] text-slate-600">{item.sector}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                            {Math.floor(item.cantidad || 0).toLocaleString('es-VE')}
+                          </td>
+                          <td className="py-3 px-3 text-center text-slate-400 text-sm">
+                            {formatValue(item.precio_promedio_compra, 2)}
+                          </td>
+                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                            {formatValue(item.precio_bvc, 2)}
+                          </td>
+                          <td className="py-3 px-3 text-center">
+                            <div className={cn("inline-flex items-center gap-1 font-mono font-bold text-sm px-2.5 py-1 rounded-lg",
+                              (item.gain_loss_pct || 0) >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                            )}>
+                              <GLOrrow size={12} />
+                              {formatPercent(item.gain_loss_pct, 2)}
+                            </div>
+                          </td>
+                          <td className={cn("py-3 px-3 text-center font-semibold text-sm", glColor)}>
+                            {formatValue(montoValorActual, 2)}
+                          </td>
+                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                            {formatValue(montoUsdt, 2)}
+                          </td>
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-1.5 justify-center opacity-60 group-hover:opacity-100 transition-opacity" role="group" aria-label={`Acciones para ${item.ticker}`}>
+                              <button onClick={() => handleOpenEdit(item)}
+                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                aria-label={`Editar posición de ${item.ticker}`}
+                                title="Editar">
+                                <Edit2 className="w-3.5 h-3.5" aria-hidden="true" />
+                              </button>
+                              <button onClick={() => handleVerHistorico(item.ticker)}
+                                className="p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-400 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                aria-label={`Ver histórico de precios de ${item.ticker}`}
+                                title="Histórico">
+                                <History className="w-3.5 h-3.5" aria-hidden="true" />
+                              </button>
+                              <button onClick={() => { const id = item.id || item.portafolio_id; if (id) handleDeletePosition(id); }}
+                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                aria-label={`Eliminar posición de ${item.ticker}`}
+                                title="Eliminar">
+                                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
-      )}
-
-      {/* Formulario Agregar/Editar posición */}
-      {showAdd && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold">{editPosition ? 'Editar posición' : 'Agregar posición'}</h3>
-            <button onClick={resetForm} className="text-slate-400 hover:text-white text-xl">×</button>
-          </div>
-          <form onSubmit={handleSavePosition} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Selector de Símbolo con Dropdown - Ocupa 2 columnas */}
-            <div className="sm:col-span-2 relative">
-              <label className="block text-xs text-slate-500 mb-1">Activo *</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={addTicker}
-                  onChange={(e) => {
-                    setAddTicker(e.target.value.toUpperCase());
-                    setShowSymbolDropdown(true);
-                  }}
-                  onFocus={() => setShowSymbolDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowSymbolDropdown(false), 200)}
-                  placeholder={editPosition ? "No editable" : "BUSCAR SÍMBOLO..."}
-                  required
-                  readOnly={!!editPosition}
-                  className={cn(
-                    "w-full bg-[#1a1a1a] border rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none uppercase",
-                    editPosition
-                      ? "border-slate-600 text-slate-400 cursor-not-allowed"
-                      : "border-[#262626] focus:border-emerald-500"
-                  )}
-                />
-                {showSymbolDropdown && !editPosition && (
-                  <div className="absolute z-50 w-full mt-1 bg-[#141414] border border-[#262626] rounded max-h-48 overflow-y-auto shadow-xl">
-                    {BVC_SYMBOLS
-                      .filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase()))
-                      .map(sym => (
-                        <button
-                          key={sym.symbol}
-                          type="button"
-                          onClick={() => {
-                            setAddTicker(sym.symbol);
-                            setShowSymbolDropdown(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-600/20 text-slate-300 hover:text-emerald-400 transition-colors flex items-center justify-between"
-                        >
-                          <div className="flex flex-col">
-                            <span className="font-mono font-bold">{sym.symbol}</span>
-                            <span className="text-xs text-slate-500">{sym.name}</span>
-                          </div>
-                          <span className="text-xs text-slate-500">Seleccionar</span>
-                        </button>
-                      ))}
-                    {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
-                      <div className="px-3 py-2 text-sm text-slate-500">No hay coincidencias</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Cantidad *</label>
-              <input
-                type="number"
-                value={addCantidad}
-                onChange={(e) => setAddCantidad(e.target.value)}
-                min="0"
-                step="0.01"
-                required
-                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-slate-500 mb-1">Precio Compra (Bs) *</label>
-              <input
-                type="number"
-                value={addPrecio}
-                onChange={(e) => setAddPrecio(e.target.value)}
-                min="0"
-                step="0.01"
-                required
-                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-xs text-slate-500 mb-1">Fecha Compra</label>
-              <input
-                type="date"
-                value={addFecha}
-                onChange={(e) => setAddFecha(e.target.value)}
-                className="w-full bg-[#1a1a1a] border border-[#262626] rounded px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <div className="sm:col-span-2 flex gap-3 justify-end">
-              <button type="button" onClick={resetForm} className="px-4 py-2 text-slate-400 hover:text-white text-sm border border-[#262626] rounded hover:bg-[#141414] transition-colors">
-                Cancelar
-              </button>
-              <button type="submit" disabled={addLoading} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium disabled:opacity-50 transition-colors">
-                {addLoading ? 'Guardando...' : editPosition ? 'Actualizar' : 'Agregar'}
-              </button>
-            </div>
-            {addError && <span className="sm:col-span-3 text-red-400 text-sm">{addError}</span>}
-          </form>
-        </Card>
-      )}
-
-      {/* Resumen General */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-5 border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Wallet className="w-16 h-16" />
-          </div>
-          <p className="text-xs text-slate-400 mb-1 font-mono uppercase">Mercado Actual (BS)</p>
-          <p className="text-3xl font-bold text-white font-mono mb-2">
-            {patrimonio.total_ves?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
-          </p>
-          <div className={cn("inline-flex items-center gap-1 text-sm font-bold bg-[#141414] px-2 py-1 rounded border border-[#262626]", roiColor)}>
-            <RoiIcon size={14} />
-            <span>ROI: {formatPercent(patrimonio.roi_pct, 2)}</span>
-          </div>
-        </Card>
-
-        <Card className="p-5 border-blue-500/20 bg-blue-500/5">
-          <p className="text-xs text-slate-400 mb-1 font-mono uppercase">Valor USD (BCV)</p>
-          <p className="text-2xl font-bold text-blue-400 font-mono mb-2">
-            {patrimonio.total_usd?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
-          </p>
-          <p className="text-xs text-slate-500 font-mono">Tasa: {formatValue(patrimonio.tasa_bcv_usada, 2)} Bs</p>
-        </Card>
-
-        <Card className="p-5 border-amber-500/20 bg-amber-500/5">
-          <p className="text-xs text-slate-400 mb-1 font-mono uppercase">Valor USDT (P2P)</p>
-          <p className="text-2xl font-bold text-amber-400 font-mono mb-2">
-            {patrimonio.total_usdt?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
-          </p>
-          <p className="text-xs text-slate-500 font-mono">Tasa: {formatValue(patrimonio.tasa_binance_usada, 2)} Bs</p>
-        </Card>
-
-        <Card className={cn("p-5 border-2 relative overflow-hidden", gainLossColor, patrimonio?.ganancia_perdida >= 0 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5')}>
-          <p className="text-xs text-slate-400 mb-1 font-mono uppercase">Ganancia/Pérdida</p>
-          <p className={cn("text-2xl font-bold font-mono mb-2", gainLossColor)}>
-            {(patrimonio?.ganancia_perdida ?? 0) >= 0 ? '+' : ''}{patrimonio?.ganancia_perdida?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'} Bs
-          </p>
-          <p className="text-xs text-slate-500 font-mono">Inversión: {patrimonio?.total_inversion?.toLocaleString('es-VE', {minimumFractionDigits: 2}) ?? '0.00'} Bs</p>
-        </Card>
-      </div>
-
-      {/* Acciones rápidas */}
-      <div className="flex gap-3 flex-wrap">
-        <button
-          onClick={() => { resetForm(); setShowAdd(true); }}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition-colors flex items-center gap-2"
-        >
-          <span className="text-lg">+</span> Agregar Posición
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Pie Chart */}
-        <Card className="p-4 lg:col-span-3">
-          <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-            <PieChart className="w-4 h-4 text-purple-400" />
-            DISTRIBUCIÓN
-          </h3>
-          <div className="h-64 min-h-[220px]">
-            {mounted ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <RechartsPie data={patrimonio.detalles}>
-                <Pie
-                  data={patrimonio.detalles}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="valor_usdt"
-                  nameKey="ticker"
-                  stroke="none"
-                >
-                  {patrimonio.detalles.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#141414', border: '1px solid #262626', borderRadius: '4px', fontSize: '11px' }}
-                  formatter={(value: any) => [`${formatValue(Number(value), 2)} USDT`, "Valor"]}
-                />
-              </RechartsPie>
-            </ResponsiveContainer>
-            ) : null}
-          </div>
-        </Card>
-
-        {/* Holdings List */}
-        <Card className="p-4 lg:col-span-9 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <Activity className="w-4 h-4 text-emerald-400" />
-              POSICIONES ACTIVAS
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm font-mono">
-              <thead className="text-[10px] text-slate-500 border-b border-[#262626] uppercase font-mono tracking-wider">
-                <tr>
-                  <th className="text-left py-3 px-2">Activo</th>
-                  <th className="text-center py-3 px-2">Acciones</th>
-                  <th className="text-center py-3 px-2">Precio Compra</th>
-                  <th className="text-center py-3 px-2">Precio Act</th>
-                  <th className="text-center py-3 px-2">%</th>
-                  <th className="text-center py-3 px-2">Monto Bs</th>
-                  <th className="text-center py-3 px-2">Monto $</th>
-                  <th className="text-center py-3 px-2">Monto USDT</th>
-                  <th className="text-center py-3 px-2">Monto Invertido</th>
-                  <th className="text-center py-3 px-2">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#262626]">
-                {patrimonio.detalles.map((item: any, idx: number) => {
-                  const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
-                  const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
-                  const tasaBinance = patrimonio.tasa_binance_usada || 1;
-                  const montoInvertido = (item.cantidad || 0) * (item.precio_promedio_compra || 0);
-                  const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
-                  const montoUsd = montoValorActual / patrimonio.tasa_bcv_usada || 1;
-                  const montoUsdt = montoValorActual / tasaBinance;
-                  return (
-                    <tr key={item.ticker} className="hover:bg-[#141414] transition-colors">
-                      <td className="py-3 px-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
-                          <span className="font-bold text-white">{item.ticker}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-slate-300">
-                        {Math.floor(item.cantidad || 0)}
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {formatValue(item.precio_promedio_compra, 2)} Bs
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {formatValue(item.precio_bvc, 2)} Bs
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <div className={cn("inline-flex items-center gap-1 font-mono font-semibold", glColor)}>
-                          <GLOrrow size={12} />
-                          <span className="text-base">{formatPercent(item.gain_loss_pct, 2)}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono">
-                        <span className={cn(glColor, "font-semibold text-base")}>{formatValue(montoValorActual, 2)} Bs</span>
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono">
-                        <span className={cn(glColor, "font-semibold text-base")}>${formatValue(montoUsd, 2)}</span>
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-slate-300">
-                        {formatValue(montoUsdt, 2)}
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-slate-400">
-                        {formatValue(montoInvertido, 2)} Bs
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="flex items-center gap-2 justify-center">
-                          <button
-                            onClick={() => handleOpenEdit(item)}
-                            className="p-1.5 bg-emerald-600/20 text-emerald-400 rounded hover:bg-emerald-600/30 transition-colors"
-                            title="Editar"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                          </button>
-                          <button
-                            onClick={() => {
-                              const id = item.id || item.portafolio_id;
-                              console.log('[Eliminar] ID:', id);
-                              if (id) handleDeletePosition(id);
-                            }}
-                            className="p-1.5 bg-red-600/20 text-red-400 rounded hover:bg-red-600/30 transition-colors"
-                            title="Eliminar"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Card>
       </div>
     </div>
   );
@@ -2014,7 +1887,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 // VISTA: MERCADO RESUMEN
 // ============================================================================
 
-function MercadoResumenView({ bvc, previousBvc, tasas, mounted }: any) {
+function MercadoResumenView({ bvc, previousBvc, tasas, mounted, loading }: any) {
   // Ordenar por volumen para ver las más activas
   const bvcActivas = [...(bvc ?? [])].sort((a, b) => (b.volumen ?? 0) - (a.volumen ?? 0)).slice(0, 20);
 
@@ -2117,7 +1990,7 @@ function MercadoResumenView({ bvc, previousBvc, tasas, mounted }: any) {
 // VISTA: ALERTAS
 // ============================================================================
 
-function AlertasView({ tasas }: any) {
+function AlertasView({ tasas, loading }: any) {
   if (!tasas) return null;
 
   // Definir umbrales de alerta

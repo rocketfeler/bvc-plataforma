@@ -124,28 +124,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Base Styles ───────────────────────────────────────────────────────── */
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-}
-
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* ─── Scrollbar Styling ─────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar {
@@ -177,9 +155,90 @@ body {
 /* ─── Focus Styles ──────────────────────────────────────────────────────── */
 
 :focus-visible {
-  outline: 2px solid rgba(16, 185, 129, 0.5);
+  outline: 2px solid rgba(16, 185, 129, 0.7);
   outline-offset: 2px;
   transition: outline-color var(--transition-fast);
+}
+
+/* Focus visible para elementos dentro de tablas y modales */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, 0.8);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+}
+
+/* ─── Skip to Content Link ─────────────────────────────────────────────── */
+
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 12px 24px;
+  background: var(--primary-500);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  transition: top var(--transition-fast);
+}
+
+.skip-to-content:focus {
+  top: 12px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.skip-to-content:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* ─── Screen Reader Only Utility ───────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── High Contrast Mode Support ───────────────────────────────────────── */
+
+@media (prefers-contrast: high) {
+  :root {
+    --border: #404040;
+    --border-hover: #525252;
+    --text-muted: #a1a1aa;
+    --text-secondary: #d4d4d8;
+  }
+
+  .card-base,
+  .card-elevated {
+    border-width: 2px;
+  }
 }
 
 /* ─── Hover Effects ─────────────────────────────────────────────────────── */

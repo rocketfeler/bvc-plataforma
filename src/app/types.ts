@@ -97,3 +97,15 @@ export interface LibroOrdenesData {
   ultima_actualizacion?: string | null;
   error?: string;
 }
+
+export interface HistoricalCandleData {
+  fecha: string;       // YYYY-MM-DD
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export type ChartType = 'candles' | 'line' | 'area';
+export type TimePeriod = '1S' | '1M' | '3M' | '6M' | '1A';

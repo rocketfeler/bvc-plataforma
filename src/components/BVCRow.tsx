@@ -9,13 +9,19 @@ interface BVCRowProps {
   accion: BVCData;
   previous?: BVCData;
   tasaBinance: number;
+  onStockClick?: (accion: BVCData) => void;
 }
 
 /**
  * Fila de la tabla de cotizaciones BVC (versión resumida para Dashboard)
  * OPTIMIZADO: Envuelto en React.memo para evitar re-renderizados innecesarios
+ * 
+ * Micro-interacciones:
+ * - Hover: fondo sutil + borde izquierdo accent
+ * - Click: feedback táctil con scale
+ * - Entrada: fade-in suave
  */
-export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BVCRowProps) {
+export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance, onStockClick }: BVCRowProps) {
   // Usamos precio actual como principal, con fallbacks
   const precioPrincipal = accion.precio ?? accion.precio_vta ?? accion.precio_compra ?? 0;
   const previousPrecio = previous ? (previous.precio ?? previous.precio_vta ?? previous.precio_compra ?? 0) : 0;
@@ -35,23 +41,38 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
 
   return (
     <motion.tr
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      whileHover={{ 
+        backgroundColor: isPositive ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+        transition: { duration: 0.15 }
+      }}
       className={cn(
-        "border-b border-[#262626] hover:bg-[#1a1a1a] transition-colors",
+        "border-b border-[#262626] transition-all duration-150 cursor-pointer relative",
+        "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:transition-all before:duration-150",
+        "hover:before:w-0.5",
+        isPositive 
+          ? 'hover:bg-emerald-500/5 before:bg-transparent hover:before:bg-emerald-400' 
+          : 'hover:bg-red-500/5 before:bg-transparent hover:before:bg-red-400',
         priceChanged && (isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10')
       )}
+      onClick={() => onStockClick?.(accion)}
     >
       <td className="py-3 px-4">
         <div className="flex items-center gap-3">
-          <div className={cn(
-            "w-8 h-8 rounded flex items-center justify-center font-bold text-xs border",
-            isPositive
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
-          )}>
+          <motion.div 
+            className={cn(
+              "w-8 h-8 rounded flex items-center justify-center font-bold text-xs border",
+              isPositive
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                : 'bg-red-500/10 border-red-500/30 text-red-400'
+            )}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ duration: 0.2 }}
+          >
             {simboloCorto}
-          </div>
+          </motion.div>
           <div>
             <span className="font-semibold text-sm block">{simbolo}</span>
             <span className="text-[10px] text-slate-500 truncate block max-w-[120px]">{descSimb}</span>
@@ -62,13 +83,18 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance }: BV
         <FlashPrice value={precioPrincipal} previous={previousPrecio} decimals={2} suffix="Bs" />
       </td>
       <td className="py-3 px-4 text-center">
-        <span className={cn(
-          "inline-flex items-center gap-1 font-bold text-sm",
-          isPositive ? 'text-emerald-400' : 'text-red-400'
-        )}>
+        <motion.span 
+          className={cn(
+            "inline-flex items-center gap-1 font-bold text-sm",
+            isPositive ? 'text-emerald-400' : 'text-red-400'
+          )}
+          initial={{ opacity: 0, x: -4 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
           {formatPercent(variacionPct, 2)}
-        </span>
+        </motion.span>
       </td>
       <td className="py-3 px-4 text-center">
         <span className="text-slate-500 font-mono text-sm">{formatInt(accion.volumen)}</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { cn, formatValue } from './utils';
 
 interface FlashPriceProps {
@@ -12,8 +12,9 @@ interface FlashPriceProps {
 
 /**
  * Precio con efecto flash cuando cambia
+ * OPTIMIZADO: Envuelto en React.memo para evitar re-renderizados innecesarios
  */
-export function FlashPrice({ value, previous, decimals = 2, suffix }: FlashPriceProps) {
+export const FlashPrice = React.memo(function FlashPrice({ value, previous, decimals = 2, suffix }: FlashPriceProps) {
   const [flash, setFlash] = useState<'up' | 'down' | null>(null);
 
   useEffect(() => {

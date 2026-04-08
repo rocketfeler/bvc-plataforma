@@ -84,7 +84,7 @@ export function Header({
           {/* Icono de sección */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <div className={cn(
-              "w-7 h-7 rounded-md flex items-center justify-center",
+              "w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center",
               activeTab === 'dashboard' && 'bg-blue-500/20 text-blue-400',
               activeTab === 'calculadora' && 'bg-emerald-500/20 text-emerald-400',
               activeTab === 'pizarra' && 'bg-red-500/20 text-red-400',
@@ -121,9 +121,9 @@ export function Header({
           <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-[#0a0a0a] rounded-md border border-[#262626]">
             <div className={cn(
               "w-2 h-2 rounded-full",
-              marketStatus?.estado === 'Abierto' ? 'bg-emerald-500 animate-pulse' :
-              marketStatus?.estado === 'Cerrado' ? 'bg-slate-500' :
-              'bg-amber-500'
+              marketStatus?.estado === 'Abierto' ? 'bg-[var(--success)] animate-pulse' :
+              marketStatus?.estado === 'Cerrado' ? 'bg-[var(--text-muted)]' :
+              'bg-[var(--warning)]'
             )} />
             <span className="text-[10px] font-mono text-slate-400">
               {marketStatus?.estado || 'Cargando...'}
@@ -134,7 +134,7 @@ export function Header({
           <div className="hidden md:flex items-center gap-1.5 text-[10px] font-mono text-slate-500">
             <div className={cn(
               "w-1.5 h-1.5 rounded-full",
-              socketConnected ? 'bg-emerald-500' : 'bg-red-500'
+              socketConnected ? 'bg-[var(--success)]' : 'bg-[var(--error)]'
             )} />
             <span className="truncate">{socketConnected ? 'WS ON' : 'WS OFF'}</span>
           </div>
@@ -151,20 +151,24 @@ export function Header({
           {/* Botón Refresh */}
           <button
             onClick={onRefresh}
-            className="p-1.5 hover:bg-[#262626] rounded-md transition-colors group"
+            className="p-1.5 hover:bg-[#262626] rounded-md transition-colors group focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1a1a]"
+            aria-label="Actualizar datos del mercado"
             title="Actualizar datos"
           >
             <RefreshCw size={16} className={cn(
               "text-slate-400 group-hover:text-emerald-400 transition-colors",
               loading && 'animate-spin'
-            )} />
+            )} aria-hidden="true" />
           </button>
 
           {/* Avatar del usuario + Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 p-1 pr-2 hover:bg-[#262626] rounded-md transition-colors"
+              className="flex items-center gap-2 p-1 pr-2 hover:bg-[#262626] rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1a1a]"
+              aria-label={`Menú de usuario: ${user?.email || 'Usuario'}`}
+              aria-expanded={dropdownOpen}
+              aria-haspopup="true"
               title={user?.email || 'Usuario'}
             >
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
@@ -185,6 +189,8 @@ export function Header({
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.15 }}
                   className="absolute right-0 top-full mt-2 w-56 bg-[#0a0a0a] border border-[#262626] rounded-lg shadow-xl overflow-hidden z-50"
+                  role="menu"
+                  aria-label="Menú de opciones del usuario"
                 >
                   {/* User Info */}
                   <div className="px-3 py-2.5 border-b border-[#262626]">
@@ -197,12 +203,14 @@ export function Header({
                   </div>
 
                   {/* Menu Items */}
-                  <div className="py-1">
+                  <div className="py-1" role="menu" aria-label="Menú de usuario">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset"
+                      role="menuitem"
+                      aria-label="Cerrar sesión"
                     >
-                      <LogOut size={14} />
+                      <LogOut size={14} aria-hidden="true" />
                       <span>Cerrar sesión</span>
                     </button>
                   </div>

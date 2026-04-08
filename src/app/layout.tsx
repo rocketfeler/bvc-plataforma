@@ -22,6 +22,9 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body className={`${inter.variable} font-sans antialiased`}>
+        <a href="#main-content" className="skip-to-content">
+          Saltar al contenido principal
+        </a>
         <ErrorBoundary>
           <AuthProvider>
             {children}
