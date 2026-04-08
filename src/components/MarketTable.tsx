@@ -520,7 +520,7 @@ export function MarketTable({
                               e.stopPropagation();
                               onFetchLibroOrdenes?.(simbolo);
                             }}
-                            whileHover={{ scale: 1.05, brightness: 1.1 }}
+                            whileHover={{ scale: 1.05, filter: "brightness(1.1)" }}
                             whileTap={{ scale: 0.95 }}
                             transition={{ duration: 0.2 }}
                             className="px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded transition-colors flex items-center gap-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
