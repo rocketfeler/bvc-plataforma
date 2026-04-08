@@ -437,7 +437,7 @@ export function MarketTable({
                               transition={{ duration: 0.2 }}
                             >
                               {simboloCorto}
-                            </div>
+                            </motion.div>
                             <div className="min-w-0">
                               <span className="font-semibold text-sm text-white block">{simbolo}</span>
                               <span className="text-[10px] text-slate-500 truncate block max-w-[200px]" title={descSimb}>
