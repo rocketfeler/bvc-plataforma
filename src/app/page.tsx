@@ -321,6 +321,31 @@ export default function BloombergTerminal() {
     return () => clearTimeout(timeoutId);
   }, [calcMonto, calcOrigen, calcDestino, fetchWithRetry]);
 
+  // ============================================================================
+  // HANDLERS - DEBEN ESTAR ANTES DE CUALQUIER RETURN CONDICIONAL
+  // ============================================================================
+
+  const handleRefresh = useCallback(async () => {
+    const headers = getAuthHeaders();
+    try {
+      const [tasasRes, bvcRes, patrimonioRes] = await Promise.all([
+        fetchWithRetry(`${CONFIG.API_URL}/api/tasas`),
+        fetchWithRetry(`${CONFIG.API_URL}/api/bvc`),
+        fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers }),
+      ]);
+      if (tasasRes?.bcv) setTasas(tasasRes);
+      if (bvcRes?.length) setBvc(bvcRes);
+      if (patrimonioRes?.detalles) setPatrimonio(patrimonioRes);
+      setLastUpdate(new Date());
+    } catch (err) {
+      console.error('[Refresh] Error:', err);
+    }
+  }, [getAuthHeaders, fetchWithRetry]);
+
+  // ============================================================================
+  // EARLY RETURNS - DESPUÉS DE TODOS LOS HOOKS
+  // ============================================================================
+
   // Redirigiendo o cargando auth
   if (authLoading || !user) {
     return (
@@ -351,27 +376,6 @@ export default function BloombergTerminal() {
       </div>
     );
   }
-
-  // ============================================================================
-  // HANDLERS
-  // ============================================================================
-
-  const handleRefresh = useCallback(async () => {
-    const headers = getAuthHeaders();
-    try {
-      const [tasasRes, bvcRes, patrimonioRes] = await Promise.all([
-        fetchWithRetry(`${CONFIG.API_URL}/api/tasas`),
-        fetchWithRetry(`${CONFIG.API_URL}/api/bvc`),
-        fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers }),
-      ]);
-      if (tasasRes?.bcv) setTasas(tasasRes);
-      if (bvcRes?.length) setBvc(bvcRes);
-      if (patrimonioRes?.detalles) setPatrimonio(patrimonioRes);
-      setLastUpdate(new Date());
-    } catch (err) {
-      console.error('[Refresh] Error:', err);
-    }
-  }, [getAuthHeaders, fetchWithRetry]);
 
   // ============================================================================
   // RENDER PRINCIPAL
