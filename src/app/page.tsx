@@ -574,6 +574,69 @@ export default function BloombergTerminal() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MODAL VISTA DETALLADA DE ACCIÓN */}
+      <AnimatePresence>
+        {showStockDetail && detailStockData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={cerrarStockDetail}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Vista detallada de ${detailStockData.simbolo}`}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-[#0a0a0a] border border-[#262626] rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              role="document"
+            >
+              {/* Header con botón de cerrar */}
+              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-red-500/20 border border-red-500/30 rounded" aria-hidden="true">
+                    <span className="text-base">📈</span>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-bold text-white">VISTA DETALLADA</h3>
+                </div>
+                <button
+                  onClick={cerrarStockDetail}
+                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                  aria-label="Cerrar vista detallada"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Contenido - StockDetailView */}
+              <div className="h-[calc(90vh-60px)] overflow-hidden">
+                <StockDetailView
+                  simbolo={detailStockData.simbolo}
+                  nombre={detailStockData.desc_simb}
+                  precioActual={detailStockData.precio}
+                  variacionPct={detailStockData.variacion_pct}
+                  volumen={detailStockData.volumen}
+                  precioMax={detailStockData.precio_max}
+                  precioMin={detailStockData.precio_min}
+                  precioApert={detailStockData.precio_apert}
+                  montoEfectivo={detailStockData.monto_efectivo}
+                  libroOrdenes={libroOrdenes}
+                  apiUrl={CONFIG.API_URL}
+                  onClose={cerrarStockDetail}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -665,73 +728,6 @@ function ModalContent({
           </div>
         )}
       </div>
-    </div>
-  );
-}
-      </AnimatePresence>
-
-      {/* MODAL VISTA DETALLADA DE ACCIÓN */}
-      <AnimatePresence>
-        {showStockDetail && detailStockData && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={cerrarStockDetail}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`Vista detallada de ${detailStockData.simbolo}`}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-[#0a0a0a] border border-[#262626] rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-              role="document"
-            >
-              {/* Header con botón de cerrar */}
-              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-red-500/20 border border-red-500/30 rounded" aria-hidden="true">
-                    <span className="text-base">📈</span>
-                  </div>
-                  <h3 className="text-sm sm:text-base font-bold text-white">VISTA DETALLADA</h3>
-                </div>
-                <button
-                  onClick={cerrarStockDetail}
-                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
-                  aria-label="Cerrar vista detallada"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Contenido - StockDetailView */}
-              <div className="h-[calc(90vh-60px)] overflow-hidden">
-                <StockDetailView
-                  simbolo={detailStockData.simbolo}
-                  nombre={detailStockData.desc_simb}
-                  precioActual={detailStockData.precio}
-                  variacionPct={detailStockData.variacion_pct}
-                  volumen={detailStockData.volumen}
-                  precioMax={detailStockData.precio_max}
-                  precioMin={detailStockData.precio_min}
-                  precioApert={detailStockData.precio_apert}
-                  montoEfectivo={detailStockData.monto_efectivo}
-                  libroOrdenes={libroOrdenes}
-                  apiUrl={CONFIG.API_URL}
-                  onClose={cerrarStockDetail}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
