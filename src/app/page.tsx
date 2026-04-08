@@ -548,7 +548,7 @@ export default function BloombergTerminal() {
                   <div>
                     <h3 className="text-sm sm:text-lg font-bold text-white">{libroOrdenesSimbolo}</h3>
                     <p className="text-[10px] sm:text-xs text-slate-400 font-mono">
-                      {libroOrdenes.fuente === 'cache' ? '● Datos en caché' : libroOrdenes.fuente === 'directo' || libroOrdenes.fuente === 'directo-bvc' ? '● Datos en tiempo real' : '● Datos disponibles'}
+                      {libroOrdenes.fuente === 'cache' ? '● Datos en caché' : libroOrdenes.fuente === 'directo' ? '● Datos en tiempo real' : '● Datos disponibles'}
                     </p>
                   </div>
                 </div>
