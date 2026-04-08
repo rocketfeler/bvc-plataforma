@@ -633,7 +633,7 @@ function MacroCard({ macro }: MacroCardProps) {
         <div className="pt-3 border-t border-[var(--border)] grid grid-cols-2 gap-3">
           <div className="p-2 rounded bg-[var(--surface)] border border-[var(--border)]">
             <p className="text-[10px] text-[var(--text-muted)] mb-0.5">Registros Históricos</p>
-            <p className="text-sm font-mono font-semibold">{Array.isArray(macro)?.length ?? 0} días</p>
+            <p className="text-sm font-mono font-semibold">{Array.isArray(macro) ? macro.length : 0} días</p>
           </div>
           <div className="p-2 rounded bg-[var(--surface)] border border-[var(--border)]">
             <p className="text-[10px] text-[var(--text-muted)] mb-0.5">Tendencia Brecha</p>
