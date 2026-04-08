@@ -324,7 +324,7 @@ export function OrderBook({ data, loading, error, className }: OrderBookProps) {
       {data.spread !== undefined && data.spread !== null && (
         <SpreadBar
           spread={data.spread}
-          spreadPct={data.spread_pct}
+          spreadPct={data.spread_pct ?? null}
           mejorBid={data.mejor_bid}
           mejorAsk={data.mejor_ask}
         />

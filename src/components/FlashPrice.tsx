@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { cn, formatValue } from './utils';
 
 interface FlashPriceProps {
-  value: number | undefined;
-  previous?: number;
+  value: number | null | undefined;
+  previous?: number | null;
   decimals?: number;
   suffix?: string;
 }

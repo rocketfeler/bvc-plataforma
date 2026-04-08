@@ -321,9 +321,11 @@ export default function StockDetailView({
               <h2 className="text-xl font-bold text-white tracking-tight">{simbolo}</h2>
               <span className={cn(
                 "px-2 py-0.5 rounded text-xs font-semibold",
-                isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                variacionPct !== null
+                  ? (isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400')
+                  : 'bg-slate-500/20 text-slate-400'
               )}>
-                {isPositive ? '+' : ''}{formatValue(variacionPct, 2)}%
+                {variacionPct !== null ? `${isPositive ? '+' : ''}${formatValue(variacionPct, 2)}%` : '-'}
               </span>
             </div>
             <p className="text-sm text-slate-400 truncate">{nombre}</p>

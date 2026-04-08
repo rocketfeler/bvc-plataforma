@@ -468,7 +468,7 @@ export function MarketTable({
                             isPositive ? 'text-emerald-400' : 'text-red-400'
                           )}>
                             {isPositive ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                            {formatValue(accion.variacion_pct, 2)}%
+                            {accion.variacion_pct !== null ? `${formatValue(accion.variacion_pct, 2)}%` : '-'}
                           </span>
                         </td>
 
