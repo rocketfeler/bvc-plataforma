@@ -4,19 +4,19 @@
 /* ─── Design Tokens CSS Variables ───────────────────────────────────────── */
 
 :root {
-  // Colores base
+  /* Colores base */
   --background: #0a0a0a;
   --surface: #141414;
   --surface-elevated: #1a1a1a;
   --surface-hover: #1f1f1f;
   --foreground: #ededed;
 
-  // Bordes
+  /* Bordes */
   --border: #262626;
   --border-hover: #333333;
   --border-active: #404040;
 
-  // Primario - Emerald
+  /* Primario - Emerald */
   --primary-50: #ecfdf5;
   --primary-100: #d1fae5;
   --primary-200: #a7f3d0;
@@ -28,7 +28,7 @@
   --primary-800: #065f46;
   --primary-900: #064e3b;
 
-  // Acento - Cyan
+  /* Acento - Cyan */
   --accent-50: #ecfeff;
   --accent-100: #cffafe;
   --accent-200: #a5f3fc;
@@ -40,26 +40,26 @@
   --accent-800: #155e75;
   --accent-900: #164e63;
 
-  // Texto
+  /* Texto */
   --text-primary: #ededed;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
   --text-disabled: #52525b;
 
-  // Estados
+  /* Estados */
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
 
-  // Bordes redondeados
+  /* Bordes redondeados */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  // Sombras
+  /* Sombras */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
@@ -68,13 +68,13 @@
   --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.15);
   --shadow-glow-lg: 0 0 40px rgba(16, 185, 129, 0.25);
 
-  // Transiciones
+  /* Transiciones */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slower: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Z-Index
+  /* Z-Index */
   --z-dropdown: 100;
   --z-sticky: 200;
   --z-overlay: 300;
