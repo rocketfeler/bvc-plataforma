@@ -75,7 +75,7 @@ export interface MacroRow {
   brecha_cambiaria: number;
 }
 
-export type ActiveTab = 'dashboard' | 'calculadora' | 'pizarra' | 'portafolio';
+export type ActiveTab = 'dashboard' | 'calculadora' | 'pizarra' | 'portafolio' | 'mercado' | 'alertas' | 'exportar';
 
 export interface LibroOrdenesData {
   simbolo: string;

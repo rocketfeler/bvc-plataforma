@@ -4,8 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   TrendingUp, DollarSign, Loader2, AlertCircle, RefreshCw, Calculator,
-  PieChart, Activity, Wallet, Building2, Layers, Zap, Globe, Shield, Cpu,
-  BarChart3, ArrowUpRight, ArrowDownRight, LogOut, Star
+  PieChart, Activity, Wallet, Layers, Zap, Globe, Shield, Cpu,
+  BarChart3, ArrowUpRight, ArrowDownRight, LogOut, Star, Download
 } from "lucide-react";
 import {
   AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -15,13 +15,14 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 // Tipos
-import { TasasData, BVCData, PatrimonioData, MacroRow, ActiveTab, LibroOrdenesData } from './types';
+import { TasasData, BVCData, PatrimonioData, MacroRow, LibroOrdenesData } from './types';
 
 // Componentes
 import {
   PriceTicker, BVCRow, MetricCard, Card, FlashPrice, NewsTicker,
-  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent, formatPercentSimple
+  CONFIG, CHART_COLORS, cn, formatValue, formatInt, formatPercent, formatPercentSimple, Header
 } from '@/components';
+import { Sidebar, type ActiveTab } from '@/components/Sidebar';
 
 // Socket.IO Hook
 import { useSocket } from './useSocket';
@@ -352,6 +353,27 @@ export default function BloombergTerminal() {
   }
 
   // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  const handleRefresh = useCallback(async () => {
+    const headers = getAuthHeaders();
+    try {
+      const [tasasRes, bvcRes, patrimonioRes] = await Promise.all([
+        fetchWithRetry(`${CONFIG.API_URL}/api/tasas`),
+        fetchWithRetry(`${CONFIG.API_URL}/api/bvc`),
+        fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers }),
+      ]);
+      if (tasasRes?.bcv) setTasas(tasasRes);
+      if (bvcRes?.length) setBvc(bvcRes);
+      if (patrimonioRes?.detalles) setPatrimonio(patrimonioRes);
+      setLastUpdate(new Date());
+    } catch (err) {
+      console.error('[Refresh] Error:', err);
+    }
+  }, [getAuthHeaders, fetchWithRetry]);
+
+  // ============================================================================
   // RENDER PRINCIPAL
   // ============================================================================
 
@@ -360,91 +382,20 @@ export default function BloombergTerminal() {
       {/* Background Grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
+      {/* Sidebar */}
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#1a1a1a]/95 backdrop-blur-xl border-b border-[#262626]">
-        <div className="max-w-[2000px] mx-auto px-4">
-          {/* Top bar */}
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded shadow-lg shadow-emerald-500/20">
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent tracking-tight">
-                    BVC TERMINAL
-                  </h1>
-                  <p className="text-[10px] text-slate-500 font-mono tracking-wider">BOLSA DE VALORES DE CARACAS</p>
-                </div>
-              </div>
-              {/* Indicador de Mercado - Vinculado al endpoint /api/estado-mercado */}
-              <div className="hidden md:flex items-center gap-2 ml-4 px-3 py-1 bg-[#0a0a0a] rounded border border-[#262626]">
-                <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  marketStatus?.estado === 'Abierto' ? 'bg-emerald-500 animate-pulse' :
-                  marketStatus?.estado === 'Cerrado' ? 'bg-slate-500' :
-                  'bg-amber-500'
-                )} />
-                <span className="text-[10px] font-mono text-slate-400">
-                  {marketStatus?.estado || (error ? 'ERROR' : 'Cargando...')}
-                </span>
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center gap-4">
-              {user && (
-                <span className="text-xs text-slate-400 truncate max-w-[120px]" title={user.email}>
-                  {user.email}
-                </span>
-              )}
-              <div className="hidden lg:flex items-center gap-2 text-[10px] font-mono text-slate-500">
-                <Shield size={12} />
-                <span>WebSocket: {socketConnected ? 'CONECTADO' : 'DESCONECTADO'}</span>
-                <span className="text-slate-700">|</span>
-                <RefreshCw size={12} className={cn(loading && 'animate-spin')} />
-                <span>{lastUpdate.toLocaleTimeString()}</span>
-              </div>
-              <button
-                onClick={async () => {
-                  const headers = getAuthHeaders();
-                  try {
-                    const [tasasRes, bvcRes, patrimonioRes] = await Promise.all([
-                      fetchWithRetry(`${CONFIG.API_URL}/api/tasas`),
-                      fetchWithRetry(`${CONFIG.API_URL}/api/bvc`),
-                      fetchWithRetry(`${CONFIG.API_URL}/api/patrimonio`, { headers }),
-                    ]);
-                    if (tasasRes?.bcv) setTasas(tasasRes);
-                    if (bvcRes?.length) setBvc(bvcRes);
-                    if (patrimonioRes?.detalles) setPatrimonio(patrimonioRes);
-                    setLastUpdate(new Date());
-                  } catch (err) {
-                    console.error('[Refresh] Error:', err);
-                  }
-                }}
-                className="p-2 hover:bg-[#0a0a0a] rounded transition-colors group"
-              >
-                <RefreshCw size={18} className="text-slate-500 group-hover:text-emerald-400 transition-colors" />
-              </button>
-              <button
-                onClick={() => { logout(); router.replace('/login'); }}
-                className="p-2 hover:bg-[#0a0a0a] rounded transition-colors group"
-                title="Cerrar sesión"
-              >
-                <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors" />
-              </button>
-            </div>
-          </div>
-
-          {/* Navigation Tabs */}
-          <nav className="flex gap-2 pb-3">
-            <TabButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<Activity size={16} />} label="DASHBOARD" />
-            <TabButton active={activeTab === 'pizarra'} onClick={() => setActiveTab('pizarra')} icon={<Layers size={16} />} label="PIZARRA BVC" />
-            <TabButton active={activeTab === 'calculadora'} onClick={() => setActiveTab('calculadora')} icon={<Calculator size={16} />} label="CALCULADORA" />
-            <TabButton active={activeTab === 'portafolio'} onClick={() => setActiveTab('portafolio')} icon={<PieChart size={16} />} label="PORTAFOLIO" />
-          </nav>
-        </div>
-      </header>
+      <Header
+        user={user}
+        activeTab={activeTab}
+        marketStatus={marketStatus}
+        socketConnected={socketConnected}
+        lastUpdate={lastUpdate}
+        loading={loading}
+        onRefresh={handleRefresh}
+        onLogout={logout}
+      />
 
       {/* News Ticker */}
       <NewsTicker noticias={noticias} />
@@ -459,7 +410,7 @@ export default function BloombergTerminal() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="max-w-[2000px] mx-auto px-4 mt-3"
+            className="ml-0 lg:ml-60 px-4 lg:px-6 mt-3"
           >
             <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2 flex items-center gap-2">
               <AlertCircle className="text-red-400 w-4 h-4 flex-shrink-0" />
@@ -470,7 +421,7 @@ export default function BloombergTerminal() {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="max-w-[2000px] mx-auto px-4 py-4 relative z-10">
+      <main className="ml-0 lg:ml-60 px-4 lg:px-6 py-4 relative z-10">
         {activeTab === 'dashboard' && (
           <DashboardView
             tasas={tasas}
@@ -511,6 +462,23 @@ export default function BloombergTerminal() {
             getAuthHeaders={getAuthHeaders}
             apiUrl={CONFIG.API_URL}
           />
+        )}
+
+        {activeTab === 'mercado' && (
+          <MercadoResumenView
+            bvc={bvc}
+            previousBvc={previousBvc}
+            tasas={tasas}
+            mounted={mounted}
+          />
+        )}
+
+        {activeTab === 'alertas' && (
+          <AlertasView tasas={tasas} />
+        )}
+
+        {activeTab === 'exportar' && (
+          <ExportarView apiUrl={CONFIG.API_URL} getAuthHeaders={getAuthHeaders} />
         )}
       </main>
 
@@ -742,23 +710,6 @@ export default function BloombergTerminal() {
 // ============================================================================
 // COMPONENTES AUXILIARES
 // ============================================================================
-
-function TabButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex-1 flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold transition-all uppercase tracking-wider rounded-lg",
-        active
-          ? 'bg-[#141414] text-emerald-400 border-2 border-emerald-500 shadow-lg shadow-emerald-500/20'
-          : 'text-slate-500 hover:text-slate-300 hover:bg-[#141414]/50 border-2 border-transparent'
-      )}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
 
 // ============================================================================
 // VISTA: DASHBOARD
@@ -2051,6 +2002,326 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           </div>
         </Card>
       </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// VISTA: MERCADO RESUMEN
+// ============================================================================
+
+function MercadoResumenView({ bvc, previousBvc, tasas, mounted }: any) {
+  // Ordenar por volumen para ver las más activas
+  const bvcActivas = [...(bvc ?? [])].sort((a, b) => (b.volumen ?? 0) - (a.volumen ?? 0)).slice(0, 20);
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            RESUMEN DEL MERCADO
+          </h3>
+          <div className="text-xs text-slate-400 font-mono">
+            {bvc?.length || 0} acciones listadas
+          </div>
+        </div>
+
+        {/* Estadísticas generales */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+            <p className="text-[10px] text-slate-500 uppercase">Total Operaciones</p>
+            <p className="text-lg font-bold text-white font-mono">
+              {bvc?.reduce((sum: number, a: any) => sum + (a.tot_op_negoc ?? 0), 0).toLocaleString('es-VE') || '—'}
+            </p>
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+            <p className="text-[10px] text-slate-500 uppercase">Volumen Total</p>
+            <p className="text-lg font-bold text-white font-mono">
+              {bvc?.reduce((sum: number, a: any) => sum + (a.volumen ?? 0), 0).toLocaleString('es-VE') || '—'}
+            </p>
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+            <p className="text-[10px] text-slate-500 uppercase">Monto Efectivo</p>
+            <p className="text-lg font-bold text-white font-mono">
+              {bvc?.reduce((sum: number, a: any) => sum + (a.monto_efectivo ?? 0), 0).toLocaleString('es-VE', { maximumFractionDigits: 2 }) || '—'} Bs
+            </p>
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+            <p className="text-[10px] text-slate-500 uppercase">Tasa BCV</p>
+            <p className="text-lg font-bold text-emerald-400 font-mono">
+              {tasas?.bcv?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '—'} Bs/USD
+            </p>
+          </div>
+        </div>
+
+        {/* Tabla de acciones más activas */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-[#262626]">
+                <th className="text-left py-3 px-4 font-medium">#</th>
+                <th className="text-left py-3 px-4 font-medium">Símbolo</th>
+                <th className="text-right py-3 px-4 font-medium">Precio Bs</th>
+                <th className="text-right py-3 px-4 font-medium">Var %</th>
+                <th className="text-right py-3 px-4 font-medium">Volumen</th>
+                <th className="text-right py-3 px-4 font-medium">Monto Bs</th>
+                <th className="text-right py-3 px-4 font-medium">Operaciones</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              {bvcActivas.map((accion: any, idx: number) => (
+                <tr key={accion.simbolo} className="border-b border-[#1a1a1a] hover:bg-[#141414] transition-colors">
+                  <td className="py-3 px-4 text-slate-500 font-mono text-xs">{idx + 1}</td>
+                  <td className="py-3 px-4">
+                    <div>
+                      <p className="font-bold text-white">{accion.simbolo}</p>
+                      <p className="text-[10px] text-slate-500">{accion.desc_simb}</p>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-white">
+                    {accion.precio?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '—'}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <span className={cn(
+                      "font-mono font-semibold",
+                      (accion.variacion_pct ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                    )}>
+                      {accion.variacion_pct?.toFixed(2) || '0.00'}%
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                    {accion.volumen?.toLocaleString('es-VE') || '—'}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                    {accion.monto_efectivo?.toLocaleString('es-VE', { maximumFractionDigits: 2 }) || '—'}
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                    {accion.tot_op_negoc?.toLocaleString('es-VE') || '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================================
+// VISTA: ALERTAS
+// ============================================================================
+
+function AlertasView({ tasas }: any) {
+  if (!tasas) return null;
+
+  // Definir umbrales de alerta
+  const alertas = [
+    {
+      nombre: 'BCV Alto',
+      condicion: (tasas?.bcv ?? 0) > 500,
+      valor: tasas?.bcv?.toFixed(2) || '—',
+      umbral: '500.00',
+      severidad: 'warning',
+    },
+    {
+      nombre: 'BCV Bajo',
+      condicion: (tasas?.bcv ?? 0) < 400,
+      valor: tasas?.bcv?.toFixed(2) || '—',
+      umbral: '400.00',
+      severidad: 'info',
+    },
+    {
+      nombre: 'Binance Alto',
+      condicion: (tasas?.binance ?? 0) > 700,
+      valor: tasas?.binance?.toFixed(2) || '—',
+      umbral: '700.00',
+      severidad: 'warning',
+    },
+    {
+      nombre: 'Brecha Binance',
+      condicion: (tasas?.brecha_binance_pct ?? 0) > 50,
+      valor: `${tasas?.brecha_binance_pct?.toFixed(2) || '—'}%`,
+      umbral: '>50%',
+      severidad: 'critical',
+    },
+    {
+      nombre: 'Brecha Normal',
+      condicion: (tasas?.brecha_binance_pct ?? 0) < 30,
+      valor: `${tasas?.brecha_binance_pct?.toFixed(2) || '—'}%`,
+      umbral: '<30%',
+      severidad: 'success',
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400" />
+            SISTEMA DE ALERTAS
+          </h3>
+        </div>
+
+        <div className="space-y-3">
+          {alertas.map((alerta, idx) => (
+            <div
+              key={idx}
+              className={cn(
+                "flex items-center justify-between p-4 border rounded-lg transition-colors",
+                alerta.condicion
+                  ? alerta.severidad === 'critical'
+                    ? 'bg-red-500/10 border-red-500/30'
+                    : alerta.severidad === 'warning'
+                      ? 'bg-amber-500/10 border-amber-500/30'
+                      : alerta.severidad === 'success'
+                        ? 'bg-emerald-500/10 border-emerald-500/30'
+                        : 'bg-blue-500/10 border-blue-500/30'
+                  : 'bg-[#0a0a0a] border-[#262626]'
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "w-3 h-3 rounded-full",
+                  alerta.condicion
+                    ? alerta.severidad === 'critical'
+                      ? 'bg-red-500 animate-pulse'
+                      : alerta.severidad === 'warning'
+                        ? 'bg-amber-500 animate-pulse'
+                        : alerta.severidad === 'success'
+                          ? 'bg-emerald-500'
+                          : 'bg-blue-500 animate-pulse'
+                    : 'bg-slate-600'
+                )} />
+                <div>
+                  <p className="font-semibold text-white">{alerta.nombre}</p>
+                  <p className="text-xs text-slate-400">Umbral: {alerta.umbral}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className={cn(
+                  "font-mono font-bold",
+                  alerta.condicion ? 'text-white' : 'text-slate-400'
+                )}>
+                  {alerta.valor}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {alerta.condicion ? 'ACTIVO' : 'Inactivo'}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// ============================================================================
+// VISTA: EXPORTAR DATOS
+// ============================================================================
+
+function ExportarView({ apiUrl, getAuthHeaders }: { apiUrl: string; getAuthHeaders: () => HeadersInit }) {
+  const [exporting, setExporting] = useState<string | null>(null);
+
+  const handleExport = async (format: 'csv' | 'xlsx' | 'zip') => {
+    setExporting(format);
+    try {
+      const headers = getAuthHeaders();
+      const endpoint = format === 'zip'
+        ? `${apiUrl}/api/export/all`
+        : `${apiUrl}/api/export/tasas?format=${format}`;
+
+      const response = await fetch(endpoint, { headers });
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bvc_data_${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('[Export] Error:', err);
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Download className="w-4 h-4 text-emerald-400" />
+            EXPORTAR DATOS
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button
+            onClick={() => handleExport('csv')}
+            disabled={exporting !== null}
+            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <div className="p-3 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+                <path d="M15 3v4a2 2 0 0 0 2 2h4"/><path d="M3 12v-3a9 9 0 0 1 9-9h4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1"/>
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-white">CSV</p>
+              <p className="text-xs text-slate-400">Hoja de cálculo</p>
+            </div>
+            {exporting === 'csv' && <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />}
+          </button>
+
+          <button
+            onClick={() => handleExport('xlsx')}
+            disabled={exporting !== null}
+            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+                <path d="M15 3v4a2 2 0 0 0 2 2h4"/><path d="M3 12v-3a9 9 0 0 1 9-9h4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1"/>
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-white">Excel (XLSX)</p>
+              <p className="text-xs text-slate-400">Excel completo</p>
+            </div>
+            {exporting === 'xlsx' && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+          </button>
+
+          <button
+            onClick={() => handleExport('zip')}
+            disabled={exporting !== null}
+            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <div className="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400">
+                <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><path d="M4 12H20"/><path d="M12 4v16"/>
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="font-semibold text-white">ZIP</p>
+              <p className="text-xs text-slate-400">Todos los datos</p>
+            </div>
+            {exporting === 'zip' && <Loader2 className="w-4 h-4 animate-spin text-purple-400" />}
+          </button>
+        </div>
+
+        <div className="mt-6 p-4 bg-[#0a0a0a] border border-[#262626] rounded-lg">
+          <p className="text-xs text-slate-400">
+            <strong className="text-white">Nota:</strong> La exportación incluye tasas de cambio, datos BVC y resumen del mercado.
+            Los archivos se descargarán automáticamente.
+          </p>
+        </div>
+      </Card>
     </div>
   );
 }
