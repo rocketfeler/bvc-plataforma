@@ -408,22 +408,24 @@ export default function BloombergTerminal() {
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Header */}
-      <Header
-        user={user}
-        activeTab={activeTab}
-        marketStatus={marketStatus}
-        socketConnected={socketConnected}
-        lastUpdate={lastUpdate}
-        loading={loading}
-        onRefresh={handleRefresh}
-        onLogout={logout}
-      />
+      <div className="ml-0 lg:ml-60">
+        <Header
+          user={user}
+          activeTab={activeTab}
+          marketStatus={marketStatus}
+          socketConnected={socketConnected}
+          lastUpdate={lastUpdate}
+          loading={loading}
+          onRefresh={handleRefresh}
+          onLogout={logout}
+        />
 
-      {/* News Ticker */}
-      <NewsTicker noticias={noticias} />
+        {/* News Ticker */}
+        <NewsTicker noticias={noticias} />
 
-      {/* Price Ticker */}
-      <PriceTicker tasas={tasas} bvc={bvc} />
+        {/* Price Ticker */}
+        <PriceTicker tasas={tasas} bvc={bvc} />
+      </div>
 
       {/* Error Banner */}
       <AnimatePresence>
