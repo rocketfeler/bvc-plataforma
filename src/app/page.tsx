@@ -400,33 +400,39 @@ export default function BloombergTerminal() {
   // ============================================================================
 
   return (
-    <div className="flex min-h-screen bg-[#1a1a1a] text-white font-sans">
+    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans">
       {/* Background Grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
-      {/* Sidebar — fixed, full height */}
+      {/* Sidebar — fixed, full height, always on top */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Content Wrapper — takes all remaining space, scrollable main inside */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-60">
+      {/* Content Wrapper — offset by sidebar width on desktop */}
+      <div className="lg:ml-60 flex flex-col min-h-screen">
 
-        {/* Header */}
-        <Header
-          user={user}
-          activeTab={activeTab}
-          marketStatus={marketStatus}
-          socketConnected={socketConnected}
-          lastUpdate={lastUpdate}
-          loading={loading}
-          onRefresh={handleRefresh}
-          onLogout={logout}
-        />
+        {/* Header — with left padding so content doesn't touch sidebar */}
+        <div className="pl-3 sm:pl-4 lg:pl-6">
+          <Header
+            user={user}
+            activeTab={activeTab}
+            marketStatus={marketStatus}
+            socketConnected={socketConnected}
+            lastUpdate={lastUpdate}
+            loading={loading}
+            onRefresh={handleRefresh}
+            onLogout={logout}
+          />
+        </div>
 
-        {/* News Ticker */}
-        <NewsTicker noticias={noticias} />
+        {/* News Ticker — with left padding */}
+        <div className="pl-3 sm:pl-4 lg:pl-6">
+          <NewsTicker noticias={noticias} />
+        </div>
 
-        {/* Price Ticker */}
-        <PriceTicker tasas={tasas} bvc={bvc} />
+        {/* Price Ticker — with left padding */}
+        <div className="pl-3 sm:pl-4 lg:pl-6">
+          <PriceTicker tasas={tasas} bvc={bvc} />
+        </div>
 
         {/* Error Banner */}
         <AnimatePresence>
@@ -446,7 +452,7 @@ export default function BloombergTerminal() {
         </AnimatePresence>
 
         {/* Main Content — fills remaining vertical space, independent scroll */}
-        <main id="main-content" className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 relative z-10" tabIndex={-1}>
+        <main id="main-content" className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4" tabIndex={-1}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

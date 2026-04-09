@@ -75,7 +75,7 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-[#1a1a1a]/80 backdrop-blur-xl border-b border-[#262626] ml-0 lg:ml-60">
+    <header className="sticky top-0 z-30 h-14 bg-[#1a1a1a]/80 backdrop-blur-xl border-b border-[#262626]">
       <div className="h-full px-4 lg:px-6 flex items-center justify-between">
         {/* =================================================================== */}
         {/* LADO IZQUIERDO: Breadcrumb + Título */}
