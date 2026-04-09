@@ -167,12 +167,13 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
         role="navigation"
         aria-label="Navegación principal de la terminal BVC"
         className={cn(
-          // Desktop: parte del layout flex (no fixed), ocupa todo el alto
-          'hidden lg:flex lg:flex-col lg:flex-shrink-0 lg:bg-[#1a1a1a] lg:border-r lg:border-[#262626] lg:z-40 lg:transition-all lg:duration-300',
-          collapsed ? 'lg:w-16' : 'lg:w-60',
-          // Mobile: drawer overlay con fixed position
+          // Base: fixed position para mobile
           'fixed top-0 left-0 h-full bg-[#1a1a1a] border-r border-[#262626] z-40 transition-all duration-300 flex flex-col',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          collapsed ? 'w-16' : 'w-60',
+          // Mobile: se oculta/muestra con translate
+          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          // Desktop: siempre visible, parte del layout del padre flex
+          'lg:translate-x-0 lg:static lg:flex-shrink-0'
         )}
       >
         {/* Logo */}
