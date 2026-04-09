@@ -400,15 +400,17 @@ export default function BloombergTerminal() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans">
+    <div className="flex min-h-screen bg-[#1a1a1a] text-white font-sans">
       {/* Background Grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
-      {/* Sidebar */}
+      {/* Sidebar — fixed, full height */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Header */}
-      <div className="ml-0 lg:ml-60">
+      {/* Content Wrapper — takes all remaining space, scrollable main inside */}
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-60">
+
+        {/* Header */}
         <Header
           user={user}
           activeTab={activeTab}
@@ -425,27 +427,26 @@ export default function BloombergTerminal() {
 
         {/* Price Ticker */}
         <PriceTicker tasas={tasas} bvc={bvc} />
-      </div>
 
-      {/* Error Banner */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="ml-0 lg:ml-60 px-4 lg:px-6 mt-3"
-          >
-            <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2 flex items-center gap-2">
-              <AlertCircle className="text-red-400 w-4 h-4 flex-shrink-0" />
-              <p className="text-red-300 text-sm font-mono">{error}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Error Banner */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="px-4 lg:px-6 mt-3"
+            >
+              <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2 flex items-center gap-2">
+                <AlertCircle className="text-red-400 w-4 h-4 flex-shrink-0" />
+                <p className="text-red-300 text-sm font-mono">{error}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Main Content */}
-      <main id="main-content" className="ml-0 lg:ml-60 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 relative z-10" tabIndex={-1}>
+        {/* Main Content — fills remaining vertical space, independent scroll */}
+        <main id="main-content" className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 relative z-10" tabIndex={-1}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -520,6 +521,8 @@ export default function BloombergTerminal() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      </div>{/* end content wrapper */}
 
       {/* MODAL LIBRO DE ÓRDENES + ESTADÍSTICAS */}
       <AnimatePresence>
