@@ -125,7 +125,7 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
     }
   }, [mobileOpen]);
 
-  // Botón hamburger para móvil
+  // Botón hamburger para móvil - solo visible en mobile
   const MobileToggle = () => (
     <button
       ref={mobileToggleRef}
@@ -167,11 +167,12 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
         role="navigation"
         aria-label="Navegación principal de la terminal BVC"
         className={cn(
+          // Desktop: parte del layout flex (no fixed), ocupa todo el alto
+          'hidden lg:flex lg:flex-col lg:flex-shrink-0 lg:bg-[#1a1a1a] lg:border-r lg:border-[#262626] lg:z-40 lg:transition-all lg:duration-300',
+          collapsed ? 'lg:w-16' : 'lg:w-60',
+          // Mobile: drawer overlay con fixed position
           'fixed top-0 left-0 h-full bg-[#1a1a1a] border-r border-[#262626] z-40 transition-all duration-300 flex flex-col',
-          collapsed ? 'w-16' : 'w-60',
-          // En móvil: se muestra solo cuando está abierto
-          'lg:translate-x-0',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         {/* Logo */}

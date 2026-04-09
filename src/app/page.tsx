@@ -400,39 +400,34 @@ export default function BloombergTerminal() {
   // ============================================================================
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans">
+    // Layout principal: sidebar + contenido en flex row (como Mercosur)
+    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans flex">
       {/* Background Grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
-      {/* Sidebar — fixed, full height, always on top */}
+      {/* Sidebar — en desktop es parte del layout flex, en móvil es drawer overlay */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Content Wrapper — offset by sidebar width on desktop */}
-      <div className="lg:ml-60 flex flex-col min-h-screen">
+      {/* Content Wrapper — ocupa el espacio restante, sin margin-left necesario */}
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
-        {/* Header — with left padding so content doesn't touch sidebar */}
-        <div className="pl-3 sm:pl-4 lg:pl-6">
-          <Header
-            user={user}
-            activeTab={activeTab}
-            marketStatus={marketStatus}
-            socketConnected={socketConnected}
-            lastUpdate={lastUpdate}
-            loading={loading}
-            onRefresh={handleRefresh}
-            onLogout={logout}
-          />
-        </div>
+        {/* Header — sin padding izquierdo extra */}
+        <Header
+          user={user}
+          activeTab={activeTab}
+          marketStatus={marketStatus}
+          socketConnected={socketConnected}
+          lastUpdate={lastUpdate}
+          loading={loading}
+          onRefresh={handleRefresh}
+          onLogout={logout}
+        />
 
-        {/* News Ticker — with left padding */}
-        <div className="pl-3 sm:pl-4 lg:pl-6">
-          <NewsTicker noticias={noticias} />
-        </div>
+        {/* News Ticker — sin padding izquierdo extra */}
+        <NewsTicker noticias={noticias} />
 
-        {/* Price Ticker — with left padding */}
-        <div className="pl-3 sm:pl-4 lg:pl-6">
-          <PriceTicker tasas={tasas} bvc={bvc} />
-        </div>
+        {/* Price Ticker — sin padding izquierdo extra */}
+        <PriceTicker tasas={tasas} bvc={bvc} />
 
         {/* Error Banner */}
         <AnimatePresence>
@@ -452,7 +447,7 @@ export default function BloombergTerminal() {
         </AnimatePresence>
 
         {/* Main Content — fills remaining vertical space, independent scroll */}
-        <main id="main-content" className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4" tabIndex={-1}>
+        <main id="main-content" className="flex-1 overflow-y-auto px-4 lg:px-6 py-4" tabIndex={-1}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
