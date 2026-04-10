@@ -35,10 +35,10 @@ interface PriceRangeBarProps {
 
 function StatItem({ label, value, variant = 'default', className }: StatItemProps) {
   const colorMap = {
-    default: 'text-white',
-    green: 'text-emerald-400',
-    red: 'text-red-400',
-    blue: 'text-blue-400',
+    default: 'text-slate-900',
+    green: 'text-emerald-600',
+    red: 'text-rose-600',
+    blue: 'text-blue-600',
   };
 
   return (
@@ -64,14 +64,14 @@ function PriceRangeBar({ current, min, max, label, showLabels = true }: PriceRan
       {showLabels && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-slate-400">{label}</span>
-          <span className="text-white font-mono font-bold">
+          <span className="text-slate-900 font-mono font-bold">
             {formatValue(current, 2)} Bs
           </span>
         </div>
       )}
 
       {/* Barra de rango con gradiente */}
-      <div className="relative h-3 bg-[#1a1a1a] rounded-full overflow-hidden">
+      <div className="relative h-3 bg-white rounded-full overflow-hidden">
         {/* Gradiente rojo-verde */}
         <div
           className="absolute inset-0"
@@ -93,8 +93,8 @@ function PriceRangeBar({ current, min, max, label, showLabels = true }: PriceRan
       {/* Etiquetas de min/max */}
       {showLabels && (
         <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-red-400">{formatValue(min, 2)}</span>
-          <span className="text-emerald-400">{formatValue(max, 2)}</span>
+          <span className="text-rose-600">{formatValue(min, 2)}</span>
+          <span className="text-emerald-600">{formatValue(max, 2)}</span>
         </div>
       )}
     </div>
@@ -143,10 +143,10 @@ export function StockStats({ stock, className }: StockStatsProps) {
       {/* GRID DE 3 COLUMNAS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* CARD 1: SESIÓN DEL DÍA */}
-        <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#262626] bg-[#0a0a0a]">
-            <Calendar className="w-4 h-4 text-blue-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-white">
+            <Calendar className="w-4 h-4 text-blue-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Sesión del Día
             </h3>
           </div>
@@ -176,10 +176,10 @@ export function StockStats({ stock, className }: StockStatsProps) {
         </div>
 
         {/* CARD 2: ACTIVIDAD */}
-        <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#262626] bg-[#0a0a0a]">
-            <Activity className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-white">
+            <Activity className="w-4 h-4 text-amber-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Actividad
             </h3>
           </div>
@@ -213,10 +213,10 @@ export function StockStats({ stock, className }: StockStatsProps) {
         </div>
 
         {/* CARD 3: RANGO DE PRECIOS */}
-        <div className="bg-[#0a0a0a] border border-[#262626] rounded-lg overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-[#262626] bg-[#0a0a0a]">
-            <Target className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-200 bg-white">
+            <Target className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Rango de Precios
             </h3>
           </div>
@@ -233,7 +233,7 @@ export function StockStats({ stock, className }: StockStatsProps) {
             )}
 
             {/* Separador */}
-            <div className="border-t border-[#262626]" />
+            <div className="border-t border-slate-200" />
 
             {/* Rango anual (estimado) */}
             {stats.precioActual > 0 && (
@@ -254,15 +254,15 @@ export function StockStats({ stock, className }: StockStatsProps) {
           className={cn(
             "flex items-center justify-between px-4 py-3 rounded-lg border",
             stock.variacion_pct >= 0
-              ? "bg-emerald-500/10 border-emerald-500/20"
-              : "bg-red-500/10 border-red-500/20"
+              ? "bg-emerald-50 border-emerald-200"
+              : "bg-rose-50 border-red-500/20"
           )}
         >
           <div className="flex items-center gap-2">
             {stock.variacion_pct >= 0 ? (
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-red-400" />
+              <TrendingDown className="w-4 h-4 text-rose-600" />
             )}
             <span className="text-xs text-slate-400">Variación</span>
           </div>
@@ -271,7 +271,7 @@ export function StockStats({ stock, className }: StockStatsProps) {
             <span
               className={cn(
                 "text-sm font-bold font-mono",
-                stock.variacion_pct >= 0 ? 'text-emerald-400' : 'text-red-400'
+                stock.variacion_pct >= 0 ? 'text-emerald-600' : 'text-rose-600'
               )}
             >
               {formatPercentSimple(Math.abs(stock.variacion_pct), 2)}
@@ -280,7 +280,7 @@ export function StockStats({ stock, className }: StockStatsProps) {
               <span
                 className={cn(
                   "text-xs font-mono",
-                  stock.variacion_abs >= 0 ? 'text-emerald-400' : 'text-red-400'
+                  stock.variacion_abs >= 0 ? 'text-emerald-600' : 'text-rose-600'
                 )}
               >
                 ({stock.variacion_abs >= 0 ? '+' : ''}

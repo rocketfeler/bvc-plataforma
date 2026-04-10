@@ -49,7 +49,7 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
   ];
 
   return (
-    <div className="w-full bg-[#0a0a0a] border-b border-[#262626] overflow-hidden py-2">
+    <div className="w-full bg-white border-b border-slate-200 overflow-hidden py-2">
       <div className="flex animate-ticker gap-8 whitespace-nowrap">
         {[...items, ...items].map((item, idx) => {
           // BLINDAJE: Usar changeNum directamente (ya tiene el signo correcto)
@@ -60,14 +60,14 @@ export function PriceTicker({ tasas, bvc }: PriceTickerProps) {
               <span className="text-slate-500">{item.label}</span>
               <span className={cn(
                 "font-bold",
-                item.type === 'rate' ? 'text-amber-400' : 'text-white'
+                item.type === 'rate' ? 'text-amber-600' : 'text-slate-900'
               )}>
                 {item.value || '—'}
               </span>
               {item.change && item.change !== '-' && (
                 <span className={cn(
                   "flex items-center gap-0.5",
-                  isPositive ? 'text-emerald-400' : 'text-red-400'
+                  isPositive ? 'text-emerald-600' : 'text-rose-600'
                 )}>
                   {isPositive ? '▲' : '▼'}
                   {item.change}

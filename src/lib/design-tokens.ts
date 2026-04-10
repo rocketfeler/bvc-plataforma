@@ -7,13 +7,13 @@
 
 export const colors = {
   // Fondos
-  background: '#0a0a0a',
-  surface: '#141414',
+  background: '#f8fafc',
+  surface: '#ffffff',
   surfaceElevated: '#1a1a1a',
   surfaceHover: '#1f1f1f',
 
   // Bordes
-  border: '#262626',
+  border: '#e2e8f0',
   borderHover: '#333333',
   borderActive: '#404040',
 

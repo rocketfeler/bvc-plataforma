@@ -49,13 +49,13 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance, onSt
         transition: { duration: 0.15 }
       }}
       className={cn(
-        "border-b border-[#262626] transition-all duration-150 cursor-pointer relative",
+        "border-b border-slate-200 transition-all duration-150 cursor-pointer relative",
         "before:absolute before:left-0 before:top-0 before:bottom-0 before:w-0.5 before:transition-all before:duration-150",
         "hover:before:w-0.5",
         isPositive 
           ? 'hover:bg-emerald-500/5 before:bg-transparent hover:before:bg-emerald-400' 
           : 'hover:bg-red-500/5 before:bg-transparent hover:before:bg-red-400',
-        priceChanged && (isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10')
+        priceChanged && (isPositive ? 'bg-emerald-50' : 'bg-rose-50')
       )}
       onClick={() => onStockClick?.(accion)}
     >
@@ -65,8 +65,8 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance, onSt
             className={cn(
               "w-8 h-8 rounded flex items-center justify-center font-bold text-xs border",
               isPositive
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                : 'bg-red-500/10 border-red-500/30 text-red-400'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                : 'bg-rose-50 border-rose-200 text-rose-600'
             )}
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ duration: 0.2 }}
@@ -86,7 +86,7 @@ export const BVCRow = memo(function BVCRow({ accion, previous, tasaBinance, onSt
         <motion.span 
           className={cn(
             "inline-flex items-center gap-1 font-bold text-sm",
-            isPositive ? 'text-emerald-400' : 'text-red-400'
+            isPositive ? 'text-emerald-600' : 'text-rose-600'
           )}
           initial={{ opacity: 0, x: -4 }}
           animate={{ opacity: 1, x: 0 }}

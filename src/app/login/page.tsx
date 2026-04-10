@@ -41,7 +41,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
 
       <motion.div
@@ -49,11 +49,11 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="bg-[#141414] border border-[#262626] rounded-xl shadow-2xl overflow-hidden">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="p-6 text-center border-b border-[#262626]">
+          <div className="p-6 text-center border-b border-slate-200">
             <div className="inline-flex p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl mb-4">
-              <Building2 className="w-10 h-10 text-white" />
+              <Building2 className="w-10 h-10 text-slate-900" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
               BVC TERMINAL
@@ -62,15 +62,15 @@ export default function LoginPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-[#262626]">
+          <div className="flex border-b border-slate-200">
             <button
               type="button"
               onClick={() => { setMode('login'); setError(''); }}
               className={cn(
                 "flex-1 py-3 text-sm font-medium transition-colors",
                 mode === 'login'
-                  ? 'bg-[#0a0a0a] text-emerald-400 border-b-2 border-emerald-500'
-                  : 'text-slate-500 hover:text-slate-300'
+                  ? 'bg-white text-emerald-600 border-b-2 border-emerald-500'
+                  : 'text-slate-500 hover:text-slate-700'
               )}
             >
               Iniciar sesión
@@ -81,8 +81,8 @@ export default function LoginPage() {
               className={cn(
                 "flex-1 py-3 text-sm font-medium transition-colors",
                 mode === 'register'
-                  ? 'bg-[#0a0a0a] text-emerald-400 border-b-2 border-emerald-500'
-                  : 'text-slate-500 hover:text-slate-300'
+                  ? 'bg-white text-emerald-600 border-b-2 border-emerald-500'
+                  : 'text-slate-500 hover:text-slate-700'
               )}
             >
               Registrarse
@@ -92,7 +92,7 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm">
                 {error}
               </div>
             )}
@@ -107,7 +107,7 @@ export default function LoginPage() {
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     placeholder="Tu nombre"
-                    className="w-full bg-[#0a0a0a] border border-[#262626] rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
+                    className="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-3 text-slate-900 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
                   />
                 </div>
               </div>
@@ -123,7 +123,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   required
-                  className="w-full bg-[#0a0a0a] border border-[#262626] rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-3 text-slate-900 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   minLength={mode === 'register' ? 6 : 1}
-                  className="w-full bg-[#0a0a0a] border border-[#262626] rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-3 text-slate-900 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
               {mode === 'register' && (
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-lg font-semibold text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-lg font-semibold text-slate-900 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
               {mode === 'login' ? 'Entrar' : 'Crear cuenta'}

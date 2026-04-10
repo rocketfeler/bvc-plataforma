@@ -146,7 +146,7 @@ function TasasCard({ tasas, macro, brechaBinance, brechaEuro }: TasasCardProps) 
     <Card variant="elevated" className="overflow-hidden">
       <CardHeader className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <DollarSign className="w-4 h-4 text-blue-400" />
+          <DollarSign className="w-4 h-4 text-blue-600" />
           <h3 className="text-sm font-semibold tracking-wide">TASAS DE CAMBIO</h3>
         </div>
         <Badge variant="info">EN VIVO</Badge>
@@ -157,8 +157,8 @@ function TasasCard({ tasas, macro, brechaBinance, brechaEuro }: TasasCardProps) 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded bg-blue-500/10">
-                  <Globe className="w-3.5 h-3.5 text-blue-400" />
+                <div className="p-1.5 rounded bg-blue-50">
+                  <Globe className="w-3.5 h-3.5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">BCV Oficial</p>
@@ -175,7 +175,7 @@ function TasasCard({ tasas, macro, brechaBinance, brechaEuro }: TasasCardProps) 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded bg-amber-500/10">
-                  <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                  <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Binance P2P</p>
@@ -216,7 +216,7 @@ function TasasCard({ tasas, macro, brechaBinance, brechaEuro }: TasasCardProps) 
       </CardContent>
       {tasas.stale_binance || tasas.stale_data ? (
         <CardFooter className="px-4 py-2 border-t border-[var(--border)] bg-amber-500/5">
-          <p className="text-[10px] text-amber-400">⚠ Datos Binance pueden estar desactualizados</p>
+          <p className="text-[10px] text-amber-600">⚠ Datos Binance pueden estar desactualizados</p>
         </CardFooter>
       ) : null}
     </Card>
@@ -244,7 +244,7 @@ function BVCResumenCard({ bvc, previousBvc }: BVCResumenCardProps) {
     <Card variant="elevated" className="overflow-hidden">
       <CardHeader className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-emerald-400" />
+          <Activity className="w-4 h-4 text-emerald-600" />
           <h3 className="text-sm font-semibold tracking-wide">RESUMEN BVC</h3>
         </div>
         <Badge variant={totalAcciones > 0 ? 'success' : 'neutral'}>
@@ -258,35 +258,35 @@ function BVCResumenCard({ bvc, previousBvc }: BVCResumenCardProps) {
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Índice del Día</p>
             <p className={cn(
               'text-2xl font-bold font-mono',
-              dailyIndex >= 0 ? 'text-emerald-400' : 'text-red-400'
+              dailyIndex >= 0 ? 'text-emerald-600' : 'text-rose-600'
             )}>
               {dailyIndex >= 0 ? '+' : ''}{formatValue(dailyIndex, 2)}%
             </p>
           </div>
           <div className={cn(
             'p-2 rounded-full',
-            dailyIndex >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
+            dailyIndex >= 0 ? 'bg-emerald-50' : 'bg-rose-50'
           )}>
             {dailyIndex >= 0
-              ? <ArrowUpRight className="w-5 h-5 text-emerald-400" />
-              : <ArrowDownRight className="w-5 h-5 text-red-400" />
+              ? <ArrowUpRight className="w-5 h-5 text-emerald-600" />
+              : <ArrowDownRight className="w-5 h-5 text-rose-600" />
             }
           </div>
         </div>
 
         {/* Market Breadth */}
         <div className="grid grid-cols-3 gap-2">
-          <div className="text-center p-2 rounded bg-emerald-500/10 border border-emerald-500/20">
-            <p className="text-lg font-bold font-mono text-emerald-400">{breadth.up}</p>
-            <p className="text-[10px] text-emerald-400/70 uppercase">Avanzan</p>
+          <div className="text-center p-2 rounded bg-emerald-50 border border-emerald-200">
+            <p className="text-lg font-bold font-mono text-emerald-600">{breadth.up}</p>
+            <p className="text-[10px] text-emerald-600/70 uppercase">Avanzan</p>
           </div>
           <div className="text-center p-2 rounded bg-[var(--surface)] border border-[var(--border)]">
             <p className="text-lg font-bold font-mono text-[var(--text-muted)]">{breadth.unchanged}</p>
             <p className="text-[10px] text-[var(--text-muted)] uppercase">Estables</p>
           </div>
-          <div className="text-center p-2 rounded bg-red-500/10 border border-red-500/20">
-            <p className="text-lg font-bold font-mono text-red-400">{breadth.down}</p>
-            <p className="text-[10px] text-red-400/70 uppercase">Retroceden</p>
+          <div className="text-center p-2 rounded bg-rose-50 border border-red-500/20">
+            <p className="text-lg font-bold font-mono text-rose-600">{breadth.down}</p>
+            <p className="text-[10px] text-rose-600/70 uppercase">Retroceden</p>
           </div>
         </div>
 
@@ -325,14 +325,14 @@ function BVCResumenCard({ bvc, previousBvc }: BVCResumenCardProps) {
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--border)]">
             {gainers.length > 0 && (
               <div>
-                <p className="text-[10px] text-emerald-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <p className="text-[10px] text-emerald-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                   <ArrowUpRight className="w-3 h-3" /> Top Ganadores
                 </p>
                 <div className="space-y-1">
                   {gainers.map(a => (
                     <div key={a.simbolo} className="flex items-center justify-between text-[11px] font-mono">
                       <span className="text-[var(--text-secondary)]">{a.simbolo}</span>
-                      <span className="text-emerald-400">+{formatPercentSimple(a.variacion_pct, 2)}</span>
+                      <span className="text-emerald-600">+{formatPercentSimple(a.variacion_pct, 2)}</span>
                     </div>
                   ))}
                 </div>
@@ -340,14 +340,14 @@ function BVCResumenCard({ bvc, previousBvc }: BVCResumenCardProps) {
             )}
             {losers.length > 0 && (
               <div>
-                <p className="text-[10px] text-red-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <p className="text-[10px] text-rose-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                   <ArrowDownRight className="w-3 h-3" /> Top Perdedores
                 </p>
                 <div className="space-y-1">
                   {losers.map(a => (
                     <div key={a.simbolo} className="flex items-center justify-between text-[11px] font-mono">
                       <span className="text-[var(--text-secondary)]">{a.simbolo}</span>
-                      <span className="text-red-400">{formatPercent(a.variacion_pct, 2)}</span>
+                      <span className="text-rose-600">{formatPercent(a.variacion_pct, 2)}</span>
                     </div>
                   ))}
                 </div>
@@ -374,7 +374,7 @@ function PortfolioCard({ patrimonio }: PortfolioCardProps) {
       <Card variant="elevated" className="overflow-hidden">
         <CardHeader className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <Wallet className="w-4 h-4 text-emerald-400" />
+            <Wallet className="w-4 h-4 text-emerald-600" />
             <h3 className="text-sm font-semibold tracking-wide">PORTAFOLIO</h3>
           </div>
           <Badge variant="neutral">SIN DATOS</Badge>
@@ -399,7 +399,7 @@ function PortfolioCard({ patrimonio }: PortfolioCardProps) {
     <Card variant="elevated" className="overflow-hidden">
       <CardHeader className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <Wallet className="w-4 h-4 text-emerald-400" />
+          <Wallet className="w-4 h-4 text-emerald-600" />
           <h3 className="text-sm font-semibold tracking-wide">PORTAFOLIO</h3>
         </div>
         <Badge variant={roiPositive ? 'success' : 'error'}>
@@ -408,9 +408,9 @@ function PortfolioCard({ patrimonio }: PortfolioCardProps) {
       </CardHeader>
       <CardContent className="p-4 space-y-4">
         {/* Valor Total */}
-        <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20">
+        <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-200">
           <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Valor Total</p>
-          <p className="text-3xl font-bold font-mono text-emerald-400">
+          <p className="text-3xl font-bold font-mono text-emerald-600">
             {patrimonio.total_ves.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <p className="text-[11px] text-[var(--text-secondary)] mt-1">Bs. Soberanos</p>
@@ -426,13 +426,13 @@ function PortfolioCard({ patrimonio }: PortfolioCardProps) {
           <div className={cn(
             'p-3 rounded-lg border',
             gainPositive
-              ? 'bg-emerald-500/10 border-emerald-500/20'
-              : 'bg-red-500/10 border-red-500/20'
+              ? 'bg-emerald-50 border-emerald-200'
+              : 'bg-rose-50 border-red-500/20'
           )}>
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Ganancia/Pérdida</p>
             <p className={cn(
               'text-lg font-bold font-mono',
-              gainPositive ? 'text-emerald-400' : 'text-red-400'
+              gainPositive ? 'text-emerald-600' : 'text-rose-600'
             )}>
               {gainPositive ? '+' : ''}{formatValue(patrimonio.ganancia_perdida, 2)}
             </p>
@@ -441,13 +441,13 @@ function PortfolioCard({ patrimonio }: PortfolioCardProps) {
           <div className={cn(
             'p-3 rounded-lg border',
             dailyPositive
-              ? 'bg-emerald-500/10 border-emerald-500/20'
-              : 'bg-red-500/10 border-red-500/20'
+              ? 'bg-emerald-50 border-emerald-200'
+              : 'bg-rose-50 border-red-500/20'
           )}>
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Variación Hoy</p>
             <p className={cn(
               'text-lg font-bold font-mono',
-              dailyPositive ? 'text-emerald-400' : 'text-red-400'
+              dailyPositive ? 'text-emerald-600' : 'text-rose-600'
             )}>
               {dailyPositive ? '+' : ''}{formatValue(dailyVariation, 2)}%
             </p>
@@ -565,13 +565,13 @@ function MacroCard({ macro }: MacroCardProps) {
         <div className="grid grid-cols-3 gap-3">
           <div className="text-center p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">BCV</p>
-            <p className="text-lg font-bold font-mono text-blue-400">
+            <p className="text-lg font-bold font-mono text-blue-600">
               {formatValue(latestData.tasa_bcv, 2)}
             </p>
           </div>
           <div className="text-center p-3 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Binance</p>
-            <p className="text-lg font-bold font-mono text-amber-400">
+            <p className="text-lg font-bold font-mono text-amber-600">
               {formatValue(latestData.tasa_binance_p2p, 2)}
             </p>
           </div>
@@ -579,7 +579,7 @@ function MacroCard({ macro }: MacroCardProps) {
             <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mb-1">Brecha</p>
             <p className={cn(
               'text-lg font-bold font-mono',
-              latestData.brecha_cambiaria >= 0 ? 'text-amber-400' : 'text-red-400'
+              latestData.brecha_cambiaria >= 0 ? 'text-amber-600' : 'text-rose-600'
             )}>
               {latestData.brecha_cambiaria >= 0 ? '+' : ''}{formatValue(latestData.brecha_cambiaria, 2)}%
             </p>
@@ -601,11 +601,11 @@ function MacroCard({ macro }: MacroCardProps) {
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="fecha" tick={{ fill: '#525252', fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="fecha" tick={{ fill: '#94a3b8', fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis hide domain={['dataMin - 2', 'dataMax + 2']} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#141414',
+                      backgroundColor: '#ffffff',
                       border: '1px solid #262626',
                       borderRadius: '4px',
                       fontSize: '10px',
@@ -640,7 +640,7 @@ function MacroCard({ macro }: MacroCardProps) {
             <div className="flex items-center gap-1.5">
               <span className={cn(
                 'text-sm font-mono font-semibold',
-                brechaTrend ? 'text-emerald-400' : 'text-red-400'
+                brechaTrend ? 'text-emerald-600' : 'text-rose-600'
               )}>
                 {brechaTrend ? '↓ Bajando' : '↑ Subiendo'}
               </span>

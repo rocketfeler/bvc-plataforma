@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity, Layers, Calculator, PieChart, AlertCircle, Download,
-  BarChart3, Menu, X, ChevronDown, ChevronRight
+  BarChart3, Menu, X, ChevronDown, ChevronRight, Rocket
 } from 'lucide-react';
 import { cn } from '@/components';
 
@@ -125,17 +125,17 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
     }
   }, [mobileOpen]);
 
-  // Botón hamburger para móvil - solo visible en mobile
+  // Botón hamburger para móvil
   const MobileToggle = () => (
     <button
       ref={mobileToggleRef}
       onClick={() => setMobileOpen(!mobileOpen)}
-      className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-[#1a1a1a] border border-[#262626] rounded-lg hover:bg-[#262626] transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]"
+      className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
       aria-label={mobileOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
       aria-expanded={mobileOpen}
       aria-controls="main-sidebar"
     >
-      {mobileOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+      {mobileOpen ? <X size={20} className="text-slate-600" aria-hidden="true" /> : <Menu size={20} className="text-slate-600" aria-hidden="true" />}
     </button>
   );
 
@@ -147,7 +147,7 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
+          className="lg:hidden fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30"
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
@@ -165,39 +165,36 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
         ref={sidebarRef}
         id="main-sidebar"
         role="navigation"
-        aria-label="Navegación principal de la terminal BVC"
+        aria-label="Navegación principal"
         className={cn(
-          // Base: fixed position para mobile
-          'fixed top-0 left-0 h-full bg-[#1a1a1a] border-r border-[#262626] z-40 transition-all duration-300 flex flex-col',
+          'fixed top-0 left-0 h-full bg-white border-r border-slate-200 z-40 transition-all duration-300 flex flex-col',
           collapsed ? 'w-16' : 'w-60',
-          // Mobile: se oculta/muestra con translate
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
-          // Desktop: siempre visible, parte del layout del padre flex
           'lg:translate-x-0 lg:static lg:flex-shrink-0'
         )}
       >
-        {/* Logo */}
+        {/* Logo — Rocketfeler BVC */}
         <div className={cn(
-          'flex items-center gap-3 px-4 py-5 border-b border-[#262626]',
+          'flex items-center gap-3 px-5 py-5 border-b border-slate-100',
           collapsed && 'justify-center px-2'
         )}>
-          <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded shadow-lg shadow-emerald-500/20 flex-shrink-0">
-            <Activity className="w-5 h-5 text-white" aria-hidden="true" />
+          <div className="p-2 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg shadow-sm flex-shrink-0">
+            <Rocket className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <h1 className="text-sm font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
-                BVC TERMINAL
+              <h1 className="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                Rocketfeler BVC
               </h1>
-              <p className="text-[10px] text-slate-500 font-mono tracking-wider whitespace-nowrap">
-                BOLSA DE VALORES DE CARACAS
+              <p className="text-[10px] text-slate-400 font-medium tracking-wider whitespace-nowrap uppercase">
+                Bolsa de Valores de Caracas
               </p>
             </div>
           )}
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-4" aria-label="Secciones de navegación">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5" aria-label="Secciones de navegación">
           {NAVIGATION_SECTIONS.map((section) => {
             const isCollapsed = collapsedSections[section.title];
 
@@ -207,7 +204,7 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
                 {!collapsed && (
                   <button
                     onClick={() => toggleSection(section.title)}
-                    className="flex items-center gap-1 w-full px-2 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1a1a] rounded"
+                    className="flex items-center gap-1.5 w-full px-2 py-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600 transition-colors rounded"
                     aria-expanded={!isCollapsed}
                     aria-controls={`section-${section.title}`}
                   >
@@ -225,7 +222,7 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="space-y-1 overflow-hidden"
+                      className="space-y-0.5 overflow-hidden mt-1"
                       role="list"
                       aria-label={`Items de ${section.title}`}
                     >
@@ -241,25 +238,30 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
                             }}
                             role="listitem"
                             className={cn(
-                              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
+                              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
                               collapsed && 'justify-center px-0',
                               isActive
-                                ? 'bg-emerald-500/10 text-emerald-400 border-l-2 border-emerald-500'
-                                : 'text-slate-400 hover:text-slate-200 hover:bg-[#262626]/50 border-l-2 border-transparent'
+                                ? 'bg-slate-100 text-slate-900 font-semibold'
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                             )}
                             title={collapsed ? item.label : undefined}
                             aria-current={isActive ? 'page' : undefined}
                             aria-label={item.label}
                           >
-                            <span className="flex-shrink-0" aria-hidden="true">{item.icon}</span>
+                            <span className={cn(
+                              'flex-shrink-0 transition-colors',
+                              isActive ? 'text-emerald-600' : 'text-slate-400'
+                            )} aria-hidden="true">
+                              {item.icon}
+                            </span>
                             {!collapsed && (
                               <span className="truncate">{item.label}</span>
                             )}
-                            {/* Indicador activo */}
+                            {/* Indicador activo — barra lateral verde */}
                             {isActive && !collapsed && (
                               <motion.div
                                 layoutId="activeIndicator"
-                                className="absolute right-2 w-1.5 h-1.5 rounded-full bg-emerald-400"
+                                className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-600"
                                 aria-hidden="true"
                               />
                             )}
@@ -276,9 +278,9 @@ export function Sidebar({ activeTab, onTabChange, collapsed = false }: SidebarPr
 
         {/* Footer */}
         {!collapsed && (
-          <div className="px-4 py-3 border-t border-[#262626]">
-            <p className="text-[10px] text-slate-600 font-mono text-center">
-              BVC Plataforma v3.2.0
+          <div className="px-4 py-3 border-t border-slate-100">
+            <p className="text-[10px] text-slate-400 font-medium text-center tracking-wider">
+              ROCKETFELER v3.2.0
             </p>
           </div>
         )}

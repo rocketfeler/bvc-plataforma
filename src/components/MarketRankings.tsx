@@ -41,8 +41,8 @@ function getRankingColor(rank: number): string {
     case 1: return 'bg-emerald-400/80 text-emerald-900';
     case 2: return 'bg-emerald-400/60 text-emerald-900';
     case 3: return 'bg-emerald-400/40 text-emerald-300';
-    case 4: return 'bg-emerald-400/25 text-emerald-400';
-    default: return 'bg-slate-600 text-slate-300';
+    case 4: return 'bg-emerald-400/25 text-emerald-600';
+    default: return 'bg-slate-600 text-slate-700';
   }
 }
 
@@ -51,9 +51,9 @@ function getRedRankingColor(rank: number): string {
     case 0: return 'bg-red-400 text-red-950';
     case 1: return 'bg-red-400/80 text-red-900';
     case 2: return 'bg-red-400/60 text-red-900';
-    case 3: return 'bg-red-400/40 text-red-300';
-    case 4: return 'bg-red-400/25 text-red-400';
-    default: return 'bg-slate-600 text-slate-300';
+    case 3: return 'bg-red-400/40 text-rose-600';
+    case 4: return 'bg-red-400/25 text-rose-600';
+    default: return 'bg-slate-600 text-slate-700';
   }
 }
 
@@ -63,8 +63,8 @@ function getBlueRankingColor(rank: number): string {
     case 1: return 'bg-blue-400/80 text-blue-900';
     case 2: return 'bg-blue-400/60 text-blue-900';
     case 3: return 'bg-blue-400/40 text-blue-300';
-    case 4: return 'bg-blue-400/25 text-blue-400';
-    default: return 'bg-slate-600 text-slate-300';
+    case 4: return 'bg-blue-400/25 text-blue-600';
+    default: return 'bg-slate-600 text-slate-700';
   }
 }
 
@@ -107,10 +107,10 @@ function RankingRow({
       {/* Info del activo */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold px-1 py-0.5 rounded-[var(--radius-sm)] bg-slate-700/50 text-slate-300 font-mono">
+          <span className="text-[10px] font-bold px-1 py-0.5 rounded-[var(--radius-sm)] bg-slate-700/50 text-slate-700 font-mono">
             {simboloCorto}
           </span>
-          <span className="text-xs font-semibold text-white truncate">
+          <span className="text-xs font-semibold text-slate-900 truncate">
             {item.simbolo}
           </span>
         </div>
@@ -130,7 +130,7 @@ function RankingRow({
       {/* % Cambio o Volumen */}
       {showVolume ? (
         <div className="text-right flex-shrink-0 w-14">
-          <span className="text-xs font-mono text-blue-400 block">
+          <span className="text-xs font-mono text-blue-600 block">
             {formatVolume(item.volumen)}
           </span>
           <span className="text-[10px] text-slate-500">vol</span>
@@ -139,7 +139,7 @@ function RankingRow({
         <div className="text-right flex-shrink-0 w-16">
           <span className={cn(
             "text-xs font-bold font-mono block",
-            pct >= 0 ? 'text-emerald-400' : 'text-red-400'
+            pct >= 0 ? 'text-emerald-600' : 'text-rose-600'
           )}>
             {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
           </span>
@@ -187,13 +187,13 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
       aria-live="polite"
     >
       {/* GANADORES */}
-      <div className="bg-[#0a0a0a] border border-emerald-500/20 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones ganadoras">
-        <div className="flex items-center gap-2 px-3 py-2.5 border-b border-emerald-500/20 bg-emerald-500/5">
-          <div className="p-1.5 bg-emerald-500/20 rounded-[var(--radius-sm)]" aria-hidden="true">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+      <div className="bg-white border border-emerald-200 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones ganadoras">
+        <div className="flex items-center gap-2 px-3 py-2.5 border-b border-emerald-200 bg-emerald-500/5">
+          <div className="p-1.5 bg-emerald-50 rounded-[var(--radius-sm)]" aria-hidden="true">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
               Ganadores
             </h3>
             <p className="text-[10px] text-slate-500 font-mono">
@@ -211,7 +211,7 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
                 item={item}
                 rank={idx}
                 badgeColor={getRankingColor(idx)}
-                priceColor="text-emerald-400"
+                priceColor="text-emerald-600"
               />
             ))
           )}
@@ -219,13 +219,13 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
       </div>
 
       {/* PERDEDORES */}
-      <div className="bg-[#0a0a0a] border border-red-500/20 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones perdedoras">
+      <div className="bg-white border border-red-500/20 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones perdedoras">
         <div className="flex items-center gap-2 px-3 py-2.5 border-b border-red-500/20 bg-red-500/5">
-          <div className="p-1.5 bg-red-500/20 rounded-[var(--radius-sm)]" aria-hidden="true">
-            <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+          <div className="p-1.5 bg-rose-50 rounded-[var(--radius-sm)]" aria-hidden="true">
+            <TrendingDown className="w-3.5 h-3.5 text-rose-600" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-red-400 uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-rose-600 uppercase tracking-wider">
               Perdedores
             </h3>
             <p className="text-[10px] text-slate-500 font-mono">
@@ -243,7 +243,7 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
                 item={item}
                 rank={idx}
                 badgeColor={getRedRankingColor(idx)}
-                priceColor="text-red-400"
+                priceColor="text-rose-600"
               />
             ))
           )}
@@ -251,13 +251,13 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
       </div>
 
       {/* MAYOR VOLUMEN */}
-      <div className="bg-[#0a0a0a] border border-blue-500/20 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones por volumen">
-        <div className="flex items-center gap-2 px-3 py-2.5 border-b border-blue-500/20 bg-blue-500/5">
-          <div className="p-1.5 bg-blue-500/20 rounded-[var(--radius-sm)]" aria-hidden="true">
-            <BarChart3 className="w-3.5 h-3.5 text-blue-400" />
+      <div className="bg-white border border-blue-200 rounded-[var(--radius-lg)] overflow-hidden" role="group" aria-label="Top 5 acciones por volumen">
+        <div className="flex items-center gap-2 px-3 py-2.5 border-b border-blue-200 bg-blue-500/5">
+          <div className="p-1.5 bg-blue-50 rounded-[var(--radius-sm)]" aria-hidden="true">
+            <BarChart3 className="w-3.5 h-3.5 text-blue-600" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider">
+            <h3 className="text-xs font-bold text-blue-600 uppercase tracking-wider">
               Mayor Volumen
             </h3>
             <p className="text-[10px] text-slate-500 font-mono">
@@ -275,7 +275,7 @@ export function MarketRankings({ bvc }: MarketRankingsProps) {
                 item={item}
                 rank={idx}
                 badgeColor={getBlueRankingColor(idx)}
-                priceColor="text-blue-400"
+                priceColor="text-blue-600"
                 showVolume
               />
             ))

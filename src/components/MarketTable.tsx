@@ -205,9 +205,9 @@ export function MarketTable({
   // Color del spread
   const getSpreadColor = (spread: number | null) => {
     if (spread === null) return 'text-slate-500';
-    if (spread < 10) return 'text-emerald-400';
-    if (spread < 25) return 'text-amber-400';
-    return 'text-red-400';
+    if (spread < 10) return 'text-emerald-600';
+    if (spread < 25) return 'text-amber-600';
+    return 'text-rose-600';
   };
 
   // Renderizar header de columna ordenable
@@ -215,7 +215,7 @@ export function MarketTable({
     <button
       onClick={() => handleSort(sortKeyVal)}
       className={cn(
-        'flex items-center gap-1 group hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a] rounded px-1 py-0.5 -mx-1',
+        'flex items-center gap-1 group hover:text-slate-900 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white rounded px-1 py-0.5 -mx-1',
         extraClass
       )}
       aria-label={`Ordenar por ${label} ${sortKey === sortKeyVal ? (sortDirection === 'asc' ? '(ascendente)' : '(descendente)') : ''}`}
@@ -224,9 +224,9 @@ export function MarketTable({
       {label}
       {sortKey === sortKeyVal ? (
         sortDirection === 'asc' ? (
-          <ArrowUp className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+          <ArrowUp className="w-3 h-3 text-emerald-600" aria-hidden="true" />
         ) : (
-          <ArrowDown className="w-3 h-3 text-red-400" aria-hidden="true" />
+          <ArrowDown className="w-3 h-3 text-rose-600" aria-hidden="true" />
         )
       ) : (
         <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
@@ -247,7 +247,7 @@ export function MarketTable({
             placeholder="Buscar por símbolo o nombre..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#0a0a0a] border border-[#262626] rounded text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
             aria-label="Buscar instrumentos por símbolo o nombre"
           />
         </div>
@@ -258,10 +258,10 @@ export function MarketTable({
           <button
             onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
+              'flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white',
               showOnlyFavorites
-                ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
-                : 'bg-[#0a0a0a] border-[#262626] text-slate-500 hover:text-amber-400 hover:border-amber-500/30'
+                ? 'bg-amber-500/20 border-amber-500/50 text-amber-600'
+                : 'bg-white border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-500/30'
             )}
             aria-label={showOnlyFavorites ? 'Mostrar todos los instrumentos' : 'Mostrar solo favoritos'}
             aria-pressed={showOnlyFavorites}
@@ -273,16 +273,16 @@ export function MarketTable({
           </button>
 
           {/* Filtros de mercado */}
-          <div className="flex gap-1 bg-[#0a0a0a] border border-[#262626] rounded p-0.5" role="radiogroup" aria-label="Filtrar por tipo de mercado">
+          <div className="flex gap-1 bg-white border border-slate-200 rounded p-0.5" role="radiogroup" aria-label="Filtrar por tipo de mercado">
             {(['todos', 'renta-variable', 'renta-fija'] as MarketFilter[]).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setMarketFilter(filter)}
                 className={cn(
-                  'px-3 py-1.5 rounded text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
+                  'px-3 py-1.5 rounded text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white',
                   marketFilter === filter
-                    ? 'bg-emerald-500/20 text-emerald-400'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'text-slate-500 hover:text-slate-700'
                 )}
                 role="radio"
                 aria-checked={marketFilter === filter}
@@ -301,7 +301,7 @@ export function MarketTable({
       </div>
 
       {/* Tabla */}
-      <div className="border border-[#262626] rounded-lg overflow-hidden bg-[#0a0a0a]" role="region" aria-label="Tabla de cotizaciones del mercado" tabIndex={0}>
+      <div className="border border-slate-200 rounded-lg overflow-hidden bg-white" role="region" aria-label="Tabla de cotizaciones del mercado" tabIndex={0}>
         <div className="overflow-x-auto" role="region" aria-label="Desplazamiento horizontal de la tabla">
           <table className="w-full min-w-[1200px]" aria-label="Cotizaciones de acciones de la Bolsa de Valores de Caracas">
             {/* Caption descriptivo para lectores de pantalla */}
@@ -310,7 +310,7 @@ export function MarketTable({
             </caption>
             {/* Header */}
             <thead>
-              <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-[#262626] bg-[#0a0a0a]">
+              <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200 bg-white">
                 <th className="text-left py-3 px-3 font-medium w-[40px]" scope="col">
                   <span className="sr-only">Marcar como favorito</span>
                   <Star className="w-3.5 h-3.5" aria-hidden="true" />
@@ -361,7 +361,7 @@ export function MarketTable({
                         {searchTerm && (
                           <button
                             onClick={() => setSearchTerm('')}
-                            className="text-emerald-400 text-sm hover:underline focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+                            className="text-emerald-600 text-sm hover:underline focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
                           >
                             Limpiar búsqueda
                           </button>
@@ -408,10 +408,10 @@ export function MarketTable({
                           <motion.button
                             onClick={(e) => toggleFavorite(simbolo, e)}
                             className={cn(
-                              'p-1.5 rounded transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]',
+                              'p-1.5 rounded transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white',
                               isFavorite
-                                ? 'text-amber-400 hover:text-amber-300'
-                                : 'text-slate-600 hover:text-amber-400'
+                                ? 'text-amber-600 hover:text-amber-300'
+                                : 'text-slate-600 hover:text-amber-600'
                             )}
                             whileHover={{ scale: 1.2, rotate: 15 }}
                             whileTap={{ scale: 0.9 }}
@@ -430,8 +430,8 @@ export function MarketTable({
                               className={cn(
                                 'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs border flex-shrink-0',
                                 isPositive
-                                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                  : 'bg-red-500/10 border-red-500/30 text-red-400'
+                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                  : 'bg-rose-50 border-rose-200 text-rose-600'
                               )}
                               whileHover={{ scale: 1.1, rotate: 5 }}
                               transition={{ duration: 0.2 }}
@@ -439,7 +439,7 @@ export function MarketTable({
                               {simboloCorto}
                             </motion.div>
                             <div className="min-w-0">
-                              <span className="font-semibold text-sm text-white block">{simbolo}</span>
+                              <span className="font-semibold text-sm text-slate-900 block">{simbolo}</span>
                               <span className="text-[10px] text-slate-500 truncate block max-w-[200px]" title={descSimb}>
                                 {descSimb}
                               </span>
@@ -449,7 +449,7 @@ export function MarketTable({
 
                         {/* Precio (Bs) */}
                         <td className="py-3 px-3 text-right">
-                          <span className="text-white font-bold font-mono text-sm">
+                          <span className="text-slate-900 font-bold font-mono text-sm">
                             {formatValue(precio, 2)}
                           </span>
                         </td>
@@ -465,7 +465,7 @@ export function MarketTable({
                         <td className="py-3 px-3 text-right">
                           <span className={cn(
                             'inline-flex items-center gap-1 font-bold text-sm',
-                            isPositive ? 'text-emerald-400' : 'text-red-400'
+                            isPositive ? 'text-emerald-600' : 'text-rose-600'
                           )}>
                             {isPositive ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                             {accion.variacion_pct !== null ? `${formatValue(accion.variacion_pct, 2)}%` : '-'}
@@ -481,14 +481,14 @@ export function MarketTable({
 
                         {/* Bid (Compra) */}
                         <td className="py-3 px-3 text-right">
-                          <span className="text-emerald-400 font-mono text-sm">
+                          <span className="text-emerald-600 font-mono text-sm">
                             {formatValue(accion.precio_compra, 2)}
                           </span>
                         </td>
 
                         {/* Ask (Venta) */}
                         <td className="py-3 px-3 text-right">
-                          <span className="text-red-400 font-mono text-sm">
+                          <span className="text-rose-600 font-mono text-sm">
                             {formatValue(accion.precio_vta, 2)}
                           </span>
                         </td>
@@ -523,7 +523,7 @@ export function MarketTable({
                             whileHover={{ scale: 1.05, filter: "brightness(1.1)" }}
                             whileTap={{ scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className="px-3 py-1.5 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded transition-colors flex items-center gap-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                            className="px-3 py-1.5 text-xs bg-rose-50 hover:bg-rose-50 text-rose-600 border border-rose-200 rounded transition-colors flex items-center gap-1.5 mx-auto focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white"
                             aria-label={`Ver libro de órdenes de ${simbolo}`}
                           >
                             <BarChart3 className="w-3 h-3" aria-hidden="true" />

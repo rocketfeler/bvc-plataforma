@@ -62,17 +62,17 @@ function CandleTooltip({ active, payload }: any) {
     const isUp = data.close >= data.open;
 
     return (
-      <div className="bg-[#1a1a1a] border border-[#262626] rounded-lg p-3 shadow-xl min-w-[200px]">
+      <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-xl min-w-[200px]">
         <p className="text-xs text-slate-400 mb-2">{data.fecha}</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           <span className="text-slate-400">Apertura:</span>
           <span className="text-right font-mono">{formatValue(data.open, 2)}</span>
           <span className="text-slate-400">Máximo:</span>
-          <span className="text-right font-mono text-emerald-400">{formatValue(data.high, 2)}</span>
+          <span className="text-right font-mono text-emerald-600">{formatValue(data.high, 2)}</span>
           <span className="text-slate-400">Mínimo:</span>
-          <span className="text-right font-mono text-red-400">{formatValue(data.low, 2)}</span>
+          <span className="text-right font-mono text-rose-600">{formatValue(data.low, 2)}</span>
           <span className="text-slate-400">Cierre:</span>
-          <span className={cn("text-right font-mono", isUp ? 'text-emerald-400' : 'text-red-400')}>
+          <span className={cn("text-right font-mono", isUp ? 'text-emerald-600' : 'text-rose-600')}>
             {formatValue(data.close, 2)}
           </span>
           <span className="text-slate-400">Volumen:</span>
@@ -90,9 +90,9 @@ function LineTooltip({ active, payload }: any) {
     const data = payload[0].payload;
 
     return (
-      <div className="bg-[#1a1a1a] border border-[#262626] rounded-lg p-3 shadow-xl min-w-[150px]">
+      <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-xl min-w-[150px]">
         <p className="text-xs text-slate-400 mb-1">{data.fecha}</p>
-        <p className="text-sm font-mono font-bold text-white">
+        <p className="text-sm font-mono font-bold text-slate-900">
           {formatValue(data.close, 2)} Bs
         </p>
         {data.volume > 0 && (
@@ -110,9 +110,9 @@ function VolumeTooltip({ active, payload }: any) {
     const data = payload[0].payload;
 
     return (
-      <div className="bg-[#1a1a1a] border border-[#262626] rounded-lg p-2 shadow-xl">
+      <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-xl">
         <p className="text-xs text-slate-400">{data.fecha}</p>
-        <p className="text-sm font-mono font-bold text-white">Vol: {formatInt(data.volume)}</p>
+        <p className="text-sm font-mono font-bold text-slate-900">Vol: {formatInt(data.volume)}</p>
       </div>
     );
   }
@@ -194,8 +194,8 @@ function ComingSoonButton({ icon: Icon, label, color }: { icon: any; label: stri
         className={cn(
           "flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all cursor-not-allowed opacity-50",
           color === 'green'
-            ? 'bg-emerald-500 text-white'
-            : 'bg-red-500 text-white'
+            ? 'bg-emerald-500 text-slate-900'
+            : 'bg-red-500 text-slate-900'
         )}
       >
         <Icon size={16} />
@@ -207,10 +207,10 @@ function ComingSoonButton({ icon: Icon, label, color }: { icon: any; label: stri
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-[#1a1a1a] border border-[#262626] rounded-md shadow-xl whitespace-nowrap z-50"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md shadow-xl whitespace-nowrap z-50"
           >
-            <p className="text-xs text-slate-300 font-medium">Próximamente</p>
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#1a1a1a] border-l border-t border-[#262626] rotate-45" />
+            <p className="text-xs text-slate-700 font-medium">Próximamente</p>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-l border-t border-slate-200 rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -314,15 +314,15 @@ export default function StockDetailView({
       {/* =================================================================== */}
       {/* HEADER */}
       {/* =================================================================== */}
-      <div className="p-4 border-b border-[#262626] bg-[#0a0a0a]">
+      <div className="p-4 border-b border-slate-200 bg-white">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <h2 className="text-xl font-bold text-white tracking-tight">{simbolo}</h2>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">{simbolo}</h2>
               <span className={cn(
                 "px-2 py-0.5 rounded text-xs font-semibold",
                 variacionPct !== null
-                  ? (isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400')
+                  ? (isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600')
                   : 'bg-slate-500/20 text-slate-400'
               )}>
                 {variacionPct !== null ? `${isPositive ? '+' : ''}${formatValue(variacionPct, 2)}%` : '-'}
@@ -330,13 +330,13 @@ export default function StockDetailView({
             </div>
             <p className="text-sm text-slate-400 truncate">{nombre}</p>
             <div className="mt-2 flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-white font-mono">
+              <span className="text-3xl font-bold text-slate-900 font-mono">
                 {precioActual ? formatValue(precioActual, 2) : '---'} Bs
               </span>
               {isPositive ? (
-                <TrendingUp size={20} className="text-emerald-400" />
+                <TrendingUp size={20} className="text-emerald-600" />
               ) : (
-                <TrendingDown size={20} className="text-red-400" />
+                <TrendingDown size={20} className="text-rose-600" />
               )}
             </div>
           </div>
@@ -352,19 +352,19 @@ export default function StockDetailView({
         <div className="mt-3 grid grid-cols-4 gap-3 text-xs">
           <div>
             <span className="text-slate-500 block">Apertura</span>
-            <span className="font-mono text-slate-300">{precioApert ? formatValue(precioApert, 2) : '---'}</span>
+            <span className="font-mono text-slate-700">{precioApert ? formatValue(precioApert, 2) : '---'}</span>
           </div>
           <div>
             <span className="text-slate-500 block">Máximo</span>
-            <span className="font-mono text-emerald-400">{precioMax ? formatValue(precioMax, 2) : '---'}</span>
+            <span className="font-mono text-emerald-600">{precioMax ? formatValue(precioMax, 2) : '---'}</span>
           </div>
           <div>
             <span className="text-slate-500 block">Mínimo</span>
-            <span className="font-mono text-red-400">{precioMin ? formatValue(precioMin, 2) : '---'}</span>
+            <span className="font-mono text-rose-600">{precioMin ? formatValue(precioMin, 2) : '---'}</span>
           </div>
           <div>
             <span className="text-slate-500 block">Volumen</span>
-            <span className="font-mono text-slate-300">{volumen ? formatInt(volumen) : '---'}</span>
+            <span className="font-mono text-slate-700">{volumen ? formatInt(volumen) : '---'}</span>
           </div>
         </div>
       </div>
@@ -372,9 +372,9 @@ export default function StockDetailView({
       {/* =================================================================== */}
       {/* CONTROLES: Tipo de gráfico + Período */}
       {/* =================================================================== */}
-      <div className="px-4 py-3 border-b border-[#262626] bg-[#0f0f0f] flex flex-wrap items-center gap-4">
+      <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center gap-4">
         {/* Toggle tipo de gráfico */}
-        <div className="flex items-center gap-1 bg-[#1a1a1a] border border-[#262626] rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1">
           {([
             { id: 'candles' as ChartType, label: 'Velas', icon: '🕯️' },
             { id: 'line' as ChartType, label: 'Línea', icon: '📈' },
@@ -386,8 +386,8 @@ export default function StockDetailView({
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5",
                 chartType === type.id
-                  ? 'bg-[#262626] text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-[#1f1f1f]'
+                  ? 'bg-slate-200 text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-900 hover:bg-[#1f1f1f]'
               )}
             >
               <span>{type.icon}</span>
@@ -405,8 +405,8 @@ export default function StockDetailView({
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-semibold transition-all",
                 period === p
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                  : 'text-slate-400 hover:text-white hover:bg-[#1f1f1f]'
+                  ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                  : 'text-slate-400 hover:text-slate-900 hover:bg-[#1f1f1f]'
               )}
             >
               {p}
@@ -456,8 +456,8 @@ export default function StockDetailView({
                   <XAxis
                     dataKey="fecha"
                     tick={{ fontSize: 11, fill: '#64748b' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => {
                       const date = new Date(value);
                       return date.toLocaleDateString('es-VE', { month: 'short', day: 'numeric' });
@@ -467,8 +467,8 @@ export default function StockDetailView({
                   <YAxis
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => value.toFixed(2)}
                     width={70}
                     orientation="right"
@@ -510,8 +510,8 @@ export default function StockDetailView({
                   <XAxis
                     dataKey="fecha"
                     tick={{ fontSize: 11, fill: '#64748b' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => {
                       const date = new Date(value);
                       return date.toLocaleDateString('es-VE', { month: 'short', day: 'numeric' });
@@ -521,8 +521,8 @@ export default function StockDetailView({
                   <YAxis
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => value.toFixed(2)}
                     width={70}
                     orientation="right"
@@ -565,8 +565,8 @@ export default function StockDetailView({
                   <XAxis
                     dataKey="fecha"
                     tick={{ fontSize: 11, fill: '#64748b' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => {
                       const date = new Date(value);
                       return date.toLocaleDateString('es-VE', { month: 'short', day: 'numeric' });
@@ -576,8 +576,8 @@ export default function StockDetailView({
                   <YAxis
                     domain={['auto', 'auto']}
                     tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'monospace' }}
-                    tickLine={{ stroke: '#262626' }}
-                    axisLine={{ stroke: '#262626' }}
+                    tickLine={{ stroke: '#e2e8f0' }}
+                    axisLine={{ stroke: '#e2e8f0' }}
                     tickFormatter={(value) => value.toFixed(2)}
                     width={70}
                     orientation="right"
@@ -616,7 +616,7 @@ export default function StockDetailView({
         {/* =================================================================== */}
         {/* GRÁFICO DE VOLUMEN */}
         {/* =================================================================== */}
-        <div className="h-[120px] border-t border-[#262626] relative">
+        <div className="h-[120px] border-t border-slate-200 relative">
           {historicalData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -631,8 +631,8 @@ export default function StockDetailView({
                 <XAxis
                   dataKey="fecha"
                   tick={{ fontSize: 10, fill: '#64748b' }}
-                  tickLine={{ stroke: '#262626' }}
-                  axisLine={{ stroke: '#262626' }}
+                  tickLine={{ stroke: '#e2e8f0' }}
+                  axisLine={{ stroke: '#e2e8f0' }}
                   tickFormatter={(value) => {
                     const date = new Date(value);
                     return date.toLocaleDateString('es-VE', { month: 'short', day: 'numeric' });
@@ -669,36 +669,36 @@ export default function StockDetailView({
       {/* =================================================================== */}
       {/* ESTADÍSTICAS DEL PERÍODO + LIBRO DE ÓRDENES */}
       {/* =================================================================== */}
-      <div className="border-t border-[#262626] bg-[#0a0a0a] p-4">
+      <div className="border-t border-slate-200 bg-white p-4">
         {periodStats && (
           <div className="grid grid-cols-4 gap-3 mb-4 text-xs">
             <div>
               <span className="text-slate-500 block">Máx. período</span>
-              <span className="font-mono text-emerald-400 font-semibold">{formatValue(periodStats.high, 2)}</span>
+              <span className="font-mono text-emerald-600 font-semibold">{formatValue(periodStats.high, 2)}</span>
             </div>
             <div>
               <span className="text-slate-500 block">Mín. período</span>
-              <span className="font-mono text-red-400 font-semibold">{formatValue(periodStats.low, 2)}</span>
+              <span className="font-mono text-rose-600 font-semibold">{formatValue(periodStats.low, 2)}</span>
             </div>
             <div>
               <span className="text-slate-500 block">Var. período</span>
               <span className={cn(
                 "font-mono font-semibold",
-                periodStats.isPeriodPositive ? 'text-emerald-400' : 'text-red-400'
+                periodStats.isPeriodPositive ? 'text-emerald-600' : 'text-rose-600'
               )}>
                 {periodStats.isPeriodPositive ? '+' : ''}{periodStats.periodChange}%
               </span>
             </div>
             <div>
               <span className="text-slate-500 block">Vol. promedio</span>
-              <span className="font-mono text-slate-300">{formatInt(periodStats.avgVolume)}</span>
+              <span className="font-mono text-slate-700">{formatInt(periodStats.avgVolume)}</span>
             </div>
           </div>
         )}
 
         {/* Resumen del libro de órdenes */}
         {libroOrdenes && !libroOrdenes.error && (libroOrdenes.compras.length > 0 || libroOrdenes.ventas.length > 0) && (
-          <div className="mt-3 p-3 bg-[#0f0f0f] border border-[#262626] rounded-lg">
+          <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
             <h4 className="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
               <Info size={12} />
               LIBRO DE ÓRDENES (resumen)
@@ -706,10 +706,10 @@ export default function StockDetailView({
             <div className="grid grid-cols-2 gap-4">
               {/* Mejor compra */}
               <div className="flex items-center gap-2">
-                <ArrowUpRight size={14} className="text-emerald-400" />
+                <ArrowUpRight size={14} className="text-emerald-600" />
                 <div>
                   <span className="text-[10px] text-slate-500 block">Mejor compra</span>
-                  <span className="font-mono font-bold text-emerald-400">
+                  <span className="font-mono font-bold text-emerald-600">
                     {libroOrdenes.mejor_bid?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '---'} Bs
                   </span>
                 </div>
@@ -718,19 +718,19 @@ export default function StockDetailView({
               <div className="flex items-center gap-2 justify-end">
                 <div className="text-right">
                   <span className="text-[10px] text-slate-500 block">Mejor venta</span>
-                  <span className="font-mono font-bold text-red-400">
+                  <span className="font-mono font-bold text-rose-600">
                     {libroOrdenes.mejor_ask?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '---'} Bs
                   </span>
                 </div>
-                <ArrowDownRight size={14} className="text-red-400" />
+                <ArrowDownRight size={14} className="text-rose-600" />
               </div>
             </div>
             {libroOrdenes.spread !== undefined && libroOrdenes.spread !== null && (
-              <div className="mt-2 pt-2 border-t border-[#262626] flex items-center justify-center gap-4 text-xs">
-                <span className="text-slate-500">Spread: <span className="font-mono text-white">{formatValue(libroOrdenes.spread, 2)} Bs</span></span>
+              <div className="mt-2 pt-2 border-t border-slate-200 flex items-center justify-center gap-4 text-xs">
+                <span className="text-slate-500">Spread: <span className="font-mono text-slate-900">{formatValue(libroOrdenes.spread, 2)} Bs</span></span>
                 <span className="text-slate-500">Spread %: <span className={cn(
                   "font-mono font-semibold",
-                  (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-400' : 'text-amber-400'
+                  (libroOrdenes.spread_pct ?? 0) < 5 ? 'text-emerald-600' : 'text-amber-600'
                 )}>{formatValue(libroOrdenes.spread_pct, 2)}%</span></span>
               </div>
             )}

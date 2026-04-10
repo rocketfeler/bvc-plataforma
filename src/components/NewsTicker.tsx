@@ -25,12 +25,12 @@ export function NewsTicker({ noticias }: NewsTickerProps) {
   }
 
   return (
-    <div className="w-full bg-[#0a0a0a] border-b border-[#262626] overflow-hidden py-2">
+    <div className="w-full bg-white border-b border-slate-200 overflow-hidden py-2">
       <div className="flex items-center gap-4">
         {/* Icono fijo */}
         <div className="flex items-center gap-2 px-4 flex-shrink-0">
-          <Volume2 className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Noticias</span>
+          <Volume2 className="w-4 h-4 text-emerald-600" />
+          <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Noticias</span>
         </div>
 
         {/* Cinta de noticias en movimiento */}
@@ -39,7 +39,7 @@ export function NewsTicker({ noticias }: NewsTickerProps) {
             {[...noticias, ...noticias].map((noticia, idx) => (
               <div key={idx} className="flex items-center gap-2 text-xs flex-shrink-0">
                 <span 
-                  className="text-slate-300 font-medium truncate max-w-md" 
+                  className="text-slate-700 font-medium truncate max-w-md" 
                   title={noticia?.titular || ''}
                 >
                   {noticia?.titular || 'Sin título'}

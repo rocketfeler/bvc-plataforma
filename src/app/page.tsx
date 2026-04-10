@@ -28,6 +28,13 @@ import {
 } from '@/components';
 import { Sidebar, type ActiveTab } from '@/components/Sidebar';
 
+// Nuevos componentes institucionales
+import {
+  DashboardKpiCards, PortfolioKpiCards,
+  PortfolioTable, MarketOverviewCard,
+  SpreadChart, RatesChart
+} from '@/components/dashboard';
+
 // Socket.IO Hook
 import { useSocket } from './useSocket';
 import { useAuth } from './AuthContext';
@@ -367,8 +374,8 @@ export default function BloombergTerminal() {
   // Redirigiendo o cargando auth
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-emerald-400" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -378,18 +385,15 @@ export default function BloombergTerminal() {
   // ============================================================================
   if (loading && !tasas?.bcv && bvc.length === 0) {
     return (
-      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <div className="relative">
-            <Loader2 className="w-16 h-16 animate-spin text-emerald-400 mx-auto" />
-            <div className="absolute inset-0 bg-emerald-400/20 blur-xl rounded-full" />
-          </div>
-          <p className="text-slate-400 mt-6 font-mono text-sm">INICIALIZANDO TERMINAL BVC</p>
-          <p className="text-slate-600 text-xs mt-2">Conectando a mercados...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-emerald-600 mx-auto" />
+          <p className="text-slate-500 mt-5 font-medium text-sm">Cargando Rocketfeler BVC</p>
+          <p className="text-slate-400 text-xs mt-1.5">Conectando a mercados...</p>
         </motion.div>
       </div>
     );
@@ -400,15 +404,13 @@ export default function BloombergTerminal() {
   // ============================================================================
 
   return (
-    // Layout principal: sidebar + contenido en flex row (como Mercosur)
-    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans flex">
-      {/* Background Grid */}
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_90%)] pointer-events-none" />
+    // Layout principal institucional: sidebar + contenido
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex">
 
       {/* Sidebar — en desktop es parte del layout flex, en móvil es drawer overlay */}
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Content Wrapper — ocupa el espacio restante, sin margin-left necesario */}
+      {/* Content Wrapper — ocupa el espacio restante */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
 
         {/* Header — sin padding izquierdo extra */}
@@ -436,18 +438,18 @@ export default function BloombergTerminal() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="px-4 lg:px-6 mt-3"
+              className="px-5 lg:px-6 mt-3"
             >
-              <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2 flex items-center gap-2">
-                <AlertCircle className="text-red-400 w-4 h-4 flex-shrink-0" />
-                <p className="text-red-300 text-sm font-mono">{error}</p>
+              <div className="bg-rose-50 border border-rose-200 rounded-lg px-4 py-2.5 flex items-center gap-2">
+                <AlertCircle className="text-rose-500 w-4 h-4 flex-shrink-0" />
+                <p className="text-rose-700 text-sm">{error}</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Main Content — fills remaining vertical space, independent scroll */}
-        <main id="main-content" className="flex-1 overflow-y-auto px-4 lg:px-6 py-4" tabIndex={-1}>
+        <main id="main-content" className="flex-1 overflow-y-auto px-5 lg:px-6 py-5" tabIndex={-1}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -532,7 +534,7 @@ export default function BloombergTerminal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={cerrarLibroOrdenes}
             role="dialog"
             aria-modal="true"
@@ -542,31 +544,29 @@ export default function BloombergTerminal() {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#0a0a0a] border border-[#262626] rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden"
+              className="bg-white border border-slate-200 rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
               role="document"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-2 bg-red-500/20 border border-red-500/30 rounded">
-                    <span className="text-xl" aria-hidden="true">📊</span>
+              <div className="flex items-center justify-between p-4 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-slate-100 rounded-lg">
+                    <BarChart3 className="w-5 h-5 text-slate-500" />
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-lg font-bold text-white">{libroOrdenesSimbolo}</h3>
-                    <p className="text-[10px] sm:text-xs text-slate-400 font-mono">
+                    <h3 className="text-lg font-bold text-slate-900">{libroOrdenesSimbolo}</h3>
+                    <p className="text-xs text-slate-400">
                       {libroOrdenes.fuente === 'cache' ? '● Datos en caché' : libroOrdenes.fuente === 'directo' ? '● Datos en tiempo real' : '● Datos disponibles'}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={cerrarLibroOrdenes}
-                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                   aria-label="Cerrar modal"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                  </svg>
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
@@ -589,7 +589,7 @@ export default function BloombergTerminal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={cerrarStockDetail}
             role="dialog"
             aria-modal="true"
@@ -600,26 +600,24 @@ export default function BloombergTerminal() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-[#0a0a0a] border border-[#262626] rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+              className="bg-white border border-slate-200 rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-xl"
               onClick={(e) => e.stopPropagation()}
               role="document"
             >
               {/* Header con botón de cerrar */}
-              <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626] bg-[#0a0a0a]">
+              <div className="flex items-center justify-between p-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-red-500/20 border border-red-500/30 rounded" aria-hidden="true">
-                    <span className="text-base">📈</span>
+                  <div className="p-1.5 bg-slate-100 rounded-lg" aria-hidden="true">
+                    <TrendingUp className="w-4 h-4 text-slate-500" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-white">VISTA DETALLADA</h3>
+                  <h3 className="text-base font-bold text-slate-900">Vista Detallada</h3>
                 </div>
                 <button
                   onClick={cerrarStockDetail}
-                  className="p-2 hover:bg-[#262626] rounded transition-colors group focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                  className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                   aria-label="Cerrar vista detallada"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-red-400 transition-colors" aria-hidden="true">
-                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                  </svg>
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
@@ -665,7 +663,6 @@ function ModalContent({
 }) {
   const [activeTab, setActiveTab] = useState<'orderbook' | 'stats'>('orderbook');
 
-  // Encontrar los datos de la acción seleccionada
   const stockData = useMemo(() => {
     if (!libroOrdenesSimbolo) return null;
     return bvc.find((s) => s.simbolo === libroOrdenesSimbolo) || null;
@@ -674,41 +671,41 @@ function ModalContent({
   return (
     <div className="flex flex-col max-h-[calc(90vh-80px)]">
       {/* Tabs */}
-      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-[#262626] bg-[#0a0a0a]" role="tablist" aria-label="Vista del modal">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 bg-slate-50/50" role="tablist" aria-label="Vista del modal">
         <button
           onClick={() => setActiveTab('orderbook')}
           className={cn(
-            "px-3 sm:px-4 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]",
+            "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all",
             activeTab === 'orderbook'
-              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-              : 'text-slate-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-white text-slate-800 shadow-sm border border-slate-200'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-500'
           )}
           role="tab"
           aria-selected={activeTab === 'orderbook'}
           aria-controls="panel-orderbook"
           id="tab-orderbook"
         >
-          📊 Libro de Órdenes
+          Libro de Órdenes
         </button>
         <button
           onClick={() => setActiveTab('stats')}
           className={cn(
-            "px-3 sm:px-4 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]",
+            "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all",
             activeTab === 'stats'
-              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-              : 'text-slate-400 hover:text-white hover:bg-[#1a1a1a]'
+              ? 'bg-white text-slate-800 shadow-sm border border-slate-200'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-500'
           )}
           role="tab"
           aria-selected={activeTab === 'stats'}
           aria-controls="panel-stats"
           id="tab-stats"
         >
-          📈 Estadísticas
+          Estadísticas
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-3 sm:p-4">
+      <div className="flex-1 overflow-auto p-4">
         {activeTab === 'orderbook' && (
           <div role="tabpanel" id="panel-orderbook" aria-labelledby="tab-orderbook">
           <OrderBook
@@ -725,11 +722,9 @@ function ModalContent({
             <StockStats stock={stockData} />
           ) : (
             <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <p className="text-slate-400 text-sm">
-                  No hay datos disponibles para {libroOrdenesSimbolo}
-                </p>
-              </div>
+              <p className="text-slate-400 text-sm">
+                No hay datos disponibles para {libroOrdenesSimbolo}
+              </p>
             </div>
           )}
           </div>
@@ -752,60 +747,34 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
   if (loading && !tasas) {
     return (
       <div className="space-y-4">
-        {/* Skeleton Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-            >
-              <Card className="p-4" hover={false} animate={false}>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Skeleton variant="text-sm" className="w-20" shimmer />
-                    <Skeleton variant="circular" className="w-6 h-6" shimmer />
-                  </div>
-                  <Skeleton variant="text-xl" className="w-2/3" shimmer />
-                  <Skeleton variant="text-sm" className="w-1/2" shimmer />
-                </div>
-              </Card>
-            </motion.div>
+            <div key={i} className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+              <div className="space-y-3">
+                <Skeleton variant="text-sm" className="w-20" shimmer />
+                <Skeleton variant="text-xl" className="w-2/3" shimmer />
+                <Skeleton variant="text-sm" className="w-1/2" shimmer />
+              </div>
+            </div>
           ))}
         </div>
-
-        {/* Skeleton Table */}
-        <Card className="lg:col-span-2 p-0 overflow-hidden" hover={false} animate={false}>
-          <div className="p-4 border-b border-[var(--border)]">
-            <Skeleton variant="text" className="w-32" shimmer />
-          </div>
-          <div className="p-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex gap-4 py-3 border-b border-[var(--border)] last:border-0">
-                <Skeleton variant="circular" className="w-8 h-8 flex-shrink-0" shimmer />
-                <Skeleton variant="text" className="flex-1" shimmer />
-                <Skeleton variant="text" className="w-16" shimmer />
-                <Skeleton variant="text" className="w-12" shimmer />
-                <Skeleton variant="text" className="w-14" shimmer />
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Skeleton Chart */}
-        <Card className="p-4" hover={false} animate={false}>
-          <Skeleton variant="text" className="w-24 mb-4" shimmer />
-          <Skeleton variant="rectangular" className="w-full h-48" shimmer />
-        </Card>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+          <Skeleton variant="text" className="w-32 mb-4" shimmer />
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-4 py-3 border-b border-slate-100 last:border-0">
+              <Skeleton variant="text" className="flex-1" shimmer />
+              <Skeleton variant="text" className="w-16" shimmer />
+              <Skeleton variant="text" className="w-14" shimmer />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!tasas) return null;
 
-  // PARACAÍDAS MATEMÁTICO: Calcular brechas de forma segura
-  // Brecha Binance vs BCV (Dólar)
+  // Calcular brechas de forma segura
   const brechaBinance = ((tasas?.binance ?? 0) > 0 && (tasas?.bcv ?? 0) > 0)
     ? (((tasas.binance ?? 0) / (tasas.bcv ?? 0)) - 1) * 100
     : 0;
@@ -813,188 +782,50 @@ function DashboardView({ tasas, bvc, patrimonio, macro, previousBvc, tasaBinance
     ? tasas.brecha_binance_pct
     : brechaBinance;
 
-  // Brecha Euro vs BCV (Euro oficial comparado con tasa BCV base)
-  const brechaEuro = ((tasas?.bcv_eur ?? 0) > 0 && (tasas?.bcv ?? 0) > 0)
-    ? (((tasas.bcv_eur ?? 0) / (tasas.bcv ?? 0)) - 1) * 100
+  // Market breadth
+  const accionesUp = (bvc ?? []).filter((a: BVCData) => (a.variacion_pct ?? 0) > 0).length;
+  const accionesDown = (bvc ?? []).filter((a: BVCData) => (a.variacion_pct ?? 0) < 0).length;
+
+  // Índice del día (promedio ponderado)
+  const totalMonto = (bvc ?? []).reduce((sum: number, a: BVCData) => sum + (a.monto_efectivo ?? 0), 0);
+  const indiceDia = totalMonto > 0
+    ? (bvc ?? []).reduce((sum: number, a: BVCData) => {
+        const weight = (a.monto_efectivo ?? 0) / totalMonto;
+        return sum + (a.variacion_pct ?? 0) * weight;
+      }, 0)
     : 0;
 
-  // TOP 5/10 EMPRESAS MÁS RELEVANTES: Ordenar por mayor variación porcentual (valor absoluto)
-  // y desempatar con monto_efectivo o volumen
-  const bvcRelevantes = [...(bvc ?? [])].sort((a, b) => {
-    const varAbsA = Math.abs(a.variacion_pct ?? 0);
-    const varAbsB = Math.abs(b.variacion_pct ?? 0);
-    // Primero por variación porcentual absoluta (descendente)
-    if (varAbsA !== varAbsB) return varAbsB - varAbsA;
-    // Desempate con monto_efectivo (descendente)
-    const efectivoA = a.monto_efectivo ?? 0;
-    const efectivoB = b.monto_efectivo ?? 0;
-    if (efectivoA !== efectivoB) return efectivoB - efectivoA;
-    // Desempate final con volumen (descendente)
-    return (b.volumen ?? 0) - (a.volumen ?? 0);
-  }).slice(0, 10);
-
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* NUEVO: Dashboard Cards - 4 cards rediseñadas */}
-      <DashboardCards
-        tasas={tasas}
-        bvc={bvc}
-        patrimonio={patrimonio}
-        macro={macro}
-        previousBvc={previousBvc}
-        tasaBinanceFallback={tasaBinanceFallback}
+    <div className="space-y-5">
+      {/* KPI Cards — Métricas Rápidas */}
+      <DashboardKpiCards
+        tasaBcv={tasas.bcv ?? 0}
+        tasaBinance={tasas.binance}
+        brechaPct={brechaBinanceDisplay}
+        totalAcciones={bvc?.length ?? 0}
+        accionesUp={accionesUp}
+        accionesDown={accionesDown}
+        indiceDia={indiceDia}
       />
 
-      {/* Main Grid - Tabla BVC + Gráfico Brecha */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-        {/* BVC Summary */}
-        <Card className="lg:col-span-2 p-0 overflow-hidden">
-          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-[#262626]">
-            <h3 className="text-xs sm:text-sm font-semibold flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" aria-hidden="true" />
-              MERCADO BVC
-            </h3>
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-mono text-slate-500">
-              <span className="px-2 py-0.5 bg-[#141414] rounded">{bvc?.length || 0} ACCIONES</span>
-            </div>
-          </div>
-          <div className="overflow-x-auto" role="region" aria-label="Tabla resumen del mercado BVC" tabIndex={0}>
-            <table className="w-full" aria-label="Top 10 acciones más relevantes del mercado BVC">
-              <caption className="sr-only">Las 10 acciones con mayor variación porcentual en la Bolsa de Valores de Caracas</caption>
-              <thead>
-                <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-[#262626]">
-                  <th className="text-left py-3 px-3 sm:px-4 font-medium" scope="col">Símbolo</th>
-                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Precio Bs</th>
-                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Var %</th>
-                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">Volumen</th>
-                  <th className="text-center py-3 px-3 sm:px-4 font-medium" scope="col">$</th>
-                </tr>
-              </thead>
-              <tbody className="text-xs sm:text-sm">
-                {bvcRelevantes.map((accion: BVCData) => {
-                  const previous = previousBvc.find((p: BVCData) => p.simbolo === accion.simbolo);
-                  return (
-                    <BVCRow
-                      key={accion.simbolo || 'S/N'}
-                      accion={accion}
-                      previous={previous}
-                      tasaBinance={tasaBinanceFallback}
-                      onStockClick={onStockClick}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+      {/* Grid principal: Tabla BVC + Brecha */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Tabla Mercado BVC */}
+        <div className="lg:col-span-2">
+          <MarketOverviewCard
+            bvc={bvc}
+            previousBvc={previousBvc}
+            tasaBinance={tasaBinanceFallback}
+            onStockClick={onStockClick}
+          />
+        </div>
 
-        {/* Spread Chart */}
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-amber-400" />
-              BRECHA %
-            </h3>
-          </div>
-          {/* FIX: Contenedor con min-height para evitar width/height = -1 */}
-          <div className="h-48 min-h-[200px]">
-            {mounted ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={
-                // BLINDAJE: Verificar que macro sea un array válido
-                Array.isArray(macro) && macro.length > 0
-                  ? [...macro].reverse().slice(-15).map(item => {
-                      // PARACAÍDAS MATEMÁTICO: Safe math para cálculo de brecha
-                      const bcv = item?.tasa_bcv || 0;
-                      const binance = item?.tasa_binance_p2p || 0;
-                      const brecha = (bcv > 0 && binance > 0) ? Number((((binance - bcv) / bcv) * 100).toFixed(2)) : 0;
-                      // BLINDAJE: substring seguro con fallback
-                      const fecha = item?.fecha ? String(item.fecha).substring(5) : '--/--';
-                      return {
-                        fecha,
-                        brecha
-                      };
-                    })
-                  : [] // Datos vacíos si macro no es válido
-              }>
-                <defs>
-                  <linearGradient id="colorBrecha" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-                <XAxis dataKey="fecha" tick={{ fill: '#525252', fontSize: 9 }} axisLine={{ stroke: '#262626' }} tickLine={{ stroke: '#262626' }} />
-                <YAxis tick={{ fill: '#525252', fontSize: 9 }} axisLine={{ stroke: '#262626' }} tickLine={{ stroke: '#262626' }} unit="%" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#141414',
-                    border: '1px solid #262626',
-                    borderRadius: '4px',
-                    fontSize: '11px'
-                  }}
-                  itemStyle={{ color: '#fbbf24' }}
-                  formatter={(value: any) => [`${value}%`, "Brecha"]}
-                />
-                <Area type="monotone" dataKey="brecha" stroke="#f59e0b" strokeWidth={2} fill="url(#colorBrecha)" />
-              </AreaChart>
-            </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-slate-500 text-xs">
-                Cargando gráfico...
-              </div>
-            )}
-          </div>
-        </Card>
+        {/* Gráfico de Brecha */}
+        <SpreadChart macro={macro ?? []} mounted={mounted} />
       </div>
 
-      {/* IBC Chart */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-blue-400" />
-            EVOLUCIÓN DE TASAS
-          </h3>
-        </div>
-        {/* FIX: Contenedor con min-height para evitar width/height = -1 */}
-        <div className="h-48 min-h-[200px]">
-          {mounted ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={
-              // BLINDAJE: Verificar que macro sea un array válido con al menos 2 puntos
-              Array.isArray(macro) && macro.length >= 2
-                ? [...macro].reverse().slice(-30)
-                : []
-            }>
-              <CartesianGrid strokeDasharray="3 3" stroke="#262626" vertical={false} />
-              <XAxis
-                dataKey="fecha"
-                tick={{ fill: '#525252', fontSize: 9 }}
-                axisLine={{ stroke: '#262626' }}
-                tickLine={{ stroke: '#262626' }}
-                // BLINDAJE: tickFormatter seguro
-                tickFormatter={(tick) => tick ? String(tick).substring(5) : '--/--'}
-              />
-              <YAxis tick={{ fill: '#525252', fontSize: 9 }} axisLine={{ stroke: '#262626' }} tickLine={{ stroke: '#262626' }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#141414',
-                  border: '1px solid #262626',
-                  borderRadius: '4px',
-                  fontSize: '11px'
-                }}
-              />
-              <Line type="monotone" dataKey="tasa_bcv" stroke="#3b82f6" strokeWidth={2} dot={false} name="BCV" />
-              <Line type="monotone" dataKey="tasa_binance_p2p" stroke="#f59e0b" strokeWidth={2} dot={false} name="Binance" />
-            </LineChart>
-          </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full text-slate-500 text-xs">
-              Cargando gráfico...
-            </div>
-          )}
-        </div>
-      </Card>
+      {/* Evolución de Tasas */}
+      <RatesChart macro={macro ?? []} mounted={mounted} />
     </div>
   );
 }
@@ -1075,7 +906,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* ── Card Principal con Gradiente ── */}
-      <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-emerald-500/5">
+      <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-emerald-500/5">
         {/* Fondo gradiente sutil */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/60 via-slate-900 to-teal-950/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
@@ -1085,12 +916,12 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
           <div className="flex items-center gap-4 mb-8">
             <div className="relative">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                <Calculator className="w-6 h-6 text-white" />
+                <Calculator className="w-6 h-6 text-slate-900" />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white tracking-tight">Simulador de Trading</h2>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Simulador de Trading</h2>
               <p className="text-slate-400 text-sm">Calcula posiciones con comisiones reales (~1%)</p>
             </div>
           </div>
@@ -1101,14 +932,14 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
               {/* Tipo de Operación */}
               <div>
                 <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Tipo de Operación</label>
-                <div className="flex gap-2 p-1 bg-black/30 rounded-xl">
+                <div className="flex gap-2 p-1 bg-white rounded-xl">
                   <button
                     onClick={() => setTradeTipo('COMPRA')}
                     className={cn(
                       "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition-all duration-200",
                       tradeTipo === 'COMPRA'
-                        ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                        ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-slate-900 shadow-lg shadow-emerald-300/30"
+                        : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
                     )}
                   >
                     <ArrowDownRight className="w-4 h-4 inline mr-1.5 -mt-0.5" />
@@ -1119,8 +950,8 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                     className={cn(
                       "flex-1 py-3 px-4 rounded-lg font-bold text-sm transition-all duration-200",
                       tradeTipo === 'VENTA'
-                        ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg shadow-red-500/20"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                        ? "bg-gradient-to-r from-red-600 to-red-500 text-slate-900 shadow-lg shadow-red-500/20"
+                        : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
                     )}
                   >
                     <ArrowUpRight className="w-4 h-4 inline mr-1.5 -mt-0.5" />
@@ -1139,7 +970,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                   <select
                     value={selectedSymbol}
                     onChange={handleSymbolChange}
-                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-slate-200 appearance-none cursor-pointer transition-all"
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-slate-200 appearance-none cursor-pointer transition-all"
                   >
                     <option value="">Seleccionar activo...</option>
                     {bvc && bvc.length > 0 && bvc.map((a: any) => (
@@ -1162,7 +993,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                       type="number"
                       value={tradeAcciones}
                       onChange={(e) => setTradeAcciones(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-black/30 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white transition-all"
+                      className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-slate-900 transition-all"
                       min="1"
                     />
                   </div>
@@ -1175,7 +1006,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                       type="number"
                       value={tradePrecio}
                       onChange={(e) => setTradePrecio(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-white transition-all"
+                      className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 text-slate-900 transition-all"
                       min="0"
                       step="0.01"
                     />
@@ -1187,7 +1018,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
               <button
                 onClick={handleSwap}
                 className={cn(
-                  "w-full py-2.5 rounded-xl border border-white/10 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:bg-white/5 hover:border-emerald-500/30",
+                  "w-full py-2.5 rounded-xl border border-slate-200 text-sm font-medium flex items-center justify-center gap-2 transition-all duration-300 hover:bg-slate-50 hover:border-emerald-500/30",
                   swapAnim && "scale-95 rotate-180"
                 )}
               >
@@ -1197,10 +1028,10 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
             </div>
 
             {/* Recibo de Operación */}
-            <div className="bg-black/30 border border-white/10 rounded-xl p-6 flex flex-col justify-between backdrop-blur-sm">
+            <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col justify-between backdrop-blur-sm">
               <div>
-                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-white/10">
-                  <Layers className="w-4 h-4 text-emerald-400" />
+                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-200">
+                  <Layers className="w-4 h-4 text-emerald-600" />
                   <p className="text-xs font-mono text-slate-400 uppercase tracking-wider">Desglose de Operación</p>
                 </div>
 
@@ -1213,7 +1044,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                     <span className="text-slate-400">Comisión (1%)</span>
                     <span className={cn(
                       "font-semibold",
-                      tradeTipo === 'VENTA' ? 'text-red-400' : 'text-amber-400'
+                      tradeTipo === 'VENTA' ? 'text-rose-600' : 'text-amber-600'
                     )}>
                       {tradeTipo === 'VENTA' ? '−' : '+'}{comision.toLocaleString('es-VE', {minimumFractionDigits: 2})} <span className="text-slate-500 text-xs">Bs</span>
                     </span>
@@ -1224,15 +1055,15 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                 <div className={cn(
                   "mt-5 p-4 rounded-xl border transition-all",
                   tradeTipo === 'COMPRA'
-                    ? "bg-emerald-500/10 border-emerald-500/30"
-                    : "bg-red-500/10 border-red-500/30"
+                    ? "bg-emerald-50 border-emerald-500/30"
+                    : "bg-rose-50 border-red-500/30"
                 )}>
                   <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">
                     {tradeTipo === 'COMPRA' ? 'Total a Pagar' : 'Total a Recibir'}
                   </p>
                   <p className={cn(
                     "text-3xl font-bold font-mono tracking-tight",
-                    tradeTipo === 'COMPRA' ? 'text-emerald-400' : 'text-red-400'
+                    tradeTipo === 'COMPRA' ? 'text-emerald-600' : 'text-rose-600'
                   )}>
                     {total.toLocaleString('es-VE', {minimumFractionDigits: 2})}
                     <span className="text-lg text-slate-500 ml-1">Bs</span>
@@ -1247,7 +1078,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                   "bg-blue-500/10 border-blue-500/20"
                 )}>
                   <span className="text-blue-300">Equivalente USDT</span>
-                  <span className="text-blue-400 font-bold text-sm">{totalUSDT.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
+                  <span className="text-blue-600 font-bold text-sm">{totalUSDT.toLocaleString('es-VE', {minimumFractionDigits: 2})}</span>
                 </div>
                 <div className={cn(
                   "flex justify-between items-center px-3 py-2.5 rounded-lg border text-xs font-mono",
@@ -1259,7 +1090,7 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
                 {tradeTipo === 'COMPRA' && (
                   <div className="flex justify-between items-center px-3 py-2.5 rounded-lg border text-xs font-mono bg-amber-500/10 border-amber-500/20">
                     <span className="text-amber-300">Break-Even</span>
-                    <span className="text-amber-400 font-bold text-sm">{breakEven.toLocaleString('es-VE', {minimumFractionDigits: 3})} Bs</span>
+                    <span className="text-amber-600 font-bold text-sm">{breakEven.toLocaleString('es-VE', {minimumFractionDigits: 3})} Bs</span>
                   </div>
                 )}
               </div>
@@ -1275,14 +1106,14 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
           <div className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <span className="text-sm font-bold text-blue-400">🇻🇪</span>
+                <span className="text-sm font-bold text-blue-600">🇻🇪</span>
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-medium">Tasa BCV</p>
-                <p className="text-[10px] text-slate-600 font-mono">Oficial</p>
+                <p className="text-[10px] text-slate-500 font-mono">Oficial</p>
               </div>
             </div>
-            <p className="text-2xl font-bold font-mono text-blue-400">
+            <p className="text-2xl font-bold font-mono text-blue-600">
               {formatValue(tasaBcv, 2)}
               <span className="text-sm text-slate-500 ml-1">Bs/$</span>
             </p>
@@ -1294,14 +1125,14 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
           <div className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                <Coins className="w-4 h-4 text-amber-400" />
+                <Coins className="w-4 h-4 text-amber-600" />
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-medium">Tasa Binance</p>
-                <p className="text-[10px] text-slate-600 font-mono">P2P</p>
+                <p className="text-[10px] text-slate-500 font-mono">P2P</p>
               </div>
             </div>
-            <p className="text-2xl font-bold font-mono text-amber-400">
+            <p className="text-2xl font-bold font-mono text-amber-600">
               {formatValue(tasaBinance, 2)}
               <span className="text-sm text-slate-500 ml-1">Bs/USDT</span>
             </p>
@@ -1312,28 +1143,28 @@ function CalculadoraView({ tasas, bvc, loading }: any) {
         <div className={cn(
           "relative rounded-xl overflow-hidden border bg-gradient-to-br to-slate-900",
           (tasas?.brecha_binance_pct || 0) >= 0
-            ? "border-red-500/20 from-red-950/40"
-            : "border-emerald-500/20 from-emerald-950/40"
+            ? "border-rose-200 from-red-950/40"
+            : "border-emerald-200 from-emerald-950/40"
         )}>
           <div className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <div className={cn(
                 "w-8 h-8 rounded-lg flex items-center justify-center",
-                (tasas?.brecha_binance_pct || 0) >= 0 ? "bg-red-500/20" : "bg-emerald-500/20"
+                (tasas?.brecha_binance_pct || 0) >= 0 ? "bg-rose-100" : "bg-emerald-500/20"
               )}>
                 {(tasas?.brecha_binance_pct || 0) >= 0
-                  ? <TrendingUp className="w-4 h-4 text-red-400" />
-                  : <TrendingDown className="w-4 h-4 text-emerald-400" />
+                  ? <TrendingUp className="w-4 h-4 text-rose-600" />
+                  : <TrendingDown className="w-4 h-4 text-emerald-600" />
                 }
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-medium">Brecha P2P</p>
-                <p className="text-[10px] text-slate-600 font-mono">Diferencial</p>
+                <p className="text-[10px] text-slate-500 font-mono">Diferencial</p>
               </div>
             </div>
             <p className={cn(
               "text-2xl font-bold font-mono",
-              (tasas?.brecha_binance_pct || 0) >= 0 ? 'text-red-400' : 'text-emerald-400'
+              (tasas?.brecha_binance_pct || 0) >= 0 ? 'text-rose-600' : 'text-emerald-600'
             )}>
               {formatPercent(tasas?.brecha_binance_pct, 2)}
             </p>
@@ -1453,7 +1284,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
   const closeHistorico = () => { setShowHistorico(null); setHistoricoData(null); };
 
-  const roiColor = (patrimonio?.roi_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+  const roiColor = (patrimonio?.roi_pct || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
   const RoiIcon = (patrimonio?.roi_pct || 0) >= 0 ? TrendingUp : TrendingDown;
   const isProfit = (patrimonio?.ganancia_perdida || 0) >= 0;
 
@@ -1461,19 +1292,19 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
   if (!patrimonio?.detalles?.length && !showAdd) {
     return (
       <div className="max-w-2xl mx-auto">
-        <div className="relative rounded-2xl overflow-hidden border border-white/5">
+        <div className="relative rounded-2xl overflow-hidden border border-slate-200">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20" />
           <div className="relative p-12 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center mx-auto mb-6 border border-white/5">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center mx-auto mb-6 border border-slate-200">
               <PieChart className="w-10 h-10 text-slate-500" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Portafolio vacío</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Portafolio vacío</h3>
             <p className="text-slate-400 mb-8 max-w-sm mx-auto">
               Comienza agregando tu primera posición para hacer seguimiento de tus inversiones en la BVC.
             </p>
             <button
               onClick={() => setShowAdd(true)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl font-semibold text-white transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl font-semibold text-slate-900 transition-all shadow-lg shadow-emerald-300/30 hover:shadow-emerald-500/30"
             >
               <Plus className="w-5 h-5" />
               Agregar primera posición
@@ -1492,33 +1323,33 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         >
-          <div className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-950 p-6">
+          <div className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold flex items-center gap-2">
-                <History className="w-5 h-5 text-emerald-400" />
-                Histórico: <span className="font-mono text-white">{showHistorico}</span>
+                <History className="w-5 h-5 text-emerald-600" />
+                Histórico: <span className="font-mono text-slate-900">{showHistorico}</span>
               </h3>
-              <button onClick={closeHistorico} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+              <button onClick={closeHistorico} className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-slate-900 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="grid grid-cols-3 gap-3 mb-5">
-              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Total Invertido</p>
-                <p className="font-mono font-bold text-white text-lg">{formatValue(historicoData.total_invertido, 2)} <span className="text-xs text-slate-500">Bs</span></p>
+                <p className="font-mono font-bold text-slate-900 text-lg">{formatValue(historicoData.total_invertido, 2)} <span className="text-xs text-slate-500">Bs</span></p>
               </div>
-              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Cantidad</p>
-                <p className="font-mono font-bold text-white text-lg">{formatValue(historicoData.total_cantidad, 0)}</p>
+                <p className="font-mono font-bold text-slate-900 text-lg">{formatValue(historicoData.total_cantidad, 0)}</p>
               </div>
-              <div className="bg-black/30 border border-white/5 rounded-xl p-4">
+              <div className="bg-white border border-slate-200 rounded-xl p-4">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Promedio</p>
-                <p className="font-mono font-bold text-blue-400 text-lg">{formatValue(historicoData.precio_promedio, 4)} <span className="text-xs text-slate-500">Bs</span></p>
+                <p className="font-mono font-bold text-blue-600 text-lg">{formatValue(historicoData.precio_promedio, 4)} <span className="text-xs text-slate-500">Bs</span></p>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="text-[10px] text-slate-500 border-b border-white/10 uppercase font-mono">
+                <thead className="text-[10px] text-slate-500 border-b border-slate-200 uppercase font-mono">
                   <tr>
                     <th className="text-left py-2">Fecha</th>
                     <th className="text-right py-2">Cant.</th>
@@ -1527,13 +1358,13 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                     <th className="text-right py-2"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-slate-100">
                   {historicoData.compras?.map((compra: any) => (
-                    <tr key={compra.id} className="hover:bg-white/5 transition-colors">
-                      <td className="py-2.5 text-slate-300 text-xs">{compra.fecha_compra || 'N/A'}</td>
-                      <td className="py-2.5 text-right font-mono text-slate-300">{formatValue(compra.cantidad, 0)}</td>
+                    <tr key={compra.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="py-2.5 text-slate-700 text-xs">{compra.fecha_compra || 'N/A'}</td>
+                      <td className="py-2.5 text-right font-mono text-slate-700">{formatValue(compra.cantidad, 0)}</td>
                       <td className="py-2.5 text-right font-mono text-slate-400 text-xs">{formatValue(compra.precio_compra, 4)} Bs</td>
-                      <td className="py-2.5 text-right font-mono font-bold text-white">{formatValue((compra.cantidad * compra.precio_compra), 2)} Bs</td>
+                      <td className="py-2.5 text-right font-mono font-bold text-slate-900">{formatValue((compra.cantidad * compra.precio_compra), 2)} Bs</td>
                       <td className="py-2.5 text-right">
                         <button
                           onClick={async () => {
@@ -1541,7 +1372,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                             await fetchWithRetry(`${apiUrl}/api/portafolio/compra/${compra.id}`, { method: 'DELETE', headers: getAuthHeaders() });
                             handleVerHistorico(showHistorico); await onRefresh?.();
                           }}
-                          className="text-xs text-red-400 hover:text-red-300 font-medium transition-colors"
+                          className="text-xs text-rose-600 hover:text-red-300 font-medium transition-colors"
                         >
                           Eliminar
                         </button>
@@ -1557,17 +1388,17 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
       {/* ── Formulario Agregar/Editar ── */}
       {showAdd && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden border border-white/10">
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden border border-slate-200">
+          <div className="absolute inset-0 bg-white" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-bold flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                  {editPosition ? <Edit2 className="w-4 h-4 text-emerald-400" /> : <Plus className="w-4 h-4 text-emerald-400" />}
+                  {editPosition ? <Edit2 className="w-4 h-4 text-emerald-600" /> : <Plus className="w-4 h-4 text-emerald-600" />}
                 </div>
                 {editPosition ? 'Editar Posición' : 'Nueva Posición'}
               </h3>
-              <button onClick={resetForm} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+              <button onClick={resetForm} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-slate-900 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1583,22 +1414,22 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                     placeholder={editPosition ? "No editable" : "Buscar símbolo..."}
                     required readOnly={!!editPosition}
                     className={cn(
-                      "w-full bg-black/30 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 uppercase transition-all",
-                      editPosition ? "border-white/5 text-slate-500 cursor-not-allowed" : "border-white/10 text-white placeholder:text-slate-600"
+                      "w-full bg-white border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 uppercase transition-all",
+                      editPosition ? "border-slate-200 text-slate-500 cursor-not-allowed" : "border-slate-200 text-slate-900 placeholder:text-slate-500"
                     )}
                   />
                   {showSymbolDropdown && !editPosition && (
-                    <div className="absolute z-50 w-full mt-1.5 bg-slate-900 border border-white/10 rounded-xl max-h-48 overflow-y-auto shadow-2xl">
+                    <div className="absolute z-50 w-full mt-1.5 bg-slate-900 border border-slate-200 rounded-xl max-h-48 overflow-y-auto shadow-2xl">
                       {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).map(sym => (
                         <button key={sym.symbol} type="button"
                           onClick={() => { setAddTicker(sym.symbol); setShowSymbolDropdown(false); }}
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-500/10 text-slate-300 hover:text-emerald-400 transition-colors flex items-center justify-between"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 text-slate-700 hover:text-emerald-600 transition-colors flex items-center justify-between"
                         >
                           <div>
                             <span className="font-mono font-bold text-sm">{sym.symbol}</span>
                             <span className="text-xs text-slate-500 ml-2">{sym.name}</span>
                           </div>
-                          <Check className="w-3.5 h-3.5 text-slate-600" />
+                          <Check className="w-3.5 h-3.5 text-slate-500" />
                         </button>
                       ))}
                       {BVC_SYMBOLS.filter(sym => sym.symbol.toLowerCase().includes(addTicker.toLowerCase())).length === 0 && (
@@ -1612,26 +1443,26 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                 <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Cantidad</label>
                 <input type="number" value={addCantidad} onChange={(e) => setAddCantidad(e.target.value)}
                   min="0" step="0.01" required
-                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-slate-900 transition-all" />
               </div>
               <div>
                 <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Precio (Bs)</label>
                 <input type="number" value={addPrecio} onChange={(e) => setAddPrecio(e.target.value)}
                   min="0" step="0.01" required
-                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-slate-900 transition-all" />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">Fecha (opcional)</label>
                 <input type="date" value={addFecha} onChange={(e) => setAddFecha(e.target.value)}
-                  className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-white transition-all" />
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-slate-900 transition-all" />
               </div>
-              {addError && <div className="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"><AlertCircle className="w-4 h-4" />{addError}</div>}
+              {addError && <div className="sm:col-span-2 flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm"><AlertCircle className="w-4 h-4" />{addError}</div>}
               <div className="sm:col-span-2 flex gap-3 justify-end pt-2">
-                <button type="button" onClick={resetForm} className="px-5 py-2.5 text-slate-400 hover:text-white text-sm border border-white/10 rounded-xl hover:bg-white/5 transition-colors font-medium">
+                <button type="button" onClick={resetForm} className="px-5 py-2.5 text-slate-400 hover:text-slate-900 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors font-medium">
                   Cancelar
                 </button>
                 <button type="submit" disabled={addLoading}
-                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl text-sm font-semibold disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/20">
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-xl text-sm font-semibold disabled:opacity-50 transition-all shadow-lg shadow-emerald-300/30">
                   {addLoading ? 'Guardando...' : editPosition ? 'Actualizar' : 'Agregar'}
                 </button>
               </div>
@@ -1641,17 +1472,17 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
       )}
 
       {/* ── Resumen del Portafolio ── */}
-      <div className="relative rounded-2xl overflow-hidden border border-white/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/30 via-slate-900 to-slate-950" />
+      <div className="relative rounded-2xl overflow-hidden border border-slate-200">
+        <div className="absolute inset-0 bg-white" />
         <div className="relative p-6">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-base font-bold flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-emerald-400" />
+              <Wallet className="w-5 h-5 text-emerald-600" />
               Resumen del Portafolio
             </h3>
             <button
               onClick={() => { resetForm(); setShowAdd(true); }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-lg text-sm font-semibold text-white transition-all shadow-md shadow-emerald-500/20"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 rounded-lg text-sm font-semibold text-slate-900 transition-all shadow-md shadow-emerald-300/30"
             >
               <Plus className="w-4 h-4" />
               Agregar
@@ -1660,68 +1491,68 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Valor Total VES */}
-            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                  <span className="text-xs font-bold text-emerald-400">Bs</span>
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <span className="text-xs font-bold text-emerald-600">Bs</span>
                 </div>
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Valor Total</span>
               </div>
-              <p className="text-2xl font-bold text-white font-mono">
+              <p className="text-2xl font-bold text-slate-900 font-mono">
                 {patrimonio.total_ves?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
               </p>
-              <div className={cn("inline-flex items-center gap-1 text-xs font-bold mt-2 px-2 py-1 rounded-md bg-black/30 border border-white/5", roiColor)}>
+              <div className={cn("inline-flex items-center gap-1 text-xs font-bold mt-2 px-2 py-1 rounded-md bg-white border border-slate-200", roiColor)}>
                 <RoiIcon size={12} />
                 ROI: {formatPercent(patrimonio.roi_pct, 2)}
               </div>
             </div>
 
             {/* USD BCV */}
-            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                  <span className="text-xs font-bold text-blue-400">$</span>
+                <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <span className="text-xs font-bold text-blue-600">$</span>
                 </div>
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">USD (BCV)</span>
               </div>
-              <p className="text-xl font-bold text-blue-400 font-mono">
+              <p className="text-xl font-bold text-blue-600 font-mono">
                 {patrimonio.total_usd?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
               </p>
-              <p className="text-[10px] text-slate-600 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_bcv_usada, 2)}</p>
+              <p className="text-[10px] text-slate-500 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_bcv_usada, 2)}</p>
             </div>
 
             {/* USDT Binance */}
-            <div className="bg-black/20 border border-white/5 rounded-xl p-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                  <Coins className="w-3.5 h-3.5 text-amber-400" />
+                <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                  <Coins className="w-3.5 h-3.5 text-amber-600" />
                 </div>
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">USDT (P2P)</span>
               </div>
-              <p className="text-xl font-bold text-amber-400 font-mono">
+              <p className="text-xl font-bold text-amber-600 font-mono">
                 {patrimonio.total_usdt?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
               </p>
-              <p className="text-[10px] text-slate-600 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_binance_usada, 2)}</p>
+              <p className="text-[10px] text-slate-500 font-mono mt-1">Tasa: {formatValue(patrimonio.tasa_binance_usada, 2)}</p>
             </div>
 
             {/* P&L */}
             <div className={cn(
-              "bg-black/20 border rounded-xl p-4",
-              isProfit ? "border-emerald-500/20" : "border-red-500/20"
+              "bg-slate-50 border rounded-xl p-4",
+              isProfit ? "border-emerald-200" : "border-rose-200"
             )}>
               <div className="flex items-center gap-2 mb-2">
                 <div className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center",
-                  isProfit ? "bg-emerald-500/15" : "bg-red-500/15"
+                  isProfit ? "bg-emerald-50" : "bg-red-500/15"
                 )}>
-                  {isProfit ? <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> : <TrendingDown className="w-3.5 h-3.5 text-red-400" />}
+                  {isProfit ? <TrendingUp className="w-3.5 h-3.5 text-emerald-600" /> : <TrendingDown className="w-3.5 h-3.5 text-rose-600" />}
                 </div>
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">P&L</span>
               </div>
-              <p className={cn("text-xl font-bold font-mono", isProfit ? 'text-emerald-400' : 'text-red-400')}>
+              <p className={cn("text-xl font-bold font-mono", isProfit ? 'text-emerald-600' : 'text-rose-600')}>
                 {isProfit ? '+' : ''}{patrimonio?.ganancia_perdida?.toLocaleString('es-VE', { minimumFractionDigits: 2 }) ?? '0.00'}
               </p>
-              <p className="text-[10px] text-slate-600 font-mono mt-1">Inv: {patrimonio?.total_inversion?.toLocaleString('es-VE', {minimumFractionDigits: 2}) ?? '0.00'} Bs</p>
+              <p className="text-[10px] text-slate-500 font-mono mt-1">Inv: {patrimonio?.total_inversion?.toLocaleString('es-VE', {minimumFractionDigits: 2}) ?? '0.00'} Bs</p>
             </div>
           </div>
         </div>
@@ -1732,11 +1563,11 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
         {/* Pie Chart */}
         {patrimonio.detalles.length > 1 && (
           <div className="lg:col-span-4">
-            <div className="relative rounded-2xl overflow-hidden border border-white/10 h-full">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200 h-full">
+              <div className="absolute inset-0 bg-white" />
               <div className="relative p-5">
                 <h4 className="text-sm font-bold mb-4 flex items-center gap-2">
-                  <PieChart className="w-4 h-4 text-purple-400" />
+                  <PieChart className="w-4 h-4 text-purple-600" />
                   Distribución
                 </h4>
                 <div className="h-56">
@@ -1756,7 +1587,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                           ))}
                         </Pie>
                         <Tooltip
-                          contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: '12px', color: '#e2e8f0' }}
+                          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid 'rgba(0,0,0,0.06)'', borderRadius: '10px', fontSize: '12px', color: '#94a3b8' }}
                           formatter={(value: any) => [`${formatValue(Number(value), 2)} USDT`, 'Valor']}
                         />
                       </RechartsPie>
@@ -1769,7 +1600,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                     <div key={item.ticker} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
-                        <span className="font-mono text-slate-300 font-medium">{item.ticker}</span>
+                        <span className="font-mono text-slate-700 font-medium">{item.ticker}</span>
                       </div>
                       <span className="font-mono text-slate-500">{formatValue(Number(item.valor_usdt), 0)} USDT</span>
                     </div>
@@ -1782,15 +1613,15 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
 
         {/* Tabla de Posiciones */}
         <div className={cn("lg:col-span-12", patrimonio.detalles.length > 1 && "lg:col-span-8")}>
-          <div className="relative rounded-2xl overflow-hidden border border-white/10">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
+          <div className="relative rounded-2xl overflow-hidden border border-slate-200">
+            <div className="absolute inset-0 bg-white" />
             <div className="relative p-5">
               <div className="flex items-center justify-between mb-5">
                 <h4 className="text-sm font-bold flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-emerald-400" />
+                  <Activity className="w-4 h-4 text-emerald-600" />
                   Posiciones Activas
                 </h4>
-                <span className="text-xs text-slate-500 font-mono bg-black/30 px-3 py-1 rounded-lg border border-white/5">
+                <span className="text-xs text-slate-500 font-mono bg-white px-3 py-1 rounded-lg border border-slate-200">
                   {patrimonio.detalles.length} activo{patrimonio.detalles.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -1798,7 +1629,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
               <div className="overflow-x-auto -mx-5 px-5">
                 <table className="w-full text-sm font-mono">
                   <thead>
-                    <tr className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-white/10">
+                    <tr className="text-[10px] text-slate-500 uppercase tracking-wider border-b border-slate-200">
                       <th className="text-left py-3 px-3 font-medium">Activo</th>
                       <th className="text-center py-3 px-3 font-medium">Cant.</th>
                       <th className="text-center py-3 px-3 font-medium">P. Compra</th>
@@ -1809,36 +1640,36 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                       <th className="text-center py-3 px-3 font-medium"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-slate-100">
                     {patrimonio.detalles.map((item: any, idx: number) => {
-                      const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-400' : 'text-red-400';
+                      const glColor = (item.gain_loss_pct || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
                       const GLOrrow = (item.gain_loss_pct || 0) >= 0 ? ArrowUpRight : ArrowDownRight;
                       const tasaBinance = patrimonio.tasa_binance_usada || 1;
                       const montoValorActual = (item.cantidad || 0) * (item.precio_bvc || 0);
                       const montoUsdt = montoValorActual / tasaBinance;
                       return (
-                        <tr key={item.ticker} className="hover:bg-white/5 transition-colors group">
+                        <tr key={item.ticker} className="hover:bg-slate-50 transition-colors group">
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-2.5">
                               <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
                               <div>
-                                <span className="font-bold text-white text-sm">{item.ticker}</span>
-                                {item.sector && <p className="text-[10px] text-slate-600">{item.sector}</p>}
+                                <span className="font-bold text-slate-900 text-sm">{item.ticker}</span>
+                                {item.sector && <p className="text-[10px] text-slate-500">{item.sector}</p>}
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                          <td className="py-3 px-3 text-center text-slate-700 text-sm">
                             {Math.floor(item.cantidad || 0).toLocaleString('es-VE')}
                           </td>
                           <td className="py-3 px-3 text-center text-slate-400 text-sm">
                             {formatValue(item.precio_promedio_compra, 2)}
                           </td>
-                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                          <td className="py-3 px-3 text-center text-slate-700 text-sm">
                             {formatValue(item.precio_bvc, 2)}
                           </td>
                           <td className="py-3 px-3 text-center">
                             <div className={cn("inline-flex items-center gap-1 font-mono font-bold text-sm px-2.5 py-1 rounded-lg",
-                              (item.gain_loss_pct || 0) >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                              (item.gain_loss_pct || 0) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                             )}>
                               <GLOrrow size={12} />
                               {formatPercent(item.gain_loss_pct, 2)}
@@ -1847,25 +1678,25 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                           <td className={cn("py-3 px-3 text-center font-semibold text-sm", glColor)}>
                             {formatValue(montoValorActual, 2)}
                           </td>
-                          <td className="py-3 px-3 text-center text-slate-300 text-sm">
+                          <td className="py-3 px-3 text-center text-slate-700 text-sm">
                             {formatValue(montoUsdt, 2)}
                           </td>
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-1.5 justify-center opacity-60 group-hover:opacity-100 transition-opacity" role="group" aria-label={`Acciones para ${item.ticker}`}>
                               <button onClick={() => handleOpenEdit(item)}
-                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-600 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white"
                                 aria-label={`Editar posición de ${item.ticker}`}
                                 title="Editar">
                                 <Edit2 className="w-3.5 h-3.5" aria-hidden="true" />
                               </button>
                               <button onClick={() => handleVerHistorico(item.ticker)}
-                                className="p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-400 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                className="p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-600 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white"
                                 aria-label={`Ver histórico de precios de ${item.ticker}`}
                                 title="Histórico">
                                 <History className="w-3.5 h-3.5" aria-hidden="true" />
                               </button>
                               <button onClick={() => { const id = item.id || item.portafolio_id; if (id) handleDeletePosition(id); }}
-                                className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0a0a0a]"
+                                className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-600 transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white"
                                 aria-label={`Eliminar posición de ${item.ticker}`}
                                 title="Eliminar">
                                 <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
@@ -1899,7 +1730,7 @@ function MercadoResumenView({ bvc, previousBvc, tasas, mounted, loading }: any) 
       <Card className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            <BarChart3 className="w-4 h-4 text-emerald-600" />
             RESUMEN DEL MERCADO
           </h3>
           <div className="text-xs text-slate-400 font-mono">
@@ -1909,27 +1740,27 @@ function MercadoResumenView({ bvc, previousBvc, tasas, mounted, loading }: any) 
 
         {/* Estadísticas generales */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+          <div className="bg-white border border-slate-200 rounded p-3">
             <p className="text-[10px] text-slate-500 uppercase">Total Operaciones</p>
-            <p className="text-lg font-bold text-white font-mono">
+            <p className="text-lg font-bold text-slate-900 font-mono">
               {bvc?.reduce((sum: number, a: any) => sum + (a.tot_op_negoc ?? 0), 0).toLocaleString('es-VE') || '—'}
             </p>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+          <div className="bg-white border border-slate-200 rounded p-3">
             <p className="text-[10px] text-slate-500 uppercase">Volumen Total</p>
-            <p className="text-lg font-bold text-white font-mono">
+            <p className="text-lg font-bold text-slate-900 font-mono">
               {bvc?.reduce((sum: number, a: any) => sum + (a.volumen ?? 0), 0).toLocaleString('es-VE') || '—'}
             </p>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+          <div className="bg-white border border-slate-200 rounded p-3">
             <p className="text-[10px] text-slate-500 uppercase">Monto Efectivo</p>
-            <p className="text-lg font-bold text-white font-mono">
+            <p className="text-lg font-bold text-slate-900 font-mono">
               {bvc?.reduce((sum: number, a: any) => sum + (a.monto_efectivo ?? 0), 0).toLocaleString('es-VE', { maximumFractionDigits: 2 }) || '—'} Bs
             </p>
           </div>
-          <div className="bg-[#0a0a0a] border border-[#262626] rounded p-3">
+          <div className="bg-white border border-slate-200 rounded p-3">
             <p className="text-[10px] text-slate-500 uppercase">Tasa BCV</p>
-            <p className="text-lg font-bold text-emerald-400 font-mono">
+            <p className="text-lg font-bold text-emerald-600 font-mono">
               {tasas?.bcv?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '—'} Bs/USD
             </p>
           </div>
@@ -1939,7 +1770,7 @@ function MercadoResumenView({ bvc, previousBvc, tasas, mounted, loading }: any) 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-[#262626]">
+              <tr className="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
                 <th className="text-left py-3 px-4 font-medium">#</th>
                 <th className="text-left py-3 px-4 font-medium">Símbolo</th>
                 <th className="text-right py-3 px-4 font-medium">Precio Bs</th>
@@ -1951,32 +1782,32 @@ function MercadoResumenView({ bvc, previousBvc, tasas, mounted, loading }: any) 
             </thead>
             <tbody className="text-sm">
               {bvcActivas.map((accion: any, idx: number) => (
-                <tr key={accion.simbolo} className="border-b border-[#1a1a1a] hover:bg-[#141414] transition-colors">
+                <tr key={accion.simbolo} className="border-b border-[#1a1a1a] hover:bg-slate-50 transition-colors">
                   <td className="py-3 px-4 text-slate-500 font-mono text-xs">{idx + 1}</td>
                   <td className="py-3 px-4">
                     <div>
-                      <p className="font-bold text-white">{accion.simbolo}</p>
+                      <p className="font-bold text-slate-900">{accion.simbolo}</p>
                       <p className="text-[10px] text-slate-500">{accion.desc_simb}</p>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-semibold text-white">
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-slate-900">
                     {accion.precio?.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '—'}
                   </td>
                   <td className="py-3 px-4 text-right">
                     <span className={cn(
                       "font-mono font-semibold",
-                      (accion.variacion_pct ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      (accion.variacion_pct ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'
                     )}>
                       {accion.variacion_pct?.toFixed(2) || '0.00'}%
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                  <td className="py-3 px-4 text-right font-mono text-slate-700">
                     {accion.volumen?.toLocaleString('es-VE') || '—'}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                  <td className="py-3 px-4 text-right font-mono text-slate-700">
                     {accion.monto_efectivo?.toLocaleString('es-VE', { maximumFractionDigits: 2 }) || '—'}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono text-slate-300">
+                  <td className="py-3 px-4 text-right font-mono text-slate-700">
                     {accion.tot_op_negoc?.toLocaleString('es-VE') || '—'}
                   </td>
                 </tr>
@@ -2040,7 +1871,7 @@ function AlertasView({ tasas, loading }: any) {
       <Card className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
+            <AlertCircle className="w-4 h-4 text-amber-600" />
             SISTEMA DE ALERTAS
           </h3>
         </div>
@@ -2053,13 +1884,13 @@ function AlertasView({ tasas, loading }: any) {
                 "flex items-center justify-between p-4 border rounded-lg transition-colors",
                 alerta.condicion
                   ? alerta.severidad === 'critical'
-                    ? 'bg-red-500/10 border-red-500/30'
+                    ? 'bg-rose-50 border-red-500/30'
                     : alerta.severidad === 'warning'
                       ? 'bg-amber-500/10 border-amber-500/30'
                       : alerta.severidad === 'success'
-                        ? 'bg-emerald-500/10 border-emerald-500/30'
+                        ? 'bg-emerald-50 border-emerald-500/30'
                         : 'bg-blue-500/10 border-blue-500/30'
-                  : 'bg-[#0a0a0a] border-[#262626]'
+                  : 'bg-white border-slate-200'
               )}
             >
               <div className="flex items-center gap-3">
@@ -2076,14 +1907,14 @@ function AlertasView({ tasas, loading }: any) {
                     : 'bg-slate-600'
                 )} />
                 <div>
-                  <p className="font-semibold text-white">{alerta.nombre}</p>
+                  <p className="font-semibold text-slate-900">{alerta.nombre}</p>
                   <p className="text-xs text-slate-400">Umbral: {alerta.umbral}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className={cn(
                   "font-mono font-bold",
-                  alerta.condicion ? 'text-white' : 'text-slate-400'
+                  alerta.condicion ? 'text-slate-900' : 'text-slate-400'
                 )}>
                   {alerta.valor}
                 </p>
@@ -2137,7 +1968,7 @@ function ExportarView({ apiUrl, getAuthHeaders }: { apiUrl: string; getAuthHeade
       <Card className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            <Download className="w-4 h-4 text-emerald-400" />
+            <Download className="w-4 h-4 text-emerald-600" />
             EXPORTAR DATOS
           </h3>
         </div>
@@ -2146,58 +1977,58 @@ function ExportarView({ apiUrl, getAuthHeaders }: { apiUrl: string; getAuthHeade
           <button
             onClick={() => handleExport('csv')}
             disabled={exporting !== null}
-            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-200 rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
           >
-            <div className="p-3 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
+            <div className="p-3 bg-emerald-50 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600">
                 <path d="M15 3v4a2 2 0 0 0 2 2h4"/><path d="M3 12v-3a9 9 0 0 1 9-9h4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1"/>
               </svg>
             </div>
             <div className="text-center">
-              <p className="font-semibold text-white">CSV</p>
+              <p className="font-semibold text-slate-900">CSV</p>
               <p className="text-xs text-slate-400">Hoja de cálculo</p>
             </div>
-            {exporting === 'csv' && <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />}
+            {exporting === 'csv' && <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />}
           </button>
 
           <button
             onClick={() => handleExport('xlsx')}
             disabled={exporting !== null}
-            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-200 rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
           >
             <div className="p-3 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
                 <path d="M15 3v4a2 2 0 0 0 2 2h4"/><path d="M3 12v-3a9 9 0 0 1 9-9h4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1"/>
               </svg>
             </div>
             <div className="text-center">
-              <p className="font-semibold text-white">Excel (XLSX)</p>
+              <p className="font-semibold text-slate-900">Excel (XLSX)</p>
               <p className="text-xs text-slate-400">Excel completo</p>
             </div>
-            {exporting === 'xlsx' && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+            {exporting === 'xlsx' && <Loader2 className="w-4 h-4 animate-spin text-blue-600" />}
           </button>
 
           <button
             onClick={() => handleExport('zip')}
             disabled={exporting !== null}
-            className="flex flex-col items-center gap-3 p-6 bg-[#0a0a0a] border border-[#262626] rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="flex flex-col items-center gap-3 p-6 bg-white border border-slate-200 rounded-lg hover:border-emerald-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
           >
             <div className="p-3 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600">
                 <path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><path d="M4 12H20"/><path d="M12 4v16"/>
               </svg>
             </div>
             <div className="text-center">
-              <p className="font-semibold text-white">ZIP</p>
+              <p className="font-semibold text-slate-900">ZIP</p>
               <p className="text-xs text-slate-400">Todos los datos</p>
             </div>
-            {exporting === 'zip' && <Loader2 className="w-4 h-4 animate-spin text-purple-400" />}
+            {exporting === 'zip' && <Loader2 className="w-4 h-4 animate-spin text-purple-600" />}
           </button>
         </div>
 
-        <div className="mt-6 p-4 bg-[#0a0a0a] border border-[#262626] rounded-lg">
+        <div className="mt-6 p-4 bg-white border border-slate-200 rounded-lg">
           <p className="text-xs text-slate-400">
-            <strong className="text-white">Nota:</strong> La exportación incluye tasas de cambio, datos BVC y resumen del mercado.
+            <strong className="text-slate-900">Nota:</strong> La exportación incluye tasas de cambio, datos BVC y resumen del mercado.
             Los archivos se descargarán automáticamente.
           </p>
         </div>

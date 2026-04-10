@@ -46,11 +46,11 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-[#141414] border border-red-500/30 rounded-lg p-6">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-slate-50 border border-rose-200 rounded-lg p-6">
             <div className="flex items-center gap-3 mb-4">
-              <AlertCircle className="w-8 h-8 text-red-400" />
-              <h1 className="text-xl font-bold text-white">Error en la Aplicación</h1>
+              <AlertCircle className="w-8 h-8 text-rose-600" />
+              <h1 className="text-xl font-bold text-slate-900">Error en la Aplicación</h1>
             </div>
             
             <p className="text-slate-400 text-sm mb-4">
@@ -59,10 +59,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {this.state.error && (
               <details className="mb-4">
-                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-300">
+                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-700">
                   Ver detalles del error
                 </summary>
-                <pre className="mt-2 p-3 bg-[#0a0a0a] rounded text-xs text-red-300 overflow-auto max-h-48">
+                <pre className="mt-2 p-3 bg-white rounded text-xs text-rose-600 overflow-auto max-h-48">
                   {this.state.error.toString()}
                 </pre>
               </details>
@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <button
               onClick={this.handleReset}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-lg font-medium transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Recargar Página
