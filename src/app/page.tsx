@@ -1587,7 +1587,7 @@ function PortafolioView({ patrimonio, mounted, onRefresh, fetchWithRetry, getAut
                           ))}
                         </Pie>
                         <Tooltip
-                          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid 'rgba(0,0,0,0.06)'', borderRadius: '10px', fontSize: '12px', color: '#94a3b8' }}
+                          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '10px', fontSize: '12px', color: '#94a3b8' }}
                           formatter={(value: any) => [`${formatValue(Number(value), 2)} USDT`, 'Valor']}
                         />
                       </RechartsPie>
